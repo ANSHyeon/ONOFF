@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--  Button Style  -->
+    <style name="SubmitButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:background">@color/green</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAppearance">@style/TextTitle18.Bold</item>
+    </style>
+
     <!--  Text Style  -->
     <style name="TextTitle18" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textSize">18sp</item>
