@@ -26,14 +26,25 @@
         android:label="@string/label_sign_in_destination"
         tools:layout="@layout/fragment_sign_in">
         <action
-            android:id="@+id/action_signIn_to_home"
-            app:destination="@id/navigation_home"
+            android:id="@+id/action_sign_in_to_info_input"
+            app:destination="@id/navigation_info_input"
             app:popUpTo="@id/navigation_sign_in"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.anshyeon.onoff.ui.home.HomeFragment"
         android:label="@string/label_home_destination"
         tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/navigation_info_input"
+        android:name="com.anshyeon.onoff.ui.infoInput.InfoInputFragment"
+        android:label="@string/label_info_input_destination"
+        tools:layout="@layout/fragment_info_input">
+        <action
+            android:id="@+id/action_info_input_to_home"
+            app:destination="@id/navigation_home"
+            app:popUpTo="@id/navigation_info_input"
+            app:popUpToInclusive="true"/>
+    </fragment>
 </navigation>

@@ -9,4 +9,5 @@
     <string name="label_info_input_destination">InfoInput</string>
     <string name="hint_info_input_nickname">닉네임을 입력하세요</string>
     <string name="btn_submit_user_info">시작하기</string>
+    <string name="guide_message_invalid_nick_name">2~6자 닉네임 입력해주세요.</string>
 </resources>

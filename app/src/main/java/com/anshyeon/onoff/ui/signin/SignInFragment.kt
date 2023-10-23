@@ -57,7 +57,7 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                         auth.signInWithCredential(firebaseCredential)
                             .addOnSuccessListener {
                                 Log.d("SignInActivity", "signInWithCredential:success")
-                                val action = SignInFragmentDirections.actionSignInToHome()
+                                val action = SignInFragmentDirections.actionSignInToInfoInput()
                                 findNavController().navigate(action)
                             }
                             .addOnFailureListener {
