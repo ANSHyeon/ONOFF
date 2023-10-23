@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/navigation_launcher">
+
+    <fragment
+        android:id="@+id/navigation_launcher"
+        android:name="com.anshyeon.onoff.ui.LauncherFragment"
+        android:label="@string/label_launcher_destination">
+        <action
+            android:id="@+id/action_launcher_to_home"
+            app:destination="@id/navigation_home"
+            app:popUpTo="@id/navigation_launcher"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_launcher_to_sign_in"
+            app:destination="@id/navigation_sign_in"
+            app:popUpTo="@id/navigation_launcher"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_sign_in"
+        android:name="com.anshyeon.onoff.ui.signin.SignInFragment"
+        android:label="@string/label_sign_in_destination"
+        tools:layout="@layout/fragment_sign_in">
+        <action
+            android:id="@+id/action_signIn_to_home"
+            app:destination="@id/navigation_home"
+            app:popUpTo="@id/navigation_sign_in"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.anshyeon.onoff.ui.home.HomeFragment"
+        android:label="@string/label_home_destination"
+        tools:layout="@layout/fragment_home" />
+</navigation>
