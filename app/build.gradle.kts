@@ -24,6 +24,11 @@ android {
         versionName = "1.0"
 
         buildConfigField("String", "GOOGLE_CLIENT_ID", properties["google_client_id"] as String)
+        buildConfigField(
+            "String",
+            "FIREBASE_REALTIME_DB_URL",
+            properties["firebase_realtime_db_url"] as String
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
