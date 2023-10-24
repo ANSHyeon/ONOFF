@@ -2,6 +2,7 @@ package com.anshyeon.onoff.ui.infoInput
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -15,6 +16,11 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
         InfoInputViewModel.provideFactory()
     }
 
+    private val getMultipleContents =
+        registerForActivityResult(ActivityResultContracts.GetContent()) {
+            binding.ivInfoInputProfile.setImageURI(it)
+        }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setLayout()
@@ -24,6 +30,13 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
         binding.viewModel = viewModel
         setSubmitButtonClickListener()
         setTextChangedListener()
+        setImageSelectorClickListener()
+    }
+
+    private fun setImageSelectorClickListener() {
+        binding.ivInfoInputCamera.setOnClickListener {
+            getMultipleContents.launch("image/*")
+        }
     }
 
     private fun setSubmitButtonClickListener() {
@@ -38,10 +51,4 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
             viewModel.isValidInfo(it?.toString() ?: "")
         }
     }
-
-//    private fun observeIsValidInfo() {
-//        viewModel.isValidInfo.observe(viewLifecycleOwner) {
-//            binding.btnSubmitUserInfo.isEnabled = it
-//        }
-//    }
 }

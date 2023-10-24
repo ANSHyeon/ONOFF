@@ -14,15 +14,17 @@
         android:layout_height="match_parent">
 
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/iv_info_input_profile"
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:layout_marginTop="90dp"
             android:src="@drawable/ic_profile"
+            android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
 
         <ImageView
             android:id="@+id/iv_info_input_camera_background"
