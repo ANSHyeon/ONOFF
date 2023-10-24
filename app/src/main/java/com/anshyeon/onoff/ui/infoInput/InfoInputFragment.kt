@@ -30,6 +30,7 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.isLogIn()
         setLayout()
     }
 
@@ -39,6 +40,7 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
         setTextChangedListener()
         setImageSelectorClickListener()
         observeIsSave()
+        observeIsLogIn()
     }
 
     private fun setImageSelectorClickListener() {
@@ -61,6 +63,15 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
 
     private fun observeIsSave() {
         viewModel.isSave.observe(viewLifecycleOwner) {
+            if (it) {
+                val action = InfoInputFragmentDirections.actionInfoInputToHome()
+                findNavController().navigate(action)
+            }
+        }
+    }
+
+    private fun observeIsLogIn() {
+        viewModel.isLogIn.observe(viewLifecycleOwner) {
             if (it) {
                 val action = InfoInputFragmentDirections.actionInfoInputToHome()
                 findNavController().navigate(action)

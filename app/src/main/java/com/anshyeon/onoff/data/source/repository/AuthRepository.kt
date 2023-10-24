@@ -22,6 +22,10 @@ class AuthRepository(private val apiClient: ApiClient) {
         return getCurrentUser()?.email ?: ""
     }
 
+    private fun getUid(): String {
+        return getCurrentUser()?.uid ?: ""
+    }
+
     private suspend fun getIdToken(): String {
         return getCurrentUser()?.getIdToken(true)?.await()?.token ?: ""
     }
@@ -41,6 +45,7 @@ class AuthRepository(private val apiClient: ApiClient) {
             getIdToken()
         )
         return apiClient.createUser(
+            getUid(),
             getIdToken(),
             user
         )
@@ -52,5 +57,10 @@ class AuthRepository(private val apiClient: ApiClient) {
         val imageRef = storageRef.child(location)
         imageRef.putFile(uri).await()
         return location
+    }
+
+    suspend fun getUser(
+    ): Response<Map<String, User>> {
+        return apiClient.getUser(getUid(), getIdToken())
     }
 }
