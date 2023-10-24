@@ -22,6 +22,9 @@ class InfoInputViewModel(private val repository: AuthRepository) : ViewModel() {
     private val _isSave = MutableLiveData<Boolean>(false)
     val isSave: LiveData<Boolean> = _isSave
 
+    private val _isLogIn = MutableLiveData<Boolean>(false)
+    val isLogIn: LiveData<Boolean> = _isLogIn
+
     fun updateNickName(text: String) {
         nickName.value = text
         _isValidInfo.value = isValidNickname(text)
@@ -30,6 +33,14 @@ class InfoInputViewModel(private val repository: AuthRepository) : ViewModel() {
     fun updateProfileImage(uri: Uri?) {
         uri?.let {
             imageUri.value = it
+        }
+    }
+
+    fun isLogIn() {
+        viewModelScope.launch {
+            if (repository.getUser().isSuccessful) {
+                _isLogIn.value = true
+            }
         }
     }
 
