@@ -9,6 +9,8 @@ import com.anshyeon.onoff.util.isValidNickname
 
 class InfoInputViewModel : ViewModel() {
 
+
+
     private val _isValidInfo = MutableLiveData<Boolean>(false)
     val isValidInfo: LiveData<Boolean> = _isValidInfo
 
