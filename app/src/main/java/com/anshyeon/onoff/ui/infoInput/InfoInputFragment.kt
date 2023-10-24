@@ -6,19 +6,26 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.anshyeon.onoff.OnOffApplication
 import com.anshyeon.onoff.R
+import com.anshyeon.onoff.data.source.repository.AuthRepository
 import com.anshyeon.onoff.databinding.FragmentInfoInputBinding
 import com.anshyeon.onoff.ui.BaseFragment
 
 class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragment_info_input) {
 
     private val viewModel by viewModels<InfoInputViewModel> {
-        InfoInputViewModel.provideFactory()
+        InfoInputViewModel.provideFactory(
+            repository = AuthRepository(
+                OnOffApplication.appContainer.provideApiClient()
+            )
+        )
     }
 
     private val getMultipleContents =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
             binding.ivInfoInputProfile.setImageURI(it)
+            viewModel.updateProfileImage(it)
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,6 +38,7 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
         setSubmitButtonClickListener()
         setTextChangedListener()
         setImageSelectorClickListener()
+        observeIsSave()
     }
 
     private fun setImageSelectorClickListener() {
@@ -41,14 +49,22 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
 
     private fun setSubmitButtonClickListener() {
         binding.btnSubmitUserInfo.setOnClickListener {
-            val action = InfoInputFragmentDirections.actionInfoInputToHome()
-            findNavController().navigate(action)
+            viewModel.saveUserInfo()
         }
     }
 
     private fun setTextChangedListener() {
         binding.etInfoInputNickName.doAfterTextChanged {
-            viewModel.isValidInfo(it?.toString() ?: "")
+            viewModel.updateNickName(it?.toString() ?: "")
+        }
+    }
+
+    private fun observeIsSave() {
+        viewModel.isSave.observe(viewLifecycleOwner) {
+            if (it) {
+                val action = InfoInputFragmentDirections.actionInfoInputToHome()
+                findNavController().navigate(action)
+            }
         }
     }
 }
