@@ -4,6 +4,9 @@
 
     <data>
 
+        <variable
+            name="viewModel"
+            type="com.anshyeon.onoff.ui.infoInput.InfoInputViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -63,6 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_gravity="bottom"
+            android:enabled="@{viewModel.isValidInfo}"
             android:text="@string/btn_submit_user_info"
             app:layout_constraintBottom_toBottomOf="parent" />
 
