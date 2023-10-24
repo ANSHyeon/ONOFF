@@ -6,6 +6,7 @@ plugins {
     id("com.google.gms.google-services")
     id("kotlin-kapt")
     id("androidx.navigation.safeargs")
+    id("kotlin-parcelize")
 }
 
 val properties = Properties()
