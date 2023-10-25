@@ -16,14 +16,14 @@ class InfoInputViewModel(private val repository: AuthRepository) : ViewModel() {
     private val nickName = MutableLiveData<String>()
     private val imageUri = MutableLiveData<Uri>()
 
+    private val _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
     private val _isValidInfo = MutableLiveData<Boolean>(false)
     val isValidInfo: LiveData<Boolean> = _isValidInfo
 
     private val _isSave = MutableLiveData<Boolean>(false)
     val isSave: LiveData<Boolean> = _isSave
-
-    private val _isLogIn = MutableLiveData<Boolean>(false)
-    val isLogIn: LiveData<Boolean> = _isLogIn
 
     fun updateNickName(text: String) {
         nickName.value = text
@@ -36,18 +36,12 @@ class InfoInputViewModel(private val repository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun isLogIn() {
-        viewModelScope.launch {
-            if (repository.getUser().isSuccessful) {
-                _isLogIn.value = true
-            }
-        }
-    }
-
     fun saveUserInfo() {
         viewModelScope.launch {
+            _isLoading.value = true
             nickName.value?.let {
                 repository.createUser(it, imageUri.value)
+                repository.saveIdToken()
             }
             _isSave.value = true
         }

@@ -40,14 +40,17 @@ class AuthRepository(private val apiClient: ApiClient) {
             email = getEmail(),
             profileUri = uriLocation,
         )
-        OnOffApplication.preferencesManager.setGoogleIdToken(
-            Constants.KEY_GOOGLE_ID_TOKEN,
-            getIdToken()
-        )
         return apiClient.createUser(
             getUid(),
             getIdToken(),
             user
+        )
+    }
+
+    suspend fun saveIdToken() {
+        OnOffApplication.preferencesManager.setGoogleIdToken(
+            Constants.KEY_GOOGLE_ID_TOKEN,
+            getIdToken()
         )
     }
 
