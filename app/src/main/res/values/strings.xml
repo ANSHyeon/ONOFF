@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">onoff</string>
+    <string name="app_title">오노프</string>
+    <string name="label_post_destination">Post</string>
+    <string name="label_home_destination">Home</string>
+    <string name="label_sign_in_destination">SignIn</string>
+    <string name="label_launcher_destination">Launcher</string>
+    <string name="label_detail_destination">Detail</string>
 </resources>

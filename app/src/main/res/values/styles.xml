@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  Text Style  -->
+    <style name="TextTitle18" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextTitle18.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextBody16" parent="TextAppearance.Material3.BodyLarge" />
+
+    <style name="TextBody16.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextBody14" parent="TextAppearance.Material3.BodyMedium" />
+
+    <style name="TextBody12" parent="TextAppearance.Material3.BodySmall" />
+
+</resources>
