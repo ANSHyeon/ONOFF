@@ -8,15 +8,9 @@ import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.BuildConfig
-import com.anshyeon.onoff.OnOffApplication
 import com.anshyeon.onoff.R
-import com.anshyeon.onoff.data.source.repository.AuthRepository
 import com.anshyeon.onoff.databinding.FragmentSignInBinding
 import com.anshyeon.onoff.ui.BaseFragment
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
@@ -27,17 +21,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
 
 class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sign_in) {
 
-    private val viewModel by viewModels<SignInViewModel> {
-        SignInViewModel.provideFactory(
-            repository = AuthRepository(
-                OnOffApplication.appContainer.provideApiClient()
-            )
-        )
-    }
     private lateinit var auth: FirebaseAuth
     private lateinit var oneTapClient: SignInClient
     private lateinit var signInRequest: BeginSignInRequest
@@ -53,9 +39,6 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.viewModel = viewModel
-        observeHasUserInfo()
-        observeIsSaveUserInfo()
         binding.btnGoogleSignIn.setOnClickListener {
             signIn()
         }
@@ -73,7 +56,9 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                         val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
                         auth.signInWithCredential(firebaseCredential)
                             .addOnSuccessListener {
-                                viewModel.getUserInfo()
+                                Log.d("SignInActivity", "signInWithCredential:success")
+                                val action = SignInFragmentDirections.actionSignInToHome()
+                                findNavController().navigate(action)
                             }
                             .addOnFailureListener {
                                 Log.w(
@@ -119,37 +104,5 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
             .addOnFailureListener(requireActivity()) { e ->
                 Log.d("SignInActivity", "No saved credentials found: ${e.message}")
             }
-    }
-
-    private fun observeHasUserInfo() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.hasUserInfo.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect { hasUserInfo ->
-                if (hasUserInfo) {
-                    viewModel.saveUserInfo()
-                } else {
-                    val action = SignInFragmentDirections.actionSignInToInfoInput()
-                    findNavController().navigate(action)
-                }
-
-            }
-        }
-    }
-
-    private fun observeIsSaveUserInfo() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isSaveUserInfo.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect { isSaveUserInfo ->
-                if (isSaveUserInfo) {
-                    val action = SignInFragmentDirections.actionSignInToHome()
-                    findNavController().navigate(action)
-                }
-
-            }
-        }
     }
 }
