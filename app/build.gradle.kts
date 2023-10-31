@@ -30,6 +30,11 @@ android {
             "FIREBASE_REALTIME_DB_URL",
             properties["firebase_realtime_db_url"] as String
         )
+        buildConfigField(
+            "String",
+            "NAVER_MAPS_CLIENT_ID",
+            properties["naver_maps_client_id"] as String
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -79,6 +84,7 @@ dependencies {
 
     //Google
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     //Network
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -91,6 +97,9 @@ dependencies {
     //Hilt
     implementation("com.google.dagger:hilt-android:2.48.1")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
+
+    // 네이버 지도 SDK
+    implementation("com.naver.maps:map-sdk:3.17.0")
 }
 
 // Allow references to generated code
