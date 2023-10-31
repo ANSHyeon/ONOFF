@@ -35,6 +35,8 @@ android {
             "NAVER_MAPS_CLIENT_ID",
             properties["naver_maps_client_id"] as String
         )
+        manifestPlaceholders["NAVER_MAPS_CLIENT_ID_MANIFEST"] =
+            properties["naver_maps_client_id_manifest"] as String
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
