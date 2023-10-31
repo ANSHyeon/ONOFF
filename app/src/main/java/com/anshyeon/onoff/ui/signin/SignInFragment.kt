@@ -14,9 +14,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.BuildConfig
-import com.anshyeon.onoff.OnOffApplication
 import com.anshyeon.onoff.R
-import com.anshyeon.onoff.data.source.repository.AuthRepository
 import com.anshyeon.onoff.databinding.FragmentSignInBinding
 import com.anshyeon.onoff.ui.BaseFragment
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
@@ -27,17 +25,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sign_in) {
 
-    private val viewModel by viewModels<SignInViewModel> {
-        SignInViewModel.provideFactory(
-            repository = AuthRepository(
-                OnOffApplication.appContainer.provideApiClient()
-            )
-        )
-    }
+    private val viewModel by viewModels<SignInViewModel>()
     private lateinit var auth: FirebaseAuth
     private lateinit var oneTapClient: SignInClient
     private lateinit var signInRequest: BeginSignInRequest

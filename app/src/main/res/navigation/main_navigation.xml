@@ -7,18 +7,14 @@
 
     <fragment
         android:id="@+id/navigation_launcher"
-        android:name="com.anshyeon.onoff.ui.LauncherFragment"
+        android:name="com.anshyeon.onoff.ui.launcher.LauncherFragment"
         android:label="@string/label_launcher_destination">
         <action
-            android:id="@+id/action_launcher_to_home"
-            app:destination="@id/navigation_home"
-            app:popUpTo="@id/navigation_launcher"
-            app:popUpToInclusive="true" />
-        <action
             android:id="@+id/action_launcher_to_sign_in"
-            app:destination="@id/navigation_sign_in"
-            app:popUpTo="@id/navigation_launcher"
-            app:popUpToInclusive="true" />
+            app:destination="@id/navigation_sign_in" />
+        <action
+            android:id="@+id/action_launcher_to_home"
+            app:destination="@id/navigation_home" />
     </fragment>
     <fragment
         android:id="@+id/navigation_sign_in"

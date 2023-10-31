@@ -1,8 +1,10 @@
 package com.anshyeon.onoff.data
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class PreferenceManager(context: Context) {
+class PreferenceManager @Inject constructor(@ApplicationContext context: Context) {
     private val sharedPreferences = context.getSharedPreferences(
         "com.anshyeon.onoff.PREFERENCE_KEY",
         Context.MODE_PRIVATE

@@ -4,14 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.anshyeon.onoff.data.source.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SignInViewModel(private val repository: AuthRepository) : ViewModel() {
+@HiltViewModel
+class SignInViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
 
     private val _hasUserInfo = MutableSharedFlow<Boolean>()
     val hasUserInfo = _hasUserInfo.asSharedFlow()
@@ -33,15 +34,6 @@ class SignInViewModel(private val repository: AuthRepository) : ViewModel() {
         viewModelScope.launch {
             repository.saveIdToken()
             _isSaveUserInfo.emit(true)
-        }
-    }
-
-    companion object {
-
-        fun provideFactory(repository: AuthRepository) = viewModelFactory {
-            initializer {
-                SignInViewModel(repository)
-            }
         }
     }
 }

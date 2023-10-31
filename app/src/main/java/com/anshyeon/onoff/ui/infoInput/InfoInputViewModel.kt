@@ -5,13 +5,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.anshyeon.onoff.data.source.repository.AuthRepository
 import com.anshyeon.onoff.util.isValidNickname
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class InfoInputViewModel(private val repository: AuthRepository) : ViewModel() {
+@HiltViewModel
+class InfoInputViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
 
     private val nickName = MutableLiveData<String>()
     private val imageUri = MutableLiveData<Uri>()
@@ -44,15 +45,6 @@ class InfoInputViewModel(private val repository: AuthRepository) : ViewModel() {
                 repository.saveIdToken()
             }
             _isSave.value = true
-        }
-    }
-
-    companion object {
-
-        fun provideFactory(repository: AuthRepository) = viewModelFactory {
-            initializer {
-                InfoInputViewModel(repository)
-            }
         }
     }
 }

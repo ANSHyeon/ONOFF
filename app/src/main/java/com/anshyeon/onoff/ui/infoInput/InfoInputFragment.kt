@@ -6,21 +6,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.anshyeon.onoff.OnOffApplication
 import com.anshyeon.onoff.R
-import com.anshyeon.onoff.data.source.repository.AuthRepository
 import com.anshyeon.onoff.databinding.FragmentInfoInputBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragment_info_input) {
 
-    private val viewModel by viewModels<InfoInputViewModel> {
-        InfoInputViewModel.provideFactory(
-            repository = AuthRepository(
-                OnOffApplication.appContainer.provideApiClient()
-            )
-        )
-    }
+    private val viewModel by viewModels<InfoInputViewModel>()
 
     private val getMultipleContents =
         registerForActivityResult(ActivityResultContracts.GetContent()) {
