@@ -1,16 +1,22 @@
 package com.anshyeon.onoff.ui.home
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
+import androidx.core.content.PermissionChecker
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentHomeBinding
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.showMessage
+import com.anshyeon.onoff.util.Constants
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
@@ -23,8 +29,10 @@ import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("MissingPermission")
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), OnMapReadyCallback {
 
@@ -33,17 +41,40 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
     private lateinit var naverMap: NaverMap
     private lateinit var fusedLocationSource: FusedLocationSource
     private lateinit var client: FusedLocationProviderClient
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                viewModel.updateIsPermissionGranted(true)
+            }
+
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                viewModel.updateIsPermissionGranted(true)
+            }
+
+            else -> {
+                viewModel.updateIsPermissionGranted(false)
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        locationPermissionRequest.launch(
+            PERMISSIONS
+        )
+        client = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+    }
 
     @UiThread
     override fun onMapReady(map: NaverMap) {
-        client = LocationServices.getFusedLocationProviderClient(requireActivity())
-        fusedLocationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
         naverMap = map.apply {
             locationSource = fusedLocationSource
             locationTrackingMode = LocationTrackingMode.Follow
             uiSettings.isLocationButtonEnabled = true
         }
-        setNaverMapZoom()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,31 +88,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
 
     private fun setLayout() {
         binding.viewModel = viewModel
-        viewModel.getChatRooms()
         observeChatRoomList()
         setSnackBarMessage()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        if (fusedLocationSource.onRequestPermissionsResult(
-                requestCode, permissions,
-                grantResults
-            )
-        ) {
-            if (!fusedLocationSource.isActivated) {
-                naverMap.locationTrackingMode = LocationTrackingMode.None
-            }
-            fusedLocationSource.lastLocation?.let {
-                moveMapCamera(it.longitude, it.latitude)
-            }
-            return
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        observeIsPermissionGranted()
     }
 
     private fun observeChatRoomList() {
@@ -95,6 +104,25 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                     marker.position =
                         LatLng(chatRoom.latitude.toDouble(), chatRoom.longitude.toDouble())
                     marker.map = naverMap
+                }
+                setNaverMapZoom()
+            }
+        }
+    }
+
+    private fun observeIsPermissionGranted() {
+        lifecycleScope.launch {
+            viewModel.isPermissionGranted.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                if (!it) {
+                    val action =
+                        HomeFragmentDirections.actionNavigationHomeToPermissionOffDialogFragment()
+                    findNavController().navigate(action)
+                } else {
+                    viewModel.getChatRooms()
+                    dismissDialog()
                 }
             }
         }
@@ -121,9 +149,29 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         naverMap.maxZoom = 18.0
         naverMap.minZoom = 7.0
 
-        fusedLocationSource.lastLocation?.let {
-            moveMapCamera(it.longitude, it.latitude)
+        client.lastLocation.addOnSuccessListener { startLocation ->
+            moveMapCamera(startLocation.longitude, startLocation.latitude)
         }
+    }
+
+    private suspend fun dismissDialog() {
+        val currentNavDestination = findNavController().currentDestination?.label.toString()
+        val a = getString(R.string.label_location_permission_off_destination)
+        if (currentNavDestination == a) {
+            delay(Constants.DELAY_DURATION)
+            navigateUp()
+        }
+    }
+
+    private fun hasPermission(): Boolean {
+        return PermissionChecker.checkSelfPermission(requireContext(), PERMISSIONS[0]) ==
+                PermissionChecker.PERMISSION_GRANTED ||
+                PermissionChecker.checkSelfPermission(requireContext(), PERMISSIONS[1]) ==
+                PermissionChecker.PERMISSION_GRANTED
+    }
+
+    private fun navigateUp() {
+        findNavController().navigateUp()
     }
 
     override fun onStart() {
@@ -134,6 +182,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
     override fun onResume() {
         super.onResume()
         mapView.onResume()
+        if (hasPermission()) {
+            viewModel.updateIsPermissionGranted(true)
+        }
     }
 
     override fun onPause() {
@@ -163,5 +214,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+        private val PERMISSIONS = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
     }
 }
