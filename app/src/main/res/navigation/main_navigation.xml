@@ -31,7 +31,7 @@
             app:popUpTo="@id/navigation_sign_in"
             app:popUpToInclusive="true" />
         <action
-            android:id="@+id/action__sign_in_to_home"
+            android:id="@+id/action_sign_in_to_home"
             app:destination="@id/navigation_home"
             app:popUpTo="@id/navigation_sign_in"
             app:popUpToInclusive="true" />

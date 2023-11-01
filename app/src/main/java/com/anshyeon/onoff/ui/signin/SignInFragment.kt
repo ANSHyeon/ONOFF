@@ -133,7 +133,6 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                     val action = SignInFragmentDirections.actionSignInToInfoInput()
                     findNavController().navigate(action)
                 }
-
             }
         }
     }
@@ -148,7 +147,6 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                     val action = SignInFragmentDirections.actionSignInToHome()
                     findNavController().navigate(action)
                 }
-
             }
         }
     }
