@@ -1,11 +1,8 @@
 package com.anshyeon.onoff.ui.home
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.UiThread
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -13,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentHomeBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.ui.extensions.showMessage
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
@@ -54,9 +52,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
+        setLayout()
+    }
+
+    private fun setLayout() {
         binding.viewModel = viewModel
         viewModel.getChatRooms()
         observeChatRoomList()
+        setSnackBarMessage()
     }
 
     @Deprecated("Deprecated in Java")
@@ -73,25 +76,37 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             if (!fusedLocationSource.isActivated) {
                 naverMap.locationTrackingMode = LocationTrackingMode.None
             }
+            fusedLocationSource.lastLocation?.let {
+                moveMapCamera(it.longitude, it.latitude)
+            }
             return
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     private fun observeChatRoomList() {
-        viewLifecycleOwner.lifecycleScope.launch {
+        lifecycleScope.launch {
             viewModel.chatRoomList.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
-                if (it.isNotEmpty()) {
-                    it.forEach { chatRoom ->
-                        val marker = Marker()
-                        marker.position =
-                            LatLng(chatRoom.latitude.toDouble(), chatRoom.longitude.toDouble())
-                        marker.map = naverMap
-                    }
+                it.forEach { chatRoom ->
+                    val marker = Marker()
+                    marker.position =
+                        LatLng(chatRoom.latitude.toDouble(), chatRoom.longitude.toDouble())
+                    marker.map = naverMap
                 }
+            }
+        }
+    }
+
+    private fun setSnackBarMessage() {
+        lifecycleScope.launch {
+            viewModel.snackBarText.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                binding.root.showMessage(it)
             }
         }
     }
@@ -106,17 +121,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         naverMap.maxZoom = 18.0
         naverMap.minZoom = 7.0
 
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            client.lastLocation.addOnSuccessListener { startLocation ->
-                moveMapCamera(startLocation.longitude, startLocation.latitude)
-            }
+        fusedLocationSource.lastLocation?.let {
+            moveMapCamera(it.longitude, it.latitude)
         }
     }
 

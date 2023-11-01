@@ -17,6 +17,7 @@ import com.anshyeon.onoff.BuildConfig
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentSignInBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.ui.extensions.showMessage
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -47,9 +48,14 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setLayout()
+    }
+
+    private fun setLayout() {
         binding.viewModel = viewModel
         observeHasUserInfo()
         observeIsSaveUserInfo()
+        setSnackBarMessage()
         binding.btnGoogleSignIn.setOnClickListener {
             signIn()
         }
@@ -75,6 +81,7 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                                     "signInWithCredential:failure",
                                     it
                                 )
+                                binding.root.showMessage(R.string.message_sign_in_failure)
                             }
                     }
 
@@ -112,6 +119,7 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
             }
             .addOnFailureListener(requireActivity()) { e ->
                 Log.d("SignInActivity", "No saved credentials found: ${e.message}")
+                binding.root.showMessage(R.string.message_sign_in_failure)
             }
     }
 
@@ -132,7 +140,7 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
     }
 
     private fun observeIsSaveUserInfo() {
-        viewLifecycleOwner.lifecycleScope.launch {
+        lifecycleScope.launch {
             viewModel.isSaveUserInfo.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
@@ -141,6 +149,17 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                     val action = SignInFragmentDirections.actionSignInToHome()
                     findNavController().navigate(action)
                 }
+            }
+        }
+    }
+
+    private fun setSnackBarMessage() {
+        lifecycleScope.launch {
+            viewModel.snackBarText.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                binding.root.showMessage(it)
             }
         }
     }

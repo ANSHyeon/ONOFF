@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">onoff</string>
     <string name="app_title">오노프</string>
+    <string name="message_sign_in_failure">로그인에 실패했습니다. 잠시 후 다시 시도해주세요.</string>
+    <string name="error_message_retry">잠시 후 다시 시도해주세요</string>
     <string name="label_post_destination">Post</string>
     <string name="label_home_destination">Home</string>
     <string name="label_sign_in_destination">SignIn</string>

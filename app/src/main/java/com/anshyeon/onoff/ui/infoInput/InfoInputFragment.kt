@@ -5,11 +5,16 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentInfoInputBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.ui.extensions.showMessage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragment_info_input) {
@@ -33,6 +38,7 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
         setTextChangedListener()
         setImageSelectorClickListener()
         observeIsSave()
+        setSnackBarMessage()
     }
 
     private fun setImageSelectorClickListener() {
@@ -54,10 +60,25 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
     }
 
     private fun observeIsSave() {
-        viewModel.isSave.observe(viewLifecycleOwner) {
-            if (it) {
-                val action = InfoInputFragmentDirections.actionInfoInputToHome()
-                findNavController().navigate(action)
+        lifecycleScope.launch {
+            viewModel.isSave
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    if (it) {
+                        val action = InfoInputFragmentDirections.actionInfoInputToHome()
+                        findNavController().navigate(action)
+                    }
+                }
+        }
+    }
+
+    private fun setSnackBarMessage() {
+        lifecycleScope.launch {
+            viewModel.snackBarText.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                binding.btnSubmitUserInfo.showMessage(it)
             }
         }
     }
