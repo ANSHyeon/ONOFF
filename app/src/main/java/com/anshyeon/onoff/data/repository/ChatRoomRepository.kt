@@ -1,8 +1,8 @@
-package com.anshyeon.onoff.data.source.repository
+package com.anshyeon.onoff.data.repository
 
 import com.anshyeon.onoff.data.model.ChatRoom
-import com.anshyeon.onoff.data.source.ApiClient
-import retrofit2.Response
+import com.anshyeon.onoff.network.ApiClient
+import com.anshyeon.onoff.network.model.ApiResponse
 import javax.inject.Inject
 
 class ChatRoomRepository @Inject constructor(
@@ -10,7 +10,7 @@ class ChatRoomRepository @Inject constructor(
 ) : BaseRepository() {
 
     suspend fun getChatRoom(
-    ): Response<Map<String, ChatRoom>> {
+    ): ApiResponse<Map<String, ChatRoom>> {
         return apiClient.getChatRoom(
             getIdToken()
         )

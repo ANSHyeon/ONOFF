@@ -1,11 +1,15 @@
 package com.anshyeon.onoff.ui.infoInput
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.anshyeon.onoff.data.source.repository.AuthRepository
+import com.anshyeon.onoff.data.repository.AuthRepository
+import com.anshyeon.onoff.network.extentions.onError
+import com.anshyeon.onoff.network.extentions.onException
+import com.anshyeon.onoff.network.extentions.onSuccess
 import com.anshyeon.onoff.util.isValidNickname
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -41,10 +45,17 @@ class InfoInputViewModel @Inject constructor(private val repository: AuthReposit
         viewModelScope.launch {
             _isLoading.value = true
             nickName.value?.let {
-                repository.createUser(it, imageUri.value)
-                repository.saveIdToken()
+                val result = repository.createUser(it, imageUri.value)
+                result.onSuccess {
+                    repository.saveIdToken()
+                    _isSave.value = true
+                }.onError { code, message ->
+                    Log.d("HomeViewModel", "${code}---${message}")
+                }.onException {
+                    Log.d("HomeViewModel", "$it")
+                }
             }
-            _isSave.value = true
+
         }
     }
 }

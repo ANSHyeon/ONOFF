@@ -1,10 +1,14 @@
 package com.anshyeon.onoff.ui.signin
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.anshyeon.onoff.data.source.repository.AuthRepository
+import com.anshyeon.onoff.data.repository.AuthRepository
+import com.anshyeon.onoff.network.extentions.onError
+import com.anshyeon.onoff.network.extentions.onException
+import com.anshyeon.onoff.network.extentions.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -26,7 +30,14 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
     fun getUserInfo() {
         viewModelScope.launch {
             _isLoading.value = true
-            _hasUserInfo.emit(!repository.getUser().body().isNullOrEmpty())
+            val result = repository.getUser()
+            result.onSuccess {
+                _hasUserInfo.emit(it.isNotEmpty())
+            }.onError { code, message ->
+                Log.d("SignInViewModel", "${code}---${message}")
+            }.onException {
+                Log.d("SignInViewModel", "$it")
+            }
         }
     }
 

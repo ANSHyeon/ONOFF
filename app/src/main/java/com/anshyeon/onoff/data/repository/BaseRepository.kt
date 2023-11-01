@@ -1,4 +1,4 @@
-package com.anshyeon.onoff.data.source.repository
+package com.anshyeon.onoff.data.repository
 
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth

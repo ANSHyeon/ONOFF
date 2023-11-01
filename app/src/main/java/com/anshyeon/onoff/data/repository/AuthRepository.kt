@@ -1,13 +1,13 @@
-package com.anshyeon.onoff.data.source.repository
+package com.anshyeon.onoff.data.repository
 
 import android.net.Uri
 import com.anshyeon.onoff.data.PreferenceManager
 import com.anshyeon.onoff.data.model.User
-import com.anshyeon.onoff.data.source.ApiClient
+import com.anshyeon.onoff.network.ApiClient
+import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.util.Constants
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
-import retrofit2.Response
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -27,10 +27,17 @@ class AuthRepository @Inject constructor(
         return preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
     }
 
+    suspend fun saveIdToken() {
+        preferenceManager.setGoogleIdToken(
+            Constants.KEY_GOOGLE_ID_TOKEN,
+            getIdToken()
+        )
+    }
+
     suspend fun createUser(
         nickname: String,
         uri: Uri?
-    ): Response<Map<String, String>> {
+    ): ApiResponse<Map<String, String>> {
         val uriLocation = uri?.let { uploadImage(it) }
         val user = User(
             nickName = nickname,
@@ -44,11 +51,9 @@ class AuthRepository @Inject constructor(
         )
     }
 
-    suspend fun saveIdToken() {
-        preferenceManager.setGoogleIdToken(
-            Constants.KEY_GOOGLE_ID_TOKEN,
-            getIdToken()
-        )
+    suspend fun getUser(
+    ): ApiResponse<Map<String, User>> {
+        return apiClient.getUser(getUid(), getIdToken())
     }
 
     private suspend fun uploadImage(uri: Uri): String {
@@ -57,10 +62,5 @@ class AuthRepository @Inject constructor(
         val imageRef = storageRef.child(location)
         imageRef.putFile(uri).await()
         return location
-    }
-
-    suspend fun getUser(
-    ): Response<Map<String, User>> {
-        return apiClient.getUser(getUid(), getIdToken())
     }
 }

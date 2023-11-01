@@ -1,11 +1,15 @@
 package com.anshyeon.onoff.ui.home
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.data.model.ChatRoom
-import com.anshyeon.onoff.data.source.repository.ChatRoomRepository
+import com.anshyeon.onoff.data.repository.ChatRoomRepository
+import com.anshyeon.onoff.network.extentions.onError
+import com.anshyeon.onoff.network.extentions.onException
+import com.anshyeon.onoff.network.extentions.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -24,9 +28,13 @@ class HomeViewModel @Inject constructor(private val repository: ChatRoomReposito
     fun getChatRooms() {
         viewModelScope.launch {
             _isLoading.value = true
-            val response = repository.getChatRoom().body()?.values
-            response?.toList()?.let {
-                _chatRoomList.emit(it)
+            val result = repository.getChatRoom()
+            result.onSuccess {
+                _chatRoomList.emit(it.values.toList())
+            }.onError { code, message ->
+                Log.d("HomeViewModel", "${code}---${message}")
+            }.onException {
+                Log.d("HomeViewModel", "$it")
             }
             _isLoading.value = false
         }
