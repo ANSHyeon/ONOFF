@@ -1,7 +1,7 @@
 package com.anshyeon.onoff.data.source.repository
 
 import android.net.Uri
-import com.anshyeon.onoff.OnOffApplication
+import com.anshyeon.onoff.data.PreferenceManager
 import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.data.source.ApiClient
 import com.anshyeon.onoff.util.Constants
@@ -11,8 +11,12 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import retrofit2.Response
+import javax.inject.Inject
 
-class AuthRepository(private val apiClient: ApiClient) {
+class AuthRepository @Inject constructor(
+    private val apiClient: ApiClient,
+    private val preferenceManager: PreferenceManager
+) {
 
     private fun getCurrentUser(): FirebaseUser? {
         return Firebase.auth.currentUser
@@ -28,6 +32,10 @@ class AuthRepository(private val apiClient: ApiClient) {
 
     private suspend fun getIdToken(): String {
         return getCurrentUser()?.getIdToken(true)?.await()?.token ?: ""
+    }
+
+    fun getLocalIdToken(): String {
+        return preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
     }
 
     suspend fun createUser(
@@ -48,7 +56,7 @@ class AuthRepository(private val apiClient: ApiClient) {
     }
 
     suspend fun saveIdToken() {
-        OnOffApplication.preferencesManager.setGoogleIdToken(
+        preferenceManager.setGoogleIdToken(
             Constants.KEY_GOOGLE_ID_TOKEN,
             getIdToken()
         )
