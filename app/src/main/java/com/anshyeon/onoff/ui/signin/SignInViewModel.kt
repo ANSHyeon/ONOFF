@@ -47,6 +47,13 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
         }
     }
 
+    fun updateSnackBarMessage(message: Int) {
+        viewModelScope.launch {
+            _snackBarText.emit(message)
+        }
+
+    }
+
     fun saveUserInfo() {
         viewModelScope.launch {
             repository.saveIdToken()

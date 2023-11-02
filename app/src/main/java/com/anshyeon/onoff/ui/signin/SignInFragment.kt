@@ -17,11 +17,11 @@ import com.anshyeon.onoff.BuildConfig
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentSignInBinding
 import com.anshyeon.onoff.ui.BaseFragment
-import com.anshyeon.onoff.ui.extensions.showMessage
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
@@ -81,7 +81,7 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                                     "signInWithCredential:failure",
                                     it
                                 )
-                                binding.root.showMessage(R.string.message_sign_in_failure)
+                                viewModel.updateSnackBarMessage(R.string.message_sign_in_failure)
                             }
                     }
 
@@ -119,7 +119,7 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
             }
             .addOnFailureListener(requireActivity()) { e ->
                 Log.d("SignInActivity", "No saved credentials found: ${e.message}")
-                binding.root.showMessage(R.string.message_sign_in_failure)
+                viewModel.updateSnackBarMessage(R.string.message_sign_in_failure)
             }
     }
 
@@ -159,7 +159,11 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
-                binding.root.showMessage(it)
+                Snackbar.make(
+                    binding.root,
+                    getString(it),
+                    Snackbar.LENGTH_SHORT,
+                ).show()
             }
         }
     }

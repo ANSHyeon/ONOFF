@@ -5,6 +5,7 @@ import com.anshyeon.onoff.data.PreferenceManager
 import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.network.ApiClient
 import com.anshyeon.onoff.network.model.ApiResponse
+import com.anshyeon.onoff.network.model.ApiResultException
 import com.anshyeon.onoff.util.Constants
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
@@ -38,22 +39,30 @@ class AuthRepository @Inject constructor(
         nickname: String,
         uri: Uri?
     ): ApiResponse<Map<String, String>> {
-        val uriLocation = uri?.let { uploadImage(it) }
-        val user = User(
-            nickName = nickname,
-            email = getEmail(),
-            profileUri = uriLocation,
-        )
-        return apiClient.createUser(
-            getUid(),
-            getIdToken(),
-            user
-        )
+        return try {
+            val uriLocation = uri?.let { uploadImage(it) }
+            val user = User(
+                nickName = nickname,
+                email = getEmail(),
+                profileUri = uriLocation,
+            )
+            apiClient.createUser(
+                getUid(),
+                getIdToken(),
+                user
+            )
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
     }
 
     suspend fun getUser(
     ): ApiResponse<Map<String, User>> {
-        return apiClient.getUser(getUid(), getIdToken())
+        return try {
+            apiClient.getUser(getUid(), getIdToken())
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
     }
 
     private suspend fun uploadImage(uri: Uri): String {
