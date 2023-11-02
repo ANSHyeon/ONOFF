@@ -41,6 +41,7 @@ class HomeViewModel @Inject constructor(private val repository: ChatRoomReposito
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {
+                _snackBarText.emit(R.string.error_message_retry)
                 Log.d("HomeViewModel", "$it")
             }
             _isLoading.value = false

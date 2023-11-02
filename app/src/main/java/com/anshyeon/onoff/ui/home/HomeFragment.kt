@@ -15,10 +15,10 @@ import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentHomeBinding
 import com.anshyeon.onoff.ui.BaseFragment
-import com.anshyeon.onoff.ui.extensions.showMessage
 import com.anshyeon.onoff.util.Constants
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraUpdate
@@ -118,7 +118,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
-                binding.root.showMessage(it)
+                Snackbar.make(
+                    binding.root,
+                    getString(it),
+                    Snackbar.LENGTH_SHORT,
+                ).show()
             }
         }
     }
