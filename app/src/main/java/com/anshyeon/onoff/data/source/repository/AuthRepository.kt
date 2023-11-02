@@ -5,9 +5,6 @@ import com.anshyeon.onoff.data.PreferenceManager
 import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.data.source.ApiClient
 import com.anshyeon.onoff.util.Constants
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import retrofit2.Response
@@ -16,11 +13,7 @@ import javax.inject.Inject
 class AuthRepository @Inject constructor(
     private val apiClient: ApiClient,
     private val preferenceManager: PreferenceManager
-) {
-
-    private fun getCurrentUser(): FirebaseUser? {
-        return Firebase.auth.currentUser
-    }
+) : BaseRepository() {
 
     private fun getEmail(): String {
         return getCurrentUser()?.email ?: ""
@@ -28,10 +21,6 @@ class AuthRepository @Inject constructor(
 
     private fun getUid(): String {
         return getCurrentUser()?.uid ?: ""
-    }
-
-    private suspend fun getIdToken(): String {
-        return getCurrentUser()?.getIdToken(true)?.await()?.token ?: ""
     }
 
     fun getLocalIdToken(): String {
