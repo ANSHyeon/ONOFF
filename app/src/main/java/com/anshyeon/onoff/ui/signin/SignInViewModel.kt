@@ -51,7 +51,6 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
         viewModelScope.launch {
             _snackBarText.emit(message)
         }
-
     }
 
     fun saveUserInfo() {

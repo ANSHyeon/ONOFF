@@ -41,23 +41,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
     private lateinit var naverMap: NaverMap
     private lateinit var fusedLocationSource: FusedLocationSource
     private lateinit var client: FusedLocationProviderClient
-    private val locationPermissionRequest = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        when {
-            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                viewModel.updateIsPermissionGranted(true)
-            }
-
-            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                viewModel.updateIsPermissionGranted(true)
-            }
-
-            else -> {
-                viewModel.updateIsPermissionGranted(false)
-            }
-        }
-    }
+    private val locationPermissionRequest = setLocationPermissionRequest()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,14 +99,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             viewModel.isPermissionGranted.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
-            ).collect {
-                if (!it) {
+            ).collect { isPermissionGranted ->
+                if (isPermissionGranted) {
+                    viewModel.getChatRooms()
+                    dismissDialog()
+                } else {
                     val action =
                         HomeFragmentDirections.actionNavigationHomeToPermissionOffDialogFragment()
                     findNavController().navigate(action)
-                } else {
-                    viewModel.getChatRooms()
-                    dismissDialog()
                 }
             }
         }
@@ -160,6 +144,24 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         if (currentNavDestination == a) {
             delay(Constants.DELAY_DURATION)
             navigateUp()
+        }
+    }
+
+    private fun setLocationPermissionRequest() = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                viewModel.updateIsPermissionGranted(true)
+            }
+
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                viewModel.updateIsPermissionGranted(true)
+            }
+
+            else -> {
+                viewModel.updateIsPermissionGranted(false)
+            }
         }
     }
 
