@@ -30,11 +30,6 @@ android {
             "FIREBASE_REALTIME_DB_URL",
             properties["firebase_realtime_db_url"] as String
         )
-        buildConfigField(
-            "String",
-            "NAVER_MAPS_CLIENT_ID",
-            properties["naver_maps_client_id"] as String
-        )
         manifestPlaceholders["NAVER_MAPS_CLIENT_ID_MANIFEST"] =
             properties["naver_maps_client_id_manifest"] as String
 
