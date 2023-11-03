@@ -144,8 +144,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
 
     private suspend fun dismissDialog() {
         val currentNavDestination = findNavController().currentDestination?.label.toString()
-        val a = getString(R.string.label_location_permission_off_destination)
-        if (currentNavDestination == a) {
+        val dialogDestination = getString(R.string.label_location_permission_off_destination)
+        if (currentNavDestination == dialogDestination) {
             delay(Constants.DELAY_DURATION)
             navigateUp()
         }
