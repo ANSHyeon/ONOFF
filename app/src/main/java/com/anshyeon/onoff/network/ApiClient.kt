@@ -1,8 +1,8 @@
-package com.anshyeon.onoff.data.source
+package com.anshyeon.onoff.network
 
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.User
-import retrofit2.Response
+import com.anshyeon.onoff.network.model.ApiResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -15,16 +15,16 @@ interface ApiClient {
         @Path("uid") uid: String,
         @Query("auth") auth: String?,
         @Body user: User
-    ): Response<Map<String, String>>
+    ): ApiResponse<Map<String, String>>
 
     @GET("users/{userId}.json")
     suspend fun getUser(
         @Path("userId") userId: String,
         @Query("auth") auth: String?
-    ): Response<Map<String, User>>
+    ): ApiResponse<Map<String, User>>
 
     @GET("chatRoom.json")
     suspend fun getChatRoom(
         @Query("auth") auth: String?
-    ): Response<Map<String, ChatRoom>>
+    ): ApiResponse<Map<String, ChatRoom>>
 }

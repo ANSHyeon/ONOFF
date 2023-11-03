@@ -1,50 +1,65 @@
 package com.anshyeon.onoff.ui.infoInput
 
 import android.net.Uri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.anshyeon.onoff.data.source.repository.AuthRepository
+import com.anshyeon.onoff.R
+import com.anshyeon.onoff.data.repository.AuthRepository
+import com.anshyeon.onoff.network.extentions.onError
+import com.anshyeon.onoff.network.extentions.onException
+import com.anshyeon.onoff.network.extentions.onSuccess
 import com.anshyeon.onoff.util.isValidNickname
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class InfoInputViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
 
-    private val nickName = MutableLiveData<String>()
-    private val imageUri = MutableLiveData<Uri>()
+    private var nickName: String? = null
+    private var imageUri: Uri? = null
 
-    private val _isLoading = MutableLiveData<Boolean>(false)
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _snackBarText = MutableSharedFlow<Int>()
+    val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _isValidInfo = MutableLiveData<Boolean>(false)
-    val isValidInfo: LiveData<Boolean> = _isValidInfo
+    private val _isValidInfo: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isValidInfo: StateFlow<Boolean> = _isValidInfo
 
-    private val _isSave = MutableLiveData<Boolean>(false)
-    val isSave: LiveData<Boolean> = _isSave
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _isSave: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isSave: StateFlow<Boolean> = _isSave
 
     fun updateNickName(text: String) {
-        nickName.value = text
+        nickName = text
         _isValidInfo.value = isValidNickname(text)
     }
 
     fun updateProfileImage(uri: Uri?) {
-        uri?.let {
-            imageUri.value = it
-        }
+        imageUri = uri
     }
 
     fun saveUserInfo() {
         viewModelScope.launch {
             _isLoading.value = true
-            nickName.value?.let {
-                repository.createUser(it, imageUri.value)
-                repository.saveIdToken()
+            nickName?.let { nickName ->
+                val result = repository.createUser(nickName, imageUri)
+                result.onSuccess {
+                    repository.saveIdToken()
+                    _isSave.value = true
+                }.onError { code, message ->
+                    _isLoading.value = false
+                    _snackBarText.emit(R.string.error_message_retry)
+                }.onException {
+                    _isLoading.value = false
+                    _snackBarText.emit(R.string.error_message_retry)
+                }
             }
-            _isSave.value = true
         }
     }
 }

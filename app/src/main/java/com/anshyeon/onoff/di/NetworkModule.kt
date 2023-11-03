@@ -1,7 +1,8 @@
 package com.anshyeon.onoff.di
 
 import com.anshyeon.onoff.BuildConfig
-import com.anshyeon.onoff.data.source.ApiClient
+import com.anshyeon.onoff.network.ApiCallAdapterFactory
+import com.anshyeon.onoff.network.ApiClient
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -45,6 +46,7 @@ object NetworkModule {
             .baseUrl(BuildConfig.FIREBASE_REALTIME_DB_URL)
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addCallAdapterFactory(ApiCallAdapterFactory.create())
             .build()
     }
 

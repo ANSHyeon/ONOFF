@@ -40,7 +40,11 @@
         android:id="@+id/navigation_home"
         android:name="com.anshyeon.onoff.ui.home.HomeFragment"
         android:label="@string/label_home_destination"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_navigation_home_to_permissionOffDialogFragment"
+            app:destination="@id/navigation_location_permission_off_dialog" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_info_input"
         android:name="com.anshyeon.onoff.ui.infoInput.InfoInputFragment"
@@ -52,4 +56,8 @@
             app:popUpTo="@id/navigation_info_input"
             app:popUpToInclusive="true" />
     </fragment>
+    <dialog
+        android:id="@+id/navigation_location_permission_off_dialog"
+        android:name="com.anshyeon.onoff.ui.common.PermissionOffDialogFragment"
+        android:label="@string/label_location_permission_off_destination" />
 </navigation>

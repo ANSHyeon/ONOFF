@@ -1,7 +1,7 @@
 package com.anshyeon.onoff.ui.launcher
 
 import androidx.lifecycle.ViewModel
-import com.anshyeon.onoff.data.source.repository.AuthRepository
+import com.anshyeon.onoff.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
