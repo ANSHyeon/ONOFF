@@ -56,6 +56,21 @@
             app:popUpTo="@id/navigation_info_input"
             app:popUpToInclusive="true" />
     </fragment>
+    <fragment
+        android:id="@+id/navigation_chat"
+        android:name="com.anshyeon.onoff.ui.chat.ChatFragment"
+        android:label="@string/label_chat_destination"
+        tools:layout="@layout/fragment_chat" />
+    <fragment
+        android:id="@+id/navigation_board"
+        android:name="com.anshyeon.onoff.ui.board.BoardFragment"
+        android:label="@string/label_board_destination"
+        tools:layout="@layout/fragment_board" />
+    <fragment
+        android:id="@+id/navigation_user"
+        android:name="com.anshyeon.onoff.ui.user.UserFragment"
+        android:label="@string/label_user_destination"
+        tools:layout="@layout/fragment_user" />
     <dialog
         android:id="@+id/navigation_location_permission_off_dialog"
         android:name="com.anshyeon.onoff.ui.common.PermissionOffDialogFragment"
