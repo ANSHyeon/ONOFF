@@ -7,6 +7,21 @@
         <item name="android:textAppearance">@style/TextTitle18.Bold</item>
     </style>
 
+    <!--  ToolBar Style  -->
+    <style name="ToolBar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="titleTextAppearance">@style/TextTitle18.Bold</item>
+    </style>
+
+    <!--  BottomNavigation Style  -->
+    <style name="BottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:background">@color/white</item>
+        <item name="android:visibility">gone</item>
+        <item name="itemActiveIndicatorStyle">@color/white</item>
+        <item name="itemIconTint">@drawable/selector_background_navigation_menu</item>
+        <item name="itemRippleColor">@color/white</item>
+        <item name="labelVisibilityMode">unlabeled</item>
+    </style>
+
     <!--  Text Style  -->
     <style name="TextTitle18" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textSize">18sp</item>

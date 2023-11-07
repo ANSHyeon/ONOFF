@@ -81,7 +81,7 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                                     "signInWithCredential:failure",
                                     it
                                 )
-                                viewModel.updateSnackBarMessage(R.string.message_sign_in_failure)
+                                viewModel.updateSnackBarMessage(R.string.error_message_sign_in)
                             }
                     }
 
@@ -119,7 +119,7 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
             }
             .addOnFailureListener(requireActivity()) { e ->
                 Log.d("SignInActivity", "No saved credentials found: ${e.message}")
-                viewModel.updateSnackBarMessage(R.string.message_sign_in_failure)
+                viewModel.updateSnackBarMessage(R.string.error_message_sign_in)
             }
     }
 
