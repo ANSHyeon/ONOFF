@@ -24,4 +24,5 @@
 
     <string name="hint_info_input_nickname">닉네임을 입력하세요</string>
     <string name="btn_submit_user_info">시작하기</string>
+    <string name="label_chat_room_search_again">현재 위치에서 재검색</string>
 </resources>

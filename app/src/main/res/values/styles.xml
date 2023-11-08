@@ -41,4 +41,8 @@
 
     <style name="TextBody12" parent="TextAppearance.Material3.BodySmall" />
 
+    <style name="TextBody12.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

@@ -9,6 +9,7 @@ import com.anshyeon.onoff.data.repository.ChatRoomRepository
 import com.anshyeon.onoff.network.extentions.onError
 import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
+import com.naver.maps.map.overlay.Marker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,8 @@ class HomeViewModel @Inject constructor(private val repository: ChatRoomReposito
 
     private val _chatRoomList = MutableSharedFlow<List<ChatRoom>>()
     val chatRoomList = _chatRoomList.asSharedFlow()
+
+    private val _markerList: MutableSet<Marker> = mutableSetOf()
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -46,6 +49,17 @@ class HomeViewModel @Inject constructor(private val repository: ChatRoomReposito
             }
             _isLoading.value = false
         }
+    }
+
+    fun addMarker(marker: Marker) {
+        _markerList.add(marker)
+    }
+
+    fun removeMarkerOnMap() {
+        _markerList.forEach {
+            it.map = null
+        }
+        _markerList.clear()
     }
 
     fun updateIsPermissionGranted(state: Boolean) {

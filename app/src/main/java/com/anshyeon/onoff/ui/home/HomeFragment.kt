@@ -13,6 +13,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.R
+import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.databinding.FragmentHomeBinding
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.util.Constants
@@ -59,6 +60,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             locationTrackingMode = LocationTrackingMode.Follow
             uiSettings.isLocationButtonEnabled = true
         }
+        setNaverMapZoom()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -72,9 +74,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
 
     private fun setLayout() {
         binding.viewModel = viewModel
-        observeChatRoomList()
         setSnackBarMessage()
+        observeChatRoomList()
         observeIsPermissionGranted()
+        setSearchAgainBtnClickListener()
     }
 
     private fun observeChatRoomList() {
@@ -83,13 +86,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
+                viewModel.removeMarkerOnMap()
                 it.forEach { chatRoom ->
-                    val marker = Marker()
-                    marker.position =
-                        LatLng(chatRoom.latitude.toDouble(), chatRoom.longitude.toDouble())
-                    marker.map = naverMap
+                    setMarker(chatRoom)
                 }
-                setNaverMapZoom()
+                moveMapCamera()
             }
         }
     }
@@ -112,6 +113,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         }
     }
 
+    private fun setSearchAgainBtnClickListener() {
+        binding.btnChatRoomSearchAgain.setOnClickListener {
+            viewModel.getChatRooms()
+            moveMapCamera()
+        }
+    }
+
     private fun setSnackBarMessage() {
         lifecycleScope.launch {
             viewModel.snackBarText.flowWithLifecycle(
@@ -127,19 +135,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         }
     }
 
-    private fun moveMapCamera(longitude: Double, latitude: Double) {
-        val cameraUpdate = CameraUpdate.scrollTo(LatLng(latitude, longitude))
-            .animate(CameraAnimation.Easing)
-        naverMap.moveCamera(cameraUpdate)
+    private fun moveMapCamera() {
+        client.lastLocation.addOnSuccessListener { startLocation ->
+            val latLng = LatLng(startLocation.latitude, startLocation.longitude)
+            val cameraUpdate = CameraUpdate.scrollTo(latLng).animate(CameraAnimation.Easing)
+            naverMap.moveCamera(cameraUpdate)
+        }
     }
 
     private fun setNaverMapZoom() {
         naverMap.maxZoom = 18.0
         naverMap.minZoom = 7.0
-
-        client.lastLocation.addOnSuccessListener { startLocation ->
-            moveMapCamera(startLocation.longitude, startLocation.latitude)
-        }
     }
 
     private suspend fun dismissDialog() {
@@ -174,6 +180,18 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 PermissionChecker.PERMISSION_GRANTED ||
                 PermissionChecker.checkSelfPermission(requireContext(), PERMISSIONS[1]) ==
                 PermissionChecker.PERMISSION_GRANTED
+    }
+
+    private fun setMarker(chatRoom: ChatRoom) {
+        val marker = Marker().apply {
+            position = LatLng(chatRoom.latitude.toDouble(), chatRoom.longitude.toDouble())
+            map = naverMap
+            tag = chatRoom.buildingName
+            setOnClickListener {
+                true
+            }
+        }
+        viewModel.addMarker(marker)
     }
 
     private fun navigateUp() {
