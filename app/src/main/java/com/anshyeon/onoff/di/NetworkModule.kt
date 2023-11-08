@@ -2,7 +2,7 @@ package com.anshyeon.onoff.di
 
 import com.anshyeon.onoff.BuildConfig
 import com.anshyeon.onoff.network.ApiCallAdapterFactory
-import com.anshyeon.onoff.network.ApiClient
+import com.anshyeon.onoff.network.FireBaseApiClient
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -41,7 +41,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(client: OkHttpClient, moshi: Moshi): Retrofit {
+    fun provideFireBaseRetrofit(client: OkHttpClient, moshi: Moshi): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.FIREBASE_REALTIME_DB_URL)
             .client(client)
@@ -52,7 +52,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideApiClient(retrofit: Retrofit): ApiClient {
-        return retrofit.create(ApiClient::class.java)
+    fun provideFireBaseClient(retrofit: Retrofit): FireBaseApiClient {
+        return retrofit.create(FireBaseApiClient::class.java)
     }
 }

@@ -19,7 +19,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val repository: ChatRoomRepository) : ViewModel() {
+class HomeViewModel @Inject constructor(
+    private val chatRoomRepository: ChatRoomRepository
+) : ViewModel() {
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
@@ -38,7 +40,7 @@ class HomeViewModel @Inject constructor(private val repository: ChatRoomReposito
     fun getChatRooms() {
         viewModelScope.launch {
             _isLoading.value = true
-            val result = repository.getChatRoom()
+            val result = chatRoomRepository.getChatRoom()
             result.onSuccess {
                 _chatRoomList.emit(it.values.toList())
             }.onError { code, message ->
