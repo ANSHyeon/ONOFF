@@ -42,8 +42,11 @@
         android:label="@string/label_home_destination"
         tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_navigation_home_to_permissionOffDialogFragment"
+            android:id="@+id/action_home_to_permission_off_dialog"
             app:destination="@id/navigation_location_permission_off_dialog" />
+        <action
+            android:id="@+id/action_home_to_search"
+            app:destination="@id/navigation_search" />
     </fragment>
     <fragment
         android:id="@+id/navigation_info_input"
@@ -75,4 +78,9 @@
         android:id="@+id/navigation_location_permission_off_dialog"
         android:name="com.anshyeon.onoff.ui.common.PermissionOffDialogFragment"
         android:label="@string/label_location_permission_off_destination" />
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="com.anshyeon.onoff.ui.search.SearchFragment"
+        android:label="@string/label_search_destination"
+        tools:layout="@layout/fragment_search" />
 </navigation>

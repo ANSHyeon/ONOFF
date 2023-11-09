@@ -78,6 +78,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         observeChatRoomList()
         observeIsPermissionGranted()
         setSearchAgainBtnClickListener()
+        setSearchPlaceBarClickListener()
     }
 
     private fun observeChatRoomList() {
@@ -106,7 +107,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                     dismissDialog()
                 } else {
                     val action =
-                        HomeFragmentDirections.actionNavigationHomeToPermissionOffDialogFragment()
+                        HomeFragmentDirections.actionHomeToPermissionOffDialog()
                     findNavController().navigate(action)
                 }
             }
@@ -117,6 +118,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         binding.btnChatRoomSearchAgain.setOnClickListener {
             viewModel.getChatRooms()
             moveMapCamera()
+        }
+    }
+
+    private fun setSearchPlaceBarClickListener() {
+        binding.areaSearchBar.setOnClickListener {
+            val action =
+                HomeFragmentDirections.actionHomeToSearch()
+            findNavController().navigate(action)
         }
     }
 
