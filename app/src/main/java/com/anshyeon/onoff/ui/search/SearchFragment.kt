@@ -12,6 +12,7 @@ import com.anshyeon.onoff.databinding.FragmentSearchBinding
 import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.data.model.Place
 import com.anshyeon.onoff.ui.BaseFragment
+import com.google.android.material.snackbar.Snackbar
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraUpdate
@@ -43,6 +44,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         binding.viewModel = viewModel
         setNavigationOnClickListener()
         setSearchEnterClickListener()
+        setSnackBarMessage()
         observeSearchPlace()
     }
 
@@ -60,6 +62,21 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 setMarker(it)
                 moveMapCamera(it)
                 binding.mapViewSearch.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun setSnackBarMessage() {
+        lifecycleScope.launch {
+            viewModel.snackBarText.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                Snackbar.make(
+                    binding.root,
+                    getString(it),
+                    Snackbar.LENGTH_SHORT,
+                ).show()
             }
         }
     }
