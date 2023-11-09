@@ -6,10 +6,11 @@
     <string name="label_app_bar_board">게시판</string>
 
     <string name="error_message_sign_in">로그인에 실패했습니다. 잠시 후 다시 시도해주세요.</string>
-    <string name="error_message_retry">잠시 후 다시 시도해주세요</string>
+    <string name="error_message_retry">잠시 후 다시 시도해주세요.</string>
     <string name="guide_message_invalid_nick_name">2~6자 닉네임 입력해주세요.</string>
     <string name="error_message_location_permission">위치 권한을 허용해 주세요.</string>
     <string name="description_off_image">위치 권한 에러 상태를 나타내는 이미지</string>
+    <string name="error_message_place_name">장소를 다시 입력해주세요.</string>
 
     <string name="label_post_destination">Post</string>
     <string name="label_home_destination">Home</string>
@@ -20,9 +21,11 @@
     <string name="label_chat_destination">Chat</string>
     <string name="label_board_destination">Board</string>
     <string name="label_user_destination">User</string>
+    <string name="label_search_destination">Search</string>
     <string name="label_location_permission_off_destination">위치 권한 요청 안내 다이얼로그</string>
 
     <string name="hint_info_input_nickname">닉네임을 입력하세요</string>
     <string name="btn_submit_user_info">시작하기</string>
     <string name="label_chat_room_search_again">현재 위치에서 재검색</string>
+    <string name="hint_info_input_place_name">장소를 입력하세요.</string>
 </resources>
