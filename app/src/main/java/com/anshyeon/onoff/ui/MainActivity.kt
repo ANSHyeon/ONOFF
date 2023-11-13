@@ -29,24 +29,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun setBottomNavigation(navController: NavController) {
         with(binding.bottomNavigation) {
+            val mainDestinations = arrayOf(
+                R.id.navigation_home,
+                R.id.navigation_chat,
+                R.id.navigation_board,
+                R.id.navigation_user
+            )
             setupWithNavController(navController)
             setOnItemReselectedListener {}
             navController.addOnDestinationChangedListener { _, destination, _ ->
-                visibility = if (destination.id in MAIN_DESTINATION) {
+                visibility = if (destination.id in mainDestinations) {
                     View.VISIBLE
                 } else {
                     View.GONE
                 }
             }
         }
-    }
-
-    companion object {
-        private val MAIN_DESTINATION = arrayOf(
-            R.id.navigation_home,
-            R.id.navigation_chat,
-            R.id.navigation_board,
-            R.id.navigation_user
-        )
     }
 }

@@ -43,11 +43,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
     private lateinit var fusedLocationSource: FusedLocationSource
     private lateinit var client: FusedLocationProviderClient
     private val locationPermissionRequest = setLocationPermissionRequest()
+    private val permissions = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         locationPermissionRequest.launch(
-            PERMISSIONS
+            permissions
         )
         client = LocationServices.getFusedLocationProviderClient(requireActivity())
         fusedLocationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
@@ -185,9 +189,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
     }
 
     private fun hasPermission(): Boolean {
-        return PermissionChecker.checkSelfPermission(requireContext(), PERMISSIONS[0]) ==
+        return PermissionChecker.checkSelfPermission(requireContext(), permissions[0]) ==
                 PermissionChecker.PERMISSION_GRANTED ||
-                PermissionChecker.checkSelfPermission(requireContext(), PERMISSIONS[1]) ==
+                PermissionChecker.checkSelfPermission(requireContext(), permissions[1]) ==
                 PermissionChecker.PERMISSION_GRANTED
     }
 
@@ -247,9 +251,5 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
-        private val PERMISSIONS = arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
     }
 }
