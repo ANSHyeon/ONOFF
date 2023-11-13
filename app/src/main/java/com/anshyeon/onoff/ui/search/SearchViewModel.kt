@@ -1,6 +1,5 @@
 package com.anshyeon.onoff.ui.search
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -48,7 +47,6 @@ class SearchViewModel @Inject constructor(
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {
                 _snackBarText.emit(R.string.error_message_retry)
-                Log.d("HomeViewModel", "$it")
             }
             _isLoading.value = false
         }
