@@ -21,11 +21,11 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _hasUserInfo = MutableSharedFlow<Boolean>()
-    val hasUserInfo = _hasUserInfo.asSharedFlow()
+    private val _hasUserInfo: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val hasUserInfo: StateFlow<Boolean> = _hasUserInfo
 
-    private val _isSaveUserInfo = MutableSharedFlow<Boolean>()
-    val isSaveUserInfo = _isSaveUserInfo.asSharedFlow()
+    private val _isSaveUserInfo: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isSaveUserInfo: StateFlow<Boolean> = _isSaveUserInfo
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -35,12 +35,13 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
             _isLoading.value = true
             val result = repository.getUser()
             result.onSuccess {
-                _hasUserInfo.emit(true)
+                _hasUserInfo.value = true
             }.onError { code, message ->
-                _hasUserInfo.emit(false)
+                _hasUserInfo.value = false
                 _isLoading.value = false
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {
+                _hasUserInfo.value = false
                 _isLoading.value = false
                 _snackBarText.emit(R.string.error_message_retry)
             }
@@ -56,7 +57,7 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
     fun saveUserInfo() {
         viewModelScope.launch {
             repository.saveIdToken()
-            _isSaveUserInfo.emit(true)
+            _isSaveUserInfo.value = true
         }
     }
 }

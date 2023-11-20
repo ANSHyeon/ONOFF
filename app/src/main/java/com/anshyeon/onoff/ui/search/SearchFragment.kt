@@ -33,11 +33,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setMapView(view, savedInstanceState)
+        setLayout()
+    }
+
+    private fun setMapView(view: View, savedInstanceState: Bundle?) {
         mapView = view.findViewById(R.id.map_view_search)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
-
-        setLayout()
     }
 
     private fun setLayout() {

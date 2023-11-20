@@ -1,6 +1,5 @@
 package com.anshyeon.onoff.ui.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.R
@@ -23,31 +22,30 @@ class HomeViewModel @Inject constructor(
     private val chatRoomRepository: ChatRoomRepository
 ) : ViewModel() {
 
+    private val _markerList: MutableSet<Marker> = mutableSetOf()
+
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _chatRoomList = MutableSharedFlow<List<ChatRoom>>()
-    val chatRoomList = _chatRoomList.asSharedFlow()
-
-    private val _markerList: MutableSet<Marker> = mutableSetOf()
+    private val _chatRoomList: MutableStateFlow<List<ChatRoom>> = MutableStateFlow(emptyList())
+    val chatRoomList: StateFlow<List<ChatRoom>> = _chatRoomList
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _isPermissionGranted = MutableSharedFlow<Boolean>()
-    val isPermissionGranted = _isPermissionGranted.asSharedFlow()
+    private val _isPermissionGranted: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isPermissionGranted: StateFlow<Boolean> = _isPermissionGranted
 
     fun getChatRooms() {
         viewModelScope.launch {
             _isLoading.value = true
             val result = chatRoomRepository.getChatRoom()
             result.onSuccess {
-                _chatRoomList.emit(it.values.toList())
+                _chatRoomList.value = it.values.toList()
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {
                 _snackBarText.emit(R.string.error_message_retry)
-                Log.d("HomeViewModel", "$it")
             }
             _isLoading.value = false
         }
@@ -66,7 +64,7 @@ class HomeViewModel @Inject constructor(
 
     fun updateIsPermissionGranted(state: Boolean) {
         viewModelScope.launch {
-            _isPermissionGranted.emit(state)
+            _isPermissionGranted.value = state
         }
     }
 }

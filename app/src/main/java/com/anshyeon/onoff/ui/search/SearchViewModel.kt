@@ -1,6 +1,5 @@
 package com.anshyeon.onoff.ui.search
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.R
@@ -22,7 +21,7 @@ class SearchViewModel @Inject constructor(
     private val placeRepository: PlaceRepository
 ) : ViewModel() {
 
-    val searchPlaceName = MutableLiveData<String>()
+    val searchedPlaceName = MutableStateFlow("")
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
@@ -36,7 +35,7 @@ class SearchViewModel @Inject constructor(
     fun getSearchPlace() {
         viewModelScope.launch {
             _isLoading.value = true
-            val result = placeRepository.getSearchPlace(searchPlaceName.value.toString())
+            val result = placeRepository.getSearchPlace(searchedPlaceName.value)
             result.onSuccess {
                 try {
                     _searchedPlace.emit(it.documents.first())

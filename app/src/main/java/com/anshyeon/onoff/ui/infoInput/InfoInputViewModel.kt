@@ -32,8 +32,8 @@ class InfoInputViewModel @Inject constructor(private val repository: AuthReposit
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _isSave: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isSave: StateFlow<Boolean> = _isSave
+    private val _isSaved: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isSaved: StateFlow<Boolean> = _isSaved
 
     fun updateNickName(text: String) {
         nickName = text
@@ -51,12 +51,14 @@ class InfoInputViewModel @Inject constructor(private val repository: AuthReposit
                 val result = repository.createUser(nickName, imageUri)
                 result.onSuccess {
                     repository.saveIdToken()
-                    _isSave.value = true
+                    _isSaved.value = true
                 }.onError { code, message ->
                     _isLoading.value = false
+                    _isSaved.value = false
                     _snackBarText.emit(R.string.error_message_retry)
                 }.onException {
                     _isLoading.value = false
+                    _isSaved.value = false
                     _snackBarText.emit(R.string.error_message_retry)
                 }
             }
