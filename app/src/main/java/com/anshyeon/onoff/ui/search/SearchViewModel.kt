@@ -27,8 +27,8 @@ class SearchViewModel @Inject constructor(
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _searchPlace = MutableSharedFlow<Place>()
-    val searchPlace = _searchPlace.asSharedFlow()
+    private val _searchedPlace: MutableStateFlow<Place?> = MutableStateFlow(null)
+    val searchedPlace: StateFlow<Place?> = _searchedPlace
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -39,9 +39,9 @@ class SearchViewModel @Inject constructor(
             val result = placeRepository.getSearchPlace(searchPlaceName.value.toString())
             result.onSuccess {
                 try {
-                    _searchPlace.emit(it.documents.first())
+                    _searchedPlace.emit(it.documents.first())
                 } catch (e: NoSuchElementException) {
-                    _snackBarText.emit(R.string.error_message_place_name)
+                    _snackBarText.emit(R.string.error_message_search_place_name)
                 }
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)

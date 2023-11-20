@@ -10,7 +10,8 @@
     <string name="guide_message_invalid_nick_name">2~6자 닉네임 입력해주세요.</string>
     <string name="error_message_location_permission">위치 권한을 허용해 주세요.</string>
     <string name="description_off_image">위치 권한 에러 상태를 나타내는 이미지</string>
-    <string name="error_message_place_name">장소를 다시 입력해주세요.</string>
+    <string name="error_message_search_place_name">장소를 다시 입력해주세요.</string>
+    <string name="error_message_place_info_name">장소를 다시 입력해주세요.</string>
 
     <string name="label_post_destination">Post</string>
     <string name="label_home_destination">Home</string>
