@@ -13,16 +13,9 @@ import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val fireBaseApiClient: FireBaseApiClient,
-    private val preferenceManager: PreferenceManager
-) : BaseRepository() {
-
-    private fun getEmail(): String {
-        return getCurrentUser()?.email ?: ""
-    }
-
-    private fun getUid(): String {
-        return getCurrentUser()?.uid ?: ""
-    }
+    private val preferenceManager: PreferenceManager,
+    private val userDataSource: UserDataSource,
+) {
 
     fun getLocalIdToken(): String {
         return preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
@@ -31,7 +24,7 @@ class AuthRepository @Inject constructor(
     suspend fun saveIdToken() {
         preferenceManager.setGoogleIdToken(
             Constants.KEY_GOOGLE_ID_TOKEN,
-            getIdToken()
+            userDataSource.getIdToken()
         )
     }
 
@@ -43,12 +36,12 @@ class AuthRepository @Inject constructor(
             val uriLocation = uri?.let { uploadImage(it) }
             val user = User(
                 nickName = nickname,
-                email = getEmail(),
+                email = userDataSource.getEmail(),
                 profileUri = uriLocation,
             )
             fireBaseApiClient.createUser(
-                getUid(),
-                getIdToken(),
+                userDataSource.getUid(),
+                userDataSource.getIdToken(),
                 user
             )
         } catch (e: Exception) {
@@ -59,7 +52,7 @@ class AuthRepository @Inject constructor(
     suspend fun getUser(
     ): ApiResponse<Map<String, User>> {
         return try {
-            fireBaseApiClient.getUser(getUid(), getIdToken())
+            fireBaseApiClient.getUser(userDataSource.getUid(), userDataSource.getIdToken())
         } catch (e: Exception) {
             ApiResultException(e)
         }

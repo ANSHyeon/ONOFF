@@ -7,14 +7,15 @@ import com.anshyeon.onoff.network.model.ApiResultException
 import javax.inject.Inject
 
 class ChatRoomRepository @Inject constructor(
-    private val fireBaseApiClient: FireBaseApiClient
-) : BaseRepository() {
+    private val fireBaseApiClient: FireBaseApiClient,
+    private val userDataSource: UserDataSource,
+) {
 
     suspend fun getChatRoom(
     ): ApiResponse<Map<String, ChatRoom>> {
-        return try{
+        return try {
             fireBaseApiClient.getChatRoom(
-                getIdToken()
+                userDataSource.getIdToken()
             )
         } catch (e: Exception) {
             ApiResultException(e)
