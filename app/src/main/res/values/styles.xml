@@ -9,6 +9,7 @@
 
     <!--  ToolBar Style  -->
     <style name="ToolBar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">@color/white</item>
         <item name="titleTextAppearance">@style/TextTitle18.Bold</item>
     </style>
 
@@ -40,5 +41,9 @@
     <style name="TextBody14" parent="TextAppearance.Material3.BodyMedium" />
 
     <style name="TextBody12" parent="TextAppearance.Material3.BodySmall" />
+
+    <style name="TextBody12.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
 
 </resources>

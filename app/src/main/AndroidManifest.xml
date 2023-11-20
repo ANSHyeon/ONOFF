@@ -30,6 +30,10 @@
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="${NAVER_MAPS_CLIENT_ID_MANIFEST}" />
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="${KAKAO_LOCAL_REST_API_KEY_MANIFEST}" />
     </application>
 
 </manifest>

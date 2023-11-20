@@ -27,11 +27,23 @@ android {
         buildConfigField("String", "GOOGLE_CLIENT_ID", properties["google_client_id"] as String)
         buildConfigField(
             "String",
+            "KAKAO_CLIENT_ID",
+            properties["kakao_local_rest_api_key"] as String
+        )
+        buildConfigField(
+            "String",
             "FIREBASE_REALTIME_DB_URL",
             properties["firebase_realtime_db_url"] as String
         )
+        buildConfigField(
+            "String",
+            "KAKAO_LOCAL_URL",
+            properties["kakao_local_url"] as String
+        )
         manifestPlaceholders["NAVER_MAPS_CLIENT_ID_MANIFEST"] =
             properties["naver_maps_client_id_manifest"] as String
+        manifestPlaceholders["KAKAO_LOCAL_REST_API_KEY_MANIFEST"] =
+            properties["kakao_local_rest_api_key_manifest"] as String
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

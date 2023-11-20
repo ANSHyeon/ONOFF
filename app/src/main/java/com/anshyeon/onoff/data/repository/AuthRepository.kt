@@ -3,7 +3,7 @@ package com.anshyeon.onoff.data.repository
 import android.net.Uri
 import com.anshyeon.onoff.data.PreferenceManager
 import com.anshyeon.onoff.data.model.User
-import com.anshyeon.onoff.network.ApiClient
+import com.anshyeon.onoff.network.FireBaseApiClient
 import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.network.model.ApiResultException
 import com.anshyeon.onoff.util.Constants
@@ -12,7 +12,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
-    private val apiClient: ApiClient,
+    private val fireBaseApiClient: FireBaseApiClient,
     private val preferenceManager: PreferenceManager
 ) : BaseRepository() {
 
@@ -46,7 +46,7 @@ class AuthRepository @Inject constructor(
                 email = getEmail(),
                 profileUri = uriLocation,
             )
-            apiClient.createUser(
+            fireBaseApiClient.createUser(
                 getUid(),
                 getIdToken(),
                 user
@@ -59,7 +59,7 @@ class AuthRepository @Inject constructor(
     suspend fun getUser(
     ): ApiResponse<Map<String, User>> {
         return try {
-            apiClient.getUser(getUid(), getIdToken())
+            fireBaseApiClient.getUser(getUid(), getIdToken())
         } catch (e: Exception) {
             ApiResultException(e)
         }
