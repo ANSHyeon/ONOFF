@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class ChatRoom(
-    val buildingName: String,
+    val chatRoomId: String,
     val latitude: String,
     val longitude: String,
 )

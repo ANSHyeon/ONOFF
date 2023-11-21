@@ -52,4 +52,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="TextBody8" parent="TextBody12">
+        <item name="android:textSize">8sp</item>
+    </style>
+
 </resources>

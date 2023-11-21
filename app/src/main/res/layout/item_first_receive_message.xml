@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="message"
+            type="com.anshyeon.onoff.data.model.Message" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_sender_profile_image"
+            imageUrl="@{message.sender.profileUri}"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_profile" />
+
+
+        <TextView
+            android:id="@+id/tv_sender_nick_name"
+            style="@style/TextBody8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="@{message.sender.nickName}"
+            app:layout_constraintStart_toEndOf="@id/iv_sender_profile_image"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="안승현" />
+
+        <TextView
+            android:id="@+id/tv_message_body"
+            style="@style/TextBody12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="3dp"
+            android:background="@drawable/shape_grey_rounded_rectangle"
+            android:maxWidth="200dp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:text="@{message.body}"
+            app:layout_constraintStart_toEndOf="@id/iv_sender_profile_image"
+            app:layout_constraintTop_toBottomOf="@id/tv_sender_nick_name"
+            tools:text="안녕하세요" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
