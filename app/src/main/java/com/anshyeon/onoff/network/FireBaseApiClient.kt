@@ -1,6 +1,7 @@
 package com.anshyeon.onoff.network
 
 import com.anshyeon.onoff.data.model.ChatRoom
+import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.network.model.ApiResponse
 import retrofit2.http.Body
@@ -27,4 +28,10 @@ interface FireBaseApiClient {
     suspend fun getChatRoom(
         @Query("auth") auth: String?
     ): ApiResponse<Map<String, ChatRoom>>
+
+    @GET("chatRoom.json")
+    suspend fun getMessage(
+        @Path("buildingName") buildingName: String,
+        @Query("auth") auth: String?
+    ): ApiResponse<Map<String, Message>>
 }
