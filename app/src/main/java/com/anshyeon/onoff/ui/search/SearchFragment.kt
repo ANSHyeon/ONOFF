@@ -33,11 +33,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setMapView(view, savedInstanceState)
+        setLayout()
+    }
+
+    private fun setMapView(view: View, savedInstanceState: Bundle?) {
         mapView = view.findViewById(R.id.map_view_search)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
-
-        setLayout()
     }
 
     private fun setLayout() {
@@ -45,7 +48,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         setNavigationOnClickListener()
         setSearchEnterClickListener()
         setSnackBarMessage()
-        observeSearchPlace()
+        observeSearchedPlace()
     }
 
     override fun onMapReady(map: NaverMap) {
@@ -53,17 +56,33 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         setNaverMapZoom()
     }
 
-    private fun observeSearchPlace() {
+    private fun observeSearchedPlace() {
         lifecycleScope.launch {
-            viewModel.searchPlace.flowWithLifecycle(
+            viewModel.searchedPlace.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
-                setMarker(it)
-                moveMapCamera(it)
-                binding.mapViewSearch.visibility = View.VISIBLE
+                if (it != null) {
+                    setMarker(it)
+                    moveMapCamera(it)
+                    setBindingVisibility()
+                    setPlaceInfoView(it)
+                }
             }
         }
+    }
+
+    private fun setPlaceInfoView(place: Place) {
+        with(place) {
+            val address = roadAddressName.ifBlank { addressName }
+            binding.placeInfoSearch.setPlaceName(placeName)
+            binding.placeInfoSearch.setAddress(address)
+        }
+    }
+
+    private fun setBindingVisibility() {
+        binding.mapViewSearch.visibility = View.VISIBLE
+        binding.placeInfoSearch.visibility = View.VISIBLE
     }
 
     private fun setSnackBarMessage() {

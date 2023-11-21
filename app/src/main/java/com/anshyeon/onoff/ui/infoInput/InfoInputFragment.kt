@@ -61,7 +61,7 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
 
     private fun observeIsSave() {
         lifecycleScope.launch {
-            viewModel.isSave
+            viewModel.isSaved
                 .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
                 .collect {
                     if (it) {

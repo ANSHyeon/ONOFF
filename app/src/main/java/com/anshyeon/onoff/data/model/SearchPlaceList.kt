@@ -10,13 +10,13 @@ data class SearchPlaceList(
 
 @JsonClass(generateAdapter = true)
 data class Place(
-    @Json(name = "address_name") val addressName: String,
-    val distance: String,
-    val id: String,
-    val phone: String,
-    @Json(name = "place_name") val placeName: String,
-    @Json(name = "place_url") val placeUrl: String,
-    @Json(name = "road_address_name") val roadAddressName: String,
-    val x: String,
-    val y: String,
+    @Json(name = "address_name") val addressName: String = "",
+    val distance: String = "",
+    val id: String = "",
+    val phone: String = "",
+    @Json(name = "place_name") val placeName: String = "",
+    @Json(name = "place_url") val placeUrl: String = "",
+    @Json(name = "road_address_name") val roadAddressName: String = "",
+    val x: String = "",
+    val y: String = "",
 )
