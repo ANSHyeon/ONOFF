@@ -29,4 +29,7 @@
     <string name="btn_submit_user_info">시작하기</string>
     <string name="label_chat_room_search_again">현재 위치에서 재검색</string>
     <string name="hint_info_input_place_name">장소를 입력하세요.</string>
+
+    <string name="label_enter_chat_room">입장하기</string>
+    <string name="label_create_chat_room">생성하기</string>
 </resources>
