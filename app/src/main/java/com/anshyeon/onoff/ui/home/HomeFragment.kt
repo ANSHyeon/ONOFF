@@ -199,7 +199,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         val marker = Marker().apply {
             position = LatLng(chatRoom.latitude.toDouble(), chatRoom.longitude.toDouble())
             map = naverMap
-            tag = chatRoom.buildingName
             setOnClickListener {
                 true
             }
