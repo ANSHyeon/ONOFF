@@ -129,11 +129,13 @@ class SignInFragment : BaseFragment<FragmentSignInBinding>(R.layout.fragment_sig
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect { hasUserInfo ->
-                if (hasUserInfo) {
-                    viewModel.saveUserInfo()
-                } else {
-                    val action = SignInFragmentDirections.actionSignInToInfoInput()
-                    findNavController().navigate(action)
+                hasUserInfo?.let {
+                    if (it) {
+                        viewModel.saveUserInfo()
+                    } else {
+                        val action = SignInFragmentDirections.actionSignInToInfoInput()
+                        findNavController().navigate(action)
+                    }
                 }
             }
         }

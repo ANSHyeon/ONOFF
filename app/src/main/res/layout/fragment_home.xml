@@ -59,6 +59,17 @@
             app:layout_constraintEnd_toEndOf="@id/area_search_bar"
             app:layout_constraintTop_toTopOf="@id/area_search_bar" />
 
+        <com.anshyeon.onoff.ui.common.PlaceInfoView
+            android:id="@+id/place_info_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <com.anshyeon.onoff.ui.common.ProgressIndicatorView
             android:id="@+id/loading_progress_indicator"
             visible="@{viewModel.isLoading}"

@@ -90,11 +90,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
-                viewModel.removeMarkerOnMap()
-                it.forEach { chatRoom ->
-                    setMarker(chatRoom)
+                if (it.isNotEmpty()) {
+                    viewModel.removeMarkerOnMap()
+                    it.forEach { chatRoom ->
+                        setMarker(chatRoom)
+                    }
+                    moveMapCamera()
                 }
-                moveMapCamera()
             }
         }
     }
@@ -105,13 +107,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect { isPermissionGranted ->
-                if (isPermissionGranted) {
-                    viewModel.getChatRooms()
-                    dismissDialog()
-                } else {
-                    val action =
-                        HomeFragmentDirections.actionHomeToPermissionOffDialog()
-                    findNavController().navigate(action)
+                isPermissionGranted?.let {
+                    if (it) {
+                        viewModel.getChatRooms()
+                        dismissDialog()
+                    } else {
+                        val action =
+                            HomeFragmentDirections.actionHomeToPermissionOffDialog()
+                        findNavController().navigate(action)
+                    }
                 }
             }
         }
@@ -136,6 +140,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                     getString(it),
                     Snackbar.LENGTH_SHORT,
                 ).show()
+            }
+        }
+    }
+
+    private fun setPlaceInfoView(chatRoom: ChatRoom) {
+        with(binding.placeInfoSearch) {
+            setPlaceName(chatRoom.placeName)
+            setButtonText(getString(R.string.label_enter_chat_room))
+            setClickListener {
+                viewModel.insertChatRoom(chatRoom)
             }
         }
     }
@@ -192,6 +206,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             position = LatLng(chatRoom.latitude.toDouble(), chatRoom.longitude.toDouble())
             map = naverMap
             setOnClickListener {
+                setPlaceInfoView(chatRoom)
+                binding.placeInfoSearch.visibility = View.VISIBLE
                 true
             }
         }
