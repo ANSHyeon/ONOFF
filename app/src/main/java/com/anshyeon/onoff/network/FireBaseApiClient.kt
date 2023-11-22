@@ -24,14 +24,26 @@ interface FireBaseApiClient {
         @Query("auth") auth: String?
     ): ApiResponse<Map<String, User>>
 
+    @POST("chatRoom.json")
+    suspend fun createChatRoom(
+        @Query("auth") auth: String?,
+        @Body chatRoom: ChatRoom
+    ): ApiResponse<Map<String, String>>
+
     @GET("chatRoom.json")
     suspend fun getChatRoom(
         @Query("auth") auth: String?
     ): ApiResponse<Map<String, ChatRoom>>
 
-    @GET("chatRoom.json")
+    @GET("chatRoom.json?orderBy=\"placeName\"")
+    suspend fun getChatRoomOfPlace(
+        @Query("auth") auth: String?,
+        @Query("equalTo") placeName: String,
+    ): ApiResponse<Map<String, ChatRoom>>
+
+    @GET("chatRoom.json?orderBy=\"buildingName\"")
     suspend fun getMessage(
-        @Path("buildingName") buildingName: String,
-        @Query("auth") auth: String?
+        @Query("auth") auth: String?,
+        @Query("equalTo") buildingName: String
     ): ApiResponse<Map<String, Message>>
 }

@@ -57,7 +57,9 @@ class ChatRoomViewModel @Inject constructor(
             _isLoading.value = true
             val result = chatRoomRepository.getMessage(buildingName)
             result.onSuccess {
-                _dummyMessageList.value = it.values.toList()
+                if (it.isNotEmpty()) {
+                    _dummyMessageList.value = it.values.toList()
+                }
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {

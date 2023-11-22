@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentSearchBinding
 import androidx.navigation.fragment.findNavController
+import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Place
 import com.anshyeon.onoff.ui.BaseFragment
 import com.google.android.material.snackbar.Snackbar
@@ -49,6 +50,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         setSearchEnterClickListener()
         setSnackBarMessage()
         observeSearchedPlace()
+        observePlaceChatRoom()
     }
 
     override fun onMapReady(map: NaverMap) {
@@ -77,6 +79,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
             val address = roadAddressName.ifBlank { addressName }
             binding.placeInfoSearch.setPlaceName(placeName)
             binding.placeInfoSearch.setAddress(address)
+            setDefaultPlaceInfoButton(this)
         }
     }
 
@@ -97,6 +100,43 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     Snackbar.LENGTH_SHORT,
                 ).show()
             }
+        }
+    }
+
+    private fun observePlaceChatRoom() {
+        lifecycleScope.launch {
+            viewModel.placeChatRoom.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                it?.let {
+                    setPlaceInfoButton(getString(R.string.label_enter_chat_room)) {
+                        viewModel.insertChatRoom(it)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setPlaceInfoButton(text: String, operation: () -> Unit) {
+        with(binding.placeInfoSearch) {
+            setButtonText(text)
+            setClickListener {
+                operation()
+            }
+        }
+    }
+
+    private fun setDefaultPlaceInfoButton(place: Place) {
+        setPlaceInfoButton(getString(R.string.label_create_chat_room)) {
+            viewModel.createChatRoom(
+                ChatRoom(
+                    place.placeName,
+                    place.placeName,
+                    place.y,
+                    place.x
+                )
+            )
         }
     }
 

@@ -26,4 +26,14 @@ class PlaceInfoView @JvmOverloads constructor(
     fun setAddress(address: String?) {
         binding.tvPlaceAdress.text = address
     }
+
+    fun setClickListener(operation: () -> Unit) {
+        binding.btnEnterChatRoom.setOnClickListener {
+            operation()
+        }
+    }
+
+    fun setButtonText(text: String) {
+        binding.btnEnterChatRoom.text = text
+    }
 }
