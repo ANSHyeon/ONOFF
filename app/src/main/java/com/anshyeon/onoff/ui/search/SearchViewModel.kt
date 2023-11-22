@@ -39,6 +39,9 @@ class SearchViewModel @Inject constructor(
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _isSaved: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isSaved: StateFlow<Boolean> = _isSaved
+
     fun getSearchPlace() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -81,6 +84,7 @@ class SearchViewModel @Inject constructor(
             _isLoading.value = true
             chatRoomRepository.insertChatRoom(chatRoom)
             _isLoading.value = false
+            _isSaved.value = true
         }
     }
 

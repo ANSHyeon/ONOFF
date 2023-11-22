@@ -51,11 +51,11 @@ class ChatRoomRepository @Inject constructor(
         }
     }
 
-    suspend fun getMessage(buildingName: String): ApiResponse<Map<String, Message>> {
+    suspend fun getMessage(chatRoomId: String): ApiResponse<Map<String, Message>> {
         return try {
             fireBaseApiClient.getMessage(
-                buildingName,
-                userDataSource.getIdToken()
+                userDataSource.getIdToken(),
+                "\"$chatRoomId\"",
             )
         } catch (e: Exception) {
             ApiResultException(e)

@@ -82,6 +82,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         observeChatRoomList()
         observeIsPermissionGranted()
         setSearchPlaceBarClickListener()
+        observeIsSaved()
     }
 
     private fun observeChatRoomList() {
@@ -91,7 +92,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 Lifecycle.State.STARTED,
             ).collect {
                 if (it.isNotEmpty()) {
-                    viewModel.removeMarkerOnMap()
                     it.forEach { chatRoom ->
                         setMarker(chatRoom)
                     }
@@ -121,8 +121,28 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         }
     }
 
+    private fun observeIsSaved() {
+        lifecycleScope.launch {
+            viewModel.savedChatRoom.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                it?.let {
+                    val action =
+                        HomeFragmentDirections.actionHomeToChatRoom(
+                            it.placeName,
+                            it.latitude + it.longitude
+                        )
+                    viewModel.reset()
+                    findNavController().navigate(action)
+                }
+            }
+        }
+    }
+
     private fun setSearchPlaceBarClickListener() {
         binding.areaSearchBar.setOnClickListener {
+            viewModel.reset()
             val action =
                 HomeFragmentDirections.actionHomeToSearch()
             findNavController().navigate(action)

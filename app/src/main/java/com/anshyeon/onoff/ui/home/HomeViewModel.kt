@@ -33,6 +33,9 @@ class HomeViewModel @Inject constructor(
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _savedChatRoom: MutableStateFlow<ChatRoom?> = MutableStateFlow(null)
+    val savedChatRoom: StateFlow<ChatRoom?> = _savedChatRoom
+
     private val _isPermissionGranted: MutableStateFlow<Boolean?> = MutableStateFlow(null)
     val isPermissionGranted: StateFlow<Boolean?> = _isPermissionGranted
 
@@ -51,18 +54,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun reset() {
+        _markerList.clear()
+        _chatRoomList.value = emptyList()
+        _savedChatRoom.value = null
+        _isPermissionGranted.value = null
+    }
+
     fun addMarker(marker: Marker) {
         _markerList.add(marker)
     }
 
-    fun removeMarkerOnMap() {
-        _markerList.forEach {
-            it.map = null
-        }
-        _markerList.clear()
-    }
-
-    fun updateIsPermissionGranted(state: Boolean) {
+    fun updateIsPermissionGranted(state: Boolean?) {
         viewModelScope.launch {
             _isPermissionGranted.value = state
         }
@@ -73,6 +76,7 @@ class HomeViewModel @Inject constructor(
             _isLoading.value = true
             chatRoomRepository.insertChatRoom(chatRoom)
             _isLoading.value = false
+            _savedChatRoom.value = chatRoom
         }
     }
 }

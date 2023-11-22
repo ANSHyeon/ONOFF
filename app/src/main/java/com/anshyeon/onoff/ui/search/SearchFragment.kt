@@ -51,6 +51,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         setSnackBarMessage()
         observeSearchedPlace()
         observePlaceChatRoom()
+        observeIsSaved()
     }
 
     override fun onMapReady(map: NaverMap) {
@@ -113,6 +114,26 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     setPlaceInfoButton(getString(R.string.label_enter_chat_room)) {
                         viewModel.insertChatRoom(it)
                     }
+                }
+            }
+        }
+    }
+
+    private fun observeIsSaved() {
+        lifecycleScope.launch {
+            viewModel.isSaved.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                if (it) {
+                    val chatRoom = viewModel.placeChatRoom.value
+                    val placeName = chatRoom?.placeName.toString()
+                    val chatRoomId = chatRoom?.latitude.toString() + chatRoom?.longitude.toString()
+                    val action =
+                        SearchFragmentDirections.actionSearchToChatRoom(
+                            placeName, chatRoomId
+                        )
+                    findNavController().navigate(action)
                 }
             }
         }

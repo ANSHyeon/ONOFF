@@ -47,6 +47,9 @@
         <action
             android:id="@+id/action_home_to_search"
             app:destination="@id/navigation_search" />
+        <action
+            android:id="@+id/action_home_to_chat_room"
+            app:destination="@id/navigation_chat_room" />
     </fragment>
     <fragment
         android:id="@+id/navigation_info_input"
@@ -82,5 +85,23 @@
         android:id="@+id/navigation_search"
         android:name="com.anshyeon.onoff.ui.search.SearchFragment"
         android:label="@string/label_search_destination"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_search_to__chat_room"
+            app:destination="@id/navigation_chat_room"
+            app:popUpTo="@id/navigation_search"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_chat_room"
+        android:name="com.anshyeon.onoff.ui.chatRoom.ChatRoomFragment"
+        android:label="ChatRoomFragment"
+        tools:layout="@layout/fragment_chat_room">
+        <argument
+            android:name="placeName"
+            app:argType="string" />
+        <argument
+            android:name="chatRoomId"
+            app:argType="string" />
+    </fragment>
 </navigation>

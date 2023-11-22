@@ -6,6 +6,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentChatRoomBinding
 import com.anshyeon.onoff.ui.BaseFragment
@@ -15,8 +17,9 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment_chat_room) {
 
+    private val args: ChatRoomFragmentArgs by navArgs()
     private val viewModel by viewModels<ChatRoomViewModel>()
-    private val adapter = ChatRoomAdapter(viewModel)
+    private val adapter = ChatRoomAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -26,7 +29,9 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
 
     private fun setLayout() {
         binding.rvMessageList.adapter = adapter
+        setNavigationOnClickListener()
         observeChatRoomList()
+        observeCurrentUserEmail()
     }
 
     private fun observeChatRoomList() {
@@ -37,6 +42,26 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
             ).collect {
                 adapter.submitMessageList(it)
             }
+        }
+    }
+
+    private fun observeCurrentUserEmail() {
+        lifecycleScope.launch {
+            viewModel.currentUserEmail.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                it?.let {
+                    adapter.setCurrentUserEmail(it)
+                    viewModel.getMessage(args.chatRoomId)
+                }
+            }
+        }
+    }
+
+    private fun setNavigationOnClickListener() {
+        binding.toolbarChat.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
     }
 }
