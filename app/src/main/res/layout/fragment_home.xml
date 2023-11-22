@@ -59,18 +59,6 @@
             app:layout_constraintEnd_toEndOf="@id/area_search_bar"
             app:layout_constraintTop_toTopOf="@id/area_search_bar" />
 
-        <Button
-            android:id="@+id/btn_chat_room_search_again"
-            android:layout_width="200dp"
-            android:layout_height="38dp"
-            android:layout_marginBottom="50dp"
-            android:backgroundTint="@color/green"
-            android:text="@string/label_chat_room_search_again"
-            android:textAppearance="@style/TextBody12.Bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
         <com.anshyeon.onoff.ui.common.ProgressIndicatorView
             android:id="@+id/loading_progress_indicator"
             visible="@{viewModel.isLoading}"

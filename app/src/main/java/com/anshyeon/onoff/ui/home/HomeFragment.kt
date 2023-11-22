@@ -81,7 +81,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         setSnackBarMessage()
         observeChatRoomList()
         observeIsPermissionGranted()
-        setSearchAgainBtnClickListener()
         setSearchPlaceBarClickListener()
     }
 
@@ -115,13 +114,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                     findNavController().navigate(action)
                 }
             }
-        }
-    }
-
-    private fun setSearchAgainBtnClickListener() {
-        binding.btnChatRoomSearchAgain.setOnClickListener {
-            viewModel.getChatRooms()
-            moveMapCamera()
         }
     }
 
