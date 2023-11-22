@@ -35,12 +35,12 @@ class AuthRepository @Inject constructor(
         return try {
             val uriLocation = uri?.let { uploadImage(it) }
             val user = User(
+                userId = userDataSource.getUid(),
                 nickName = nickname,
                 email = userDataSource.getEmail(),
                 profileUri = uriLocation,
             )
             fireBaseApiClient.createUser(
-                userDataSource.getUid(),
                 userDataSource.getIdToken(),
                 user
             )
@@ -52,7 +52,7 @@ class AuthRepository @Inject constructor(
     suspend fun getUser(
     ): ApiResponse<Map<String, User>> {
         return try {
-            fireBaseApiClient.getUser(userDataSource.getUid(), userDataSource.getIdToken())
+            fireBaseApiClient.getUser(userDataSource.getIdToken(), userDataSource.getUid())
         } catch (e: Exception) {
             ApiResultException(e)
         }

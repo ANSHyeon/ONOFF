@@ -7,21 +7,19 @@ import com.anshyeon.onoff.network.model.ApiResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface FireBaseApiClient {
-    @POST("users/{uid}.json")
+    @POST("users.json")
     suspend fun createUser(
-        @Path("uid") uid: String,
         @Query("auth") auth: String?,
         @Body user: User
     ): ApiResponse<Map<String, String>>
 
-    @GET("users/{userId}.json")
+    @GET("users.json?orderBy=\"userId\"")
     suspend fun getUser(
-        @Path("userId") userId: String,
-        @Query("auth") auth: String?
+        @Query("auth") auth: String?,
+        @Query("userId") userId: String
     ): ApiResponse<Map<String, User>>
 
     @POST("chatRoom.json")
