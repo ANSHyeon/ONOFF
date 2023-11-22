@@ -34,7 +34,7 @@
             android:layout_marginStart="34dp"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="@{chatRoom.buildingName}"
+            android:text="@{chatRoom.placeName}"
             app:layout_constraintStart_toStartOf="@id/area_chat_room_info"
             app:layout_constraintTop_toTopOf="@id/area_chat_room_info"
             tools:text="에버랜드" />
