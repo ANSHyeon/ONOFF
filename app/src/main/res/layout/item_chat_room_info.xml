@@ -9,6 +9,10 @@
             name="chatRoom"
             type="com.anshyeon.onoff.data.model.ChatRoom" />
 
+        <variable
+            name="clickListener"
+            type="com.anshyeon.onoff.ui.chat.OnEnterButtonClickListener" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -71,6 +75,7 @@
             android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="16dp"
             android:enabled="true"
+            android:onClick="@{() -> clickListener.enterChatRoom(chatRoom)}"
             android:text="@string/label_enter_chat_room"
             app:layout_constraintBottom_toBottomOf="@id/area_chat_room_info"
             app:layout_constraintEnd_toEndOf="@id/area_chat_room_info"

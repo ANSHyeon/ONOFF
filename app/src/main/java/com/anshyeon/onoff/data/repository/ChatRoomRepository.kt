@@ -6,6 +6,7 @@ import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.network.FireBaseApiClient
 import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.network.model.ApiResultException
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ChatRoomRepository @Inject constructor(
@@ -64,5 +65,9 @@ class ChatRoomRepository @Inject constructor(
 
     suspend fun insertChatRoom(chatRoom: ChatRoom) {
         database.chatRoomDao().insert(chatRoom)
+    }
+
+    fun getChatRoomListByRoom(): Flow<List<ChatRoom>> {
+        return database.chatRoomDao().getAllChatRoomList()
     }
 }
