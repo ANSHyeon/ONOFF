@@ -6,7 +6,6 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class PlaceInfo(
     val documents: List<Documents>
-
 )
 
 @JsonClass(generateAdapter = true)
