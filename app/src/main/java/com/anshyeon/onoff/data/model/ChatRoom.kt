@@ -10,6 +10,7 @@ import com.squareup.moshi.JsonClass
 data class ChatRoom(
     @PrimaryKey val chatRoomId: String,
     @ColumnInfo(name = "place_name") val placeName: String,
+    val address: String,
     val latitude: String,
     val longitude: String,
 )

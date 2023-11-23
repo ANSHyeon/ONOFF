@@ -16,6 +16,8 @@ import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.databinding.FragmentHomeBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.ui.extensions.showMessage
+import com.anshyeon.onoff.util.SamePlaceChecker
 import com.anshyeon.onoff.util.Constants
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -83,6 +85,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         observeIsPermissionGranted()
         setSearchPlaceBarClickListener()
         observeIsSaved()
+        observeCurrentPlaceInfo()
     }
 
     private fun observeChatRoomList() {
@@ -128,13 +131,40 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 Lifecycle.State.STARTED,
             ).collect {
                 it?.let {
-                    val action =
-                        HomeFragmentDirections.actionHomeToChatRoom(
-                            it.placeName,
-                            it.latitude + it.longitude
+                    client.lastLocation.addOnSuccessListener { location ->
+                        viewModel.getCurrentPlaceInfo(
+                            location.latitude.toString(),
+                            location.longitude.toString()
                         )
-                    viewModel.reset()
-                    findNavController().navigate(action)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeCurrentPlaceInfo() {
+        lifecycleScope.launch {
+            viewModel.currentPlaceInfo.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                it?.let { placeInfo ->
+                    val selectedPlaceInfo = viewModel.savedChatRoom.value
+                    selectedPlaceInfo?.let { chatRoom ->
+                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
+                            val action =
+                                HomeFragmentDirections.actionHomeToChatRoom(
+                                    selectedPlaceInfo.placeName,
+                                    selectedPlaceInfo.chatRoomId
+                                )
+                            viewModel.reset()
+                            findNavController().navigate(action)
+
+                        } else {
+                            viewModel.reset()
+                            binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
+                        }
+                    }
                 }
             }
         }
