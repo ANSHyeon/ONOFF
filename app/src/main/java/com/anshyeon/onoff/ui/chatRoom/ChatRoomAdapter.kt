@@ -2,6 +2,8 @@ package com.anshyeon.onoff.ui.chatRoom
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.databinding.ItemFirstReceiveMessageBinding
@@ -13,9 +15,8 @@ private const val VIEW_TYPE_RECEIVE_MESSAGE = 1
 private const val VIEW_TYPE_SEND_MESSAGE = 2
 
 class ChatRoomAdapter :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    ListAdapter<Message, RecyclerView.ViewHolder>(MessageDiffCallback()) {
 
-    private val items = mutableListOf<Message>()
     private lateinit var currentUserEmail: String
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -29,25 +30,25 @@ class ChatRoomAdapter :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is FirstReceiveMessageViewHolder -> {
-                val item = items[position]
+                val item = getItem(position)
                 holder.bind(item)
             }
 
             is ReceiveMessageViewHolder -> {
-                val item = items[position]
+                val item = getItem(position)
                 holder.bind(item)
             }
 
             is SendMessageViewHolder -> {
-                val item = items[position]
+                val item = getItem(position)
                 holder.bind(item)
             }
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        val item = items[position]
-        val previousSender = if (position < 1) "" else items[position - 1].sender.email
+        val item = getItem(position)
+        val previousSender = if (position < 1) "" else getItem(position - 1).sender.email
         return if (currentUserEmail == item.sender.email) {
             VIEW_TYPE_SEND_MESSAGE
         } else if (item.sender.email == previousSender) {
@@ -55,16 +56,6 @@ class ChatRoomAdapter :
         } else {
             VIEW_TYPE_FIRST_RECEIVE_MESSAGE
         }
-    }
-
-    override fun getItemCount(): Int {
-        return items.size
-    }
-
-    fun submitMessageList(messages: List<Message>) {
-        val currentSize = itemCount
-        items.addAll(messages)
-        notifyItemRangeInserted(currentSize, messages.size)
     }
 
     fun setCurrentUserEmail(email: String) {
@@ -129,5 +120,15 @@ class ChatRoomAdapter :
                 )
             }
         }
+    }
+}
+
+class MessageDiffCallback : DiffUtil.ItemCallback<Message>() {
+    override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
+        return oldItem.messageId == newItem.messageId
+    }
+
+    override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
+        return oldItem == newItem
     }
 }

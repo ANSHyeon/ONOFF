@@ -10,10 +10,14 @@ import com.anshyeon.onoff.network.extentions.onError
 import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,11 +29,10 @@ class ChatRoomViewModel @Inject constructor(
 
     val sendMessage = MutableStateFlow("")
 
+    lateinit var messageList: StateFlow<List<Message>>
+
     private val _currentUserEmail: MutableStateFlow<String?> = MutableStateFlow(null)
     val currentUserEmail: StateFlow<String?> = _currentUserEmail
-
-    private val _dummyMessageList: MutableStateFlow<List<Message>> = MutableStateFlow(emptyList())
-    val dummyMessageList: StateFlow<List<Message>> = _dummyMessageList
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
@@ -52,21 +55,24 @@ class ChatRoomViewModel @Inject constructor(
         }
     }
 
-    fun getMessage(buildingName: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val result = chatRoomRepository.getMessage(buildingName)
-            result.onSuccess {
-                if (it.isNotEmpty()) {
-                    _dummyMessageList.value =
-                        it.values.toList().sortedBy { message -> message.sendAt }
-                }
-            }.onError { code, message ->
-                _snackBarText.emit(R.string.error_message_retry)
-            }.onException {
-                _snackBarText.emit(R.string.error_message_retry)
-            }
-            _isLoading.value = false
-        }
+    fun getMessage(chatRoomId: String) {
+        messageList = transformMessageList(chatRoomId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
     }
+
+    private fun transformMessageList(chatRoomId: String): Flow<List<Message>> =
+        chatRoomRepository.getMessage(
+            chatRoomId,
+            onComplete = {
+
+            },
+            onError = {
+
+            }
+        ).map {
+            it.sortedBy { message -> message.sendAt }
+        }
 }
