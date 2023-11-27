@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Message
+import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.data.repository.AuthRepository
 import com.anshyeon.onoff.data.repository.ChatRoomRepository
 import com.anshyeon.onoff.network.extentions.onError
@@ -31,8 +32,8 @@ class ChatRoomViewModel @Inject constructor(
 
     lateinit var messageList: StateFlow<List<Message>>
 
-    private val _currentUserEmail: MutableStateFlow<String?> = MutableStateFlow(null)
-    val currentUserEmail: StateFlow<String?> = _currentUserEmail
+    private val _currentUser: MutableStateFlow<User?> = MutableStateFlow(null)
+    val currentUser: StateFlow<User?> = _currentUser
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
@@ -45,7 +46,7 @@ class ChatRoomViewModel @Inject constructor(
             _isLoading.value = true
             val result = authRepository.getUser()
             result.onSuccess {
-                _currentUserEmail.value = it.values.first().email
+                _currentUser.value = it.values.first()
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {
@@ -75,4 +76,29 @@ class ChatRoomViewModel @Inject constructor(
         ).map {
             it.sortedBy { message -> message.sendAt }
         }
+
+    fun createMessage(chatRoomId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val currentTime = System.currentTimeMillis()
+            val messageId = chatRoomId + (currentUser.value?.userId) + currentTime
+            val message = Message(
+                messageId,
+                chatRoomId,
+                currentUser.value ?: User(),
+                sendMessage.value,
+                currentTime
+            )
+
+            val result = chatRoomRepository.createMessage(message)
+            result.onSuccess {
+                sendMessage.value = ""
+            }.onError { code, message ->
+                _snackBarText.emit(R.string.error_message_retry)
+            }.onException {
+                _snackBarText.emit(R.string.error_message_retry)
+            }
+            _isLoading.value = false
+        }
+    }
 }

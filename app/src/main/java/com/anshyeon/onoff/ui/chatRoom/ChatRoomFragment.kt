@@ -2,6 +2,7 @@ package com.anshyeon.onoff.ui.chatRoom
 
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -38,13 +39,16 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
 
         database = FirebaseDatabase.getInstance(BuildConfig.FIREBASE_REALTIME_DB_URL)
         chatRoomRef = database.getReference("message")
-        observeCurrentUserEmail()
+        observeCurrentUser()
     }
 
     private fun setLayout() {
         binding.rvMessageList.adapter = adapter
         binding.toolbarChat.title = args.placeName
+        binding.chatRoomId = args.chatRoomId
+        binding.viewModel = viewModel
         setNavigationOnClickListener()
+        setImeSendActionListener()
         observeMessageListList()
         receiveMessages()
     }
@@ -62,14 +66,14 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
         }
     }
 
-    private fun observeCurrentUserEmail() {
+    private fun observeCurrentUser() {
         lifecycleScope.launch {
-            viewModel.currentUserEmail.flowWithLifecycle(
+            viewModel.currentUser.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
                 it?.let {
-                    adapter.setCurrentUserEmail(it)
+                    adapter.setCurrentUserEmail(it.email)
                     setLayout()
                 }
             }
@@ -82,12 +86,23 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
         }
     }
 
+    private fun setImeSendActionListener() {
+        binding.etChatSendText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                viewModel.createMessage(args.chatRoomId)
+                true
+            } else {
+                false
+            }
+        }
+    }
+
     private fun receiveMessages() {
         messageListener = chatRoomRef.orderByChild("chatRoomId").equalTo(args.chatRoomId)
             .addChildEventListener(object : ChildEventListener {
                 override fun onChildAdded(dataSnapshot: DataSnapshot, prevChildKey: String?) {
                     val newMessage = dataSnapshot.getValue(Message::class.java) ?: return
-                    if(adapter.currentList.isNotEmpty()){
+                    if (adapter.currentList.isNotEmpty()) {
                         val list = mutableListOf<Message>()
                         list.addAll(adapter.currentList)
                         list.add(newMessage)

@@ -39,6 +39,12 @@ interface FireBaseApiClient {
         @Query("equalTo") placeName: String,
     ): ApiResponse<Map<String, ChatRoom>>
 
+    @POST("message.json")
+    suspend fun createMessage(
+        @Query("auth") auth: String?,
+        @Body message: Message,
+    ): ApiResponse<Map<String, String>>
+
     @GET("message.json?orderBy=\"chatRoomId\"")
     suspend fun getMessage(
         @Query("auth") auth: String?,

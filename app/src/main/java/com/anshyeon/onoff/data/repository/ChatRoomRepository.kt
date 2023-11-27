@@ -59,6 +59,19 @@ class ChatRoomRepository @Inject constructor(
         }
     }
 
+    suspend fun createMessage(
+        message: Message
+    ): ApiResponse<Map<String, String>> {
+        return try {
+            fireBaseApiClient.createMessage(
+                userDataSource.getIdToken(),
+                message
+            )
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
     fun getMessage(
         chatRoomId: String,
         onComplete: () -> Unit,
