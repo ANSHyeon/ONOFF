@@ -87,7 +87,7 @@
         android:label="@string/label_search_destination"
         tools:layout="@layout/fragment_search">
         <action
-            android:id="@+id/action_search_to__chat_room"
+            android:id="@+id/action_search_to_chat_room"
             app:destination="@id/navigation_chat_room"
             app:popUpTo="@id/navigation_search"
             app:popUpToInclusive="true" />
