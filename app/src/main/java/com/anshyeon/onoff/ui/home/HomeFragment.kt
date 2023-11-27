@@ -16,6 +16,8 @@ import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.databinding.FragmentHomeBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.ui.extensions.showMessage
+import com.anshyeon.onoff.util.SamePlaceChecker
 import com.anshyeon.onoff.util.Constants
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -81,8 +83,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         setSnackBarMessage()
         observeChatRoomList()
         observeIsPermissionGranted()
-        setSearchAgainBtnClickListener()
         setSearchPlaceBarClickListener()
+        observeIsSaved()
+        observeCurrentPlaceInfo()
     }
 
     private fun observeChatRoomList() {
@@ -91,11 +94,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
-                viewModel.removeMarkerOnMap()
-                it.forEach { chatRoom ->
-                    setMarker(chatRoom)
+                if (it.isNotEmpty()) {
+                    it.forEach { chatRoom ->
+                        setMarker(chatRoom)
+                    }
+                    moveMapCamera()
                 }
-                moveMapCamera()
             }
         }
     }
@@ -106,27 +110,69 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect { isPermissionGranted ->
-                if (isPermissionGranted) {
-                    viewModel.getChatRooms()
-                    dismissDialog()
-                } else {
-                    val action =
-                        HomeFragmentDirections.actionHomeToPermissionOffDialog()
-                    findNavController().navigate(action)
+                isPermissionGranted?.let {
+                    if (it) {
+                        viewModel.getChatRooms()
+                        dismissDialog()
+                    } else {
+                        val action =
+                            HomeFragmentDirections.actionHomeToPermissionOffDialog()
+                        findNavController().navigate(action)
+                    }
                 }
             }
         }
     }
 
-    private fun setSearchAgainBtnClickListener() {
-        binding.btnChatRoomSearchAgain.setOnClickListener {
-            viewModel.getChatRooms()
-            moveMapCamera()
+    private fun observeIsSaved() {
+        lifecycleScope.launch {
+            viewModel.savedChatRoom.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                it?.let {
+                    client.lastLocation.addOnSuccessListener { location ->
+                        viewModel.getCurrentPlaceInfo(
+                            location.latitude.toString(),
+                            location.longitude.toString()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeCurrentPlaceInfo() {
+        lifecycleScope.launch {
+            viewModel.currentPlaceInfo.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                it?.let { placeInfo ->
+                    val selectedPlaceInfo = viewModel.savedChatRoom.value
+                    selectedPlaceInfo?.let { chatRoom ->
+                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
+                            val action =
+                                HomeFragmentDirections.actionHomeToChatRoom(
+                                    selectedPlaceInfo.placeName,
+                                    selectedPlaceInfo.chatRoomId
+                                )
+                            viewModel.reset()
+                            findNavController().navigate(action)
+
+                        } else {
+                            viewModel.reset()
+                            binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
+                        }
+                    }
+                }
+            }
         }
     }
 
     private fun setSearchPlaceBarClickListener() {
         binding.areaSearchBar.setOnClickListener {
+            viewModel.reset()
             val action =
                 HomeFragmentDirections.actionHomeToSearch()
             findNavController().navigate(action)
@@ -144,6 +190,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                     getString(it),
                     Snackbar.LENGTH_SHORT,
                 ).show()
+            }
+        }
+    }
+
+    private fun setPlaceInfoView(chatRoom: ChatRoom) {
+        with(binding.placeInfoSearch) {
+            setPlaceName(chatRoom.placeName)
+            setButtonText(getString(R.string.label_enter_chat_room))
+            setClickListener {
+                viewModel.insertChatRoom(chatRoom)
             }
         }
     }
@@ -200,6 +256,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             position = LatLng(chatRoom.latitude.toDouble(), chatRoom.longitude.toDouble())
             map = naverMap
             setOnClickListener {
+                setPlaceInfoView(chatRoom)
+                binding.placeInfoSearch.visibility = View.VISIBLE
                 true
             }
         }

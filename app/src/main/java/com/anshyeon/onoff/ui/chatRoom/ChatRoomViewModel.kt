@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Message
-import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.data.repository.AuthRepository
 import com.anshyeon.onoff.data.repository.ChatRoomRepository
 import com.anshyeon.onoff.network.extentions.onError
@@ -25,8 +24,9 @@ class ChatRoomViewModel @Inject constructor(
 ) : ViewModel() {
 
     val sendMessage = MutableStateFlow("")
-    var currentUser: User? = null
-        private set
+
+    private val _currentUserEmail: MutableStateFlow<String?> = MutableStateFlow(null)
+    val currentUserEmail: StateFlow<String?> = _currentUserEmail
 
     private val _dummyMessageList: MutableStateFlow<List<Message>> = MutableStateFlow(emptyList())
     val dummyMessageList: StateFlow<List<Message>> = _dummyMessageList
@@ -42,7 +42,7 @@ class ChatRoomViewModel @Inject constructor(
             _isLoading.value = true
             val result = authRepository.getUser()
             result.onSuccess {
-                currentUser = it.values.first()
+                _currentUserEmail.value = it.values.first().email
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {
@@ -57,7 +57,9 @@ class ChatRoomViewModel @Inject constructor(
             _isLoading.value = true
             val result = chatRoomRepository.getMessage(buildingName)
             result.onSuccess {
-                _dummyMessageList.value = it.values.toList()
+                if (it.isNotEmpty()) {
+                    _dummyMessageList.value = it.values.toList()
+                }
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {

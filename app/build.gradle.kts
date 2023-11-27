@@ -8,6 +8,7 @@ plugins {
     id("androidx.navigation.safeargs")
     id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
 }
 
 val properties = Properties()
@@ -112,6 +113,11 @@ dependencies {
 
     // Coil
     implementation("io.coil-kt:coil:2.4.0")
+
+    // Database
+    implementation("androidx.room:room-runtime:2.5.0")
+    implementation("androidx.room:room-ktx:2.5.0")
+    ksp("androidx.room:room-compiler:2.5.0")
 }
 
 // Allow references to generated code

@@ -21,8 +21,8 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _hasUserInfo: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val hasUserInfo: StateFlow<Boolean> = _hasUserInfo
+    private val _hasUserInfo: MutableStateFlow<Boolean?> = MutableStateFlow(null)
+    val hasUserInfo: StateFlow<Boolean?> = _hasUserInfo
 
     private val _isSaveUserInfo: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isSaveUserInfo: StateFlow<Boolean> = _isSaveUserInfo

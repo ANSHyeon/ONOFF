@@ -59,14 +59,13 @@
             app:layout_constraintEnd_toEndOf="@id/area_search_bar"
             app:layout_constraintTop_toTopOf="@id/area_search_bar" />
 
-        <Button
-            android:id="@+id/btn_chat_room_search_again"
-            android:layout_width="200dp"
-            android:layout_height="38dp"
-            android:layout_marginBottom="50dp"
-            android:backgroundTint="@color/green"
-            android:text="@string/label_chat_room_search_again"
-            android:textAppearance="@style/TextBody12.Bold"
+        <com.anshyeon.onoff.ui.common.PlaceInfoView
+            android:id="@+id/place_info_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

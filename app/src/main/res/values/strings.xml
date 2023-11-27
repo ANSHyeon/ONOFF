@@ -12,6 +12,7 @@
     <string name="description_off_image">위치 권한 에러 상태를 나타내는 이미지</string>
     <string name="error_message_search_place_name">장소를 다시 입력해주세요.</string>
     <string name="error_message_place_info_name">장소를 다시 입력해주세요.</string>
+    <string name="error_message_not_same_place">해당 장소가 현재위치와 다릅니다.</string>
 
     <string name="label_post_destination">Post</string>
     <string name="label_home_destination">Home</string>
@@ -29,4 +30,7 @@
     <string name="btn_submit_user_info">시작하기</string>
     <string name="label_chat_room_search_again">현재 위치에서 재검색</string>
     <string name="hint_info_input_place_name">장소를 입력하세요.</string>
+
+    <string name="label_enter_chat_room">입장하기</string>
+    <string name="label_create_chat_room">생성하기</string>
 </resources>

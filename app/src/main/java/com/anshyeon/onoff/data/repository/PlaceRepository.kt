@@ -1,6 +1,7 @@
 package com.anshyeon.onoff.data.repository
 
 import com.anshyeon.onoff.BuildConfig
+import com.anshyeon.onoff.data.model.PlaceInfo
 import com.anshyeon.onoff.data.model.SearchPlaceList
 import com.anshyeon.onoff.network.KakaoLocalApiClient
 import com.anshyeon.onoff.network.model.ApiResponse
@@ -19,6 +20,22 @@ class PlaceRepository @Inject constructor(
             kakaoLocalApiClient.getPlace(
                 BuildConfig.KAKAO_CLIENT_ID,
                 keyword
+            )
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
+    suspend fun getPlaceInfoByLocation(
+        latitude: String,
+        longitude: String
+    ): ApiResponse<PlaceInfo> {
+
+        return try {
+            kakaoLocalApiClient.getPlaceInfoByLocation(
+                BuildConfig.KAKAO_CLIENT_ID,
+                latitude,
+                longitude
             )
         } catch (e: Exception) {
             ApiResultException(e)

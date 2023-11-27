@@ -12,10 +12,11 @@ private const val VIEW_TYPE_FIRST_RECEIVE_MESSAGE = 0
 private const val VIEW_TYPE_RECEIVE_MESSAGE = 1
 private const val VIEW_TYPE_SEND_MESSAGE = 2
 
-class ChatRoomAdapter(private val viewModel: ChatRoomViewModel) :
+class ChatRoomAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items = mutableListOf<Message>()
+    private lateinit var currentUserEmail: String
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -47,7 +48,7 @@ class ChatRoomAdapter(private val viewModel: ChatRoomViewModel) :
     override fun getItemViewType(position: Int): Int {
         val item = items[position]
         val previousSender = if (position < 1) "" else items[position - 1].sender.email
-        return if (viewModel.currentUser?.email == item.sender.email) {
+        return if (currentUserEmail == item.sender.email) {
             VIEW_TYPE_SEND_MESSAGE
         } else if (item.sender.email == previousSender) {
             VIEW_TYPE_RECEIVE_MESSAGE
@@ -64,6 +65,10 @@ class ChatRoomAdapter(private val viewModel: ChatRoomViewModel) :
         val currentSize = itemCount
         items.addAll(messages)
         notifyItemRangeInserted(currentSize, messages.size)
+    }
+
+    fun setCurrentUserEmail(email: String) {
+        currentUserEmail = email
     }
 
     class FirstReceiveMessageViewHolder(private val binding: ItemFirstReceiveMessageBinding) :
