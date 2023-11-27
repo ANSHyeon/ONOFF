@@ -26,6 +26,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _markerList: MutableSet<Marker> = mutableSetOf()
+    var selectedChatRoom: ChatRoom? = null
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
