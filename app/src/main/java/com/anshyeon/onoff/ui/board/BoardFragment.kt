@@ -90,5 +90,7 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
     }
 
     override fun onPostClick(post: Post) {
+        val action = BoardFragmentDirections.actionBoardToDetail(post)
+        findNavController().navigate(action)
     }
 }

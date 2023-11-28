@@ -69,7 +69,7 @@ class PostRepository @Inject constructor(
                     copy(
                         imageUrlList = imageLocations?.map { location ->
                             getDownloadUrl(location)
-                        }
+                        } ?: emptyList()
                     )
                 }
             })
