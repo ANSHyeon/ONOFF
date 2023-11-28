@@ -45,4 +45,11 @@
 
     <string name="format_image_size_limit">/%d</string>
     <string name="format_file_name">%s_%s</string>
+
+    <string name="elapsed_time_seconds">%d초 전</string>
+    <string name="elapsed_time_minutes">%d분 전</string>
+    <string name="elapsed_time_hours">%d시간 전</string>
+    <string name="elapsed_time_days">%d일 전</string>
+    <string name="elapsed_time_weeks">%d주 전</string>
+    <string name="elapsed_time_months">%d달 전</string>
 </resources>
