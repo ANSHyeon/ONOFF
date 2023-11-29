@@ -38,6 +38,7 @@ class ChatFragment : BaseFragment<FragmentChatBinding>(R.layout.fragment_chat),
     }
 
     private fun setLayout() {
+        binding.viewModel = viewModel
         setChatRoomList()
     }
 
