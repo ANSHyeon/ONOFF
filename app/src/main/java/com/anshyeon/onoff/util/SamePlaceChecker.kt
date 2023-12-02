@@ -10,28 +10,18 @@ object SamePlaceChecker {
         return address.split(" ").takeLast(2).joinToString(" ")
     }
 
-    private fun getRoadAddress(roadName: String, mainBuildingNo: String): String {
-        return "$roadName $mainBuildingNo"
-    }
-
     fun isSamePlace(placeInfo: PlaceInfo, selectedPlaceInfo: ChatRoom): Boolean {
         val currentPlaceInfo = placeInfo.documents.first().roadAddress
-        val currentRoadAddress =
-            getRoadAddress(currentPlaceInfo.roadName, currentPlaceInfo.mainBuildingNo)
-
-        val selectedRoadAddress =
-            getRoadAddress(selectedPlaceInfo.address)
+        val currentRoadAddress = getRoadAddress(currentPlaceInfo.addressName)
+        val selectedRoadAddress = getRoadAddress(selectedPlaceInfo.address)
 
         return currentRoadAddress == selectedRoadAddress
     }
 
     fun isSamePlace(placeInfo: PlaceInfo, selectedPlaceInfo: Place): Boolean {
         val currentPlaceInfo = placeInfo.documents.first().roadAddress
-        val currentRoadAddress =
-            getRoadAddress(currentPlaceInfo.roadName, currentPlaceInfo.mainBuildingNo)
-
-        val selectedRoadAddress =
-            getRoadAddress(selectedPlaceInfo.roadAddressName)
+        val currentRoadAddress = getRoadAddress(currentPlaceInfo.addressName)
+        val selectedRoadAddress = getRoadAddress(selectedPlaceInfo.roadAddressName)
 
         return currentRoadAddress == selectedRoadAddress
     }
