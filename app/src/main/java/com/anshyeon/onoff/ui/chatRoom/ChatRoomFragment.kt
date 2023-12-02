@@ -61,6 +61,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
             ).collect {
                 if (it.isNotEmpty()) {
                     adapter.submitList(it)
+                    binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
                 }
             }
         }
@@ -107,6 +108,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                         list.addAll(adapter.currentList)
                         list.add(newMessage)
                         adapter.submitList(list)
+                        binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
                     }
                 }
 

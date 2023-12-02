@@ -79,6 +79,9 @@
         <action
             android:id="@+id/action_board_to_post"
             app:destination="@id/navigation_post" />
+        <action
+            android:id="@+id/action_board_to_detail"
+            app:destination="@id/navigation_detail" />
     </fragment>
     <fragment
         android:id="@+id/navigation_user"
@@ -115,9 +118,19 @@
     <fragment
         android:id="@+id/navigation_post"
         android:name="com.anshyeon.onoff.ui.post.PostFragment"
-        android:label="@string/label_post_destination" >
+        android:label="@string/label_post_destination"
+        tools:layout="@layout/fragment_post">
         <argument
             android:name="location"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_detail"
+        android:name="com.anshyeon.onoff.ui.detail.DetailFragment"
+        android:label="label_detail_destination"
+        tools:layout="@layout/fragment_detail">
+        <argument
+            android:name="post"
+            app:argType="com.anshyeon.onoff.data.model.Post" />
     </fragment>
 </navigation>

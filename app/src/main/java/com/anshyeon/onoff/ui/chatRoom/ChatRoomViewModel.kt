@@ -38,7 +38,7 @@ class ChatRoomViewModel @Inject constructor(
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     fun getUser() {
@@ -52,7 +52,7 @@ class ChatRoomViewModel @Inject constructor(
             }.onException {
                 _snackBarText.emit(R.string.error_message_retry)
             }
-            _isLoading.value = false
+            //_isLoading.value = false
         }
     }
 
@@ -68,7 +68,7 @@ class ChatRoomViewModel @Inject constructor(
         chatRoomRepository.getMessage(
             chatRoomId,
             onComplete = {
-
+                _isLoading.value = false
             },
             onError = {
 
@@ -78,27 +78,30 @@ class ChatRoomViewModel @Inject constructor(
         }
 
     fun createMessage(chatRoomId: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val currentTime = System.currentTimeMillis()
-            val messageId = chatRoomId + (currentUser.value?.userId) + currentTime
-            val message = Message(
-                messageId,
-                chatRoomId,
-                currentUser.value ?: User(),
-                sendMessage.value,
-                currentTime
-            )
-
-            val result = chatRoomRepository.createMessage(message)
-            result.onSuccess {
+        if (sendMessage.value.isNotBlank()) {
+            viewModelScope.launch {
+                _isLoading.value = true
+                val currentTime = System.currentTimeMillis()
+                val messageId = chatRoomId + (currentUser.value?.userId) + currentTime
+                val message = Message(
+                    messageId,
+                    chatRoomId,
+                    currentUser.value ?: User(),
+                    sendMessage.value,
+                    currentTime
+                )
                 sendMessage.value = ""
-            }.onError { code, message ->
-                _snackBarText.emit(R.string.error_message_retry)
-            }.onException {
-                _snackBarText.emit(R.string.error_message_retry)
+                val result = chatRoomRepository.createMessage(message)
+                result.onSuccess {
+                    _isLoading.value = false
+                }.onError { code, message ->
+                    _isLoading.value = false
+                    _snackBarText.emit(R.string.error_message_retry)
+                }.onException {
+                    _isLoading.value = false
+                    _snackBarText.emit(R.string.error_message_retry)
+                }
             }
-            _isLoading.value = false
         }
     }
 }

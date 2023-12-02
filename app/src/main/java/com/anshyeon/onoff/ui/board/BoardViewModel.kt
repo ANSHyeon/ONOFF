@@ -36,7 +36,7 @@ class BoardViewModel @Inject constructor(
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     fun getPostList(location: String) {
@@ -51,7 +51,7 @@ class BoardViewModel @Inject constructor(
         postRepository.getPostList(
             location,
             onComplete = {
-
+                _isLoading.value = false
             },
             onError = {
 
@@ -62,7 +62,6 @@ class BoardViewModel @Inject constructor(
 
     fun getCurrentPlaceInfo(latitude: String, longitude: String) {
         viewModelScope.launch {
-            _isLoading.value = true
             val result = placeRepository.getPlaceInfoByLocation(latitude, longitude)
             result.onSuccess {
                 _currentPlaceInfo.value = it.documents.first().address
@@ -71,7 +70,10 @@ class BoardViewModel @Inject constructor(
             }.onException {
                 _snackBarText.emit(R.string.error_message_retry)
             }
-            _isLoading.value = false
         }
+    }
+
+    fun reset(){
+        _isLoading.value = true
     }
 }

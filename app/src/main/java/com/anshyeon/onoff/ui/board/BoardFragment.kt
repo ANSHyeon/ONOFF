@@ -36,6 +36,7 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
     }
 
     private fun setLayout() {
+        binding.viewModel = viewModel
         getCurrentPlaceInfo()
     }
 
@@ -77,6 +78,7 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
         binding.toolbarBoard.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.home_app_bar_add -> {
+                    viewModel.reset()
                     val action = BoardFragmentDirections.actionBoardToPost(address)
                     findNavController().navigate(action)
                     true
@@ -90,5 +92,8 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
     }
 
     override fun onPostClick(post: Post) {
+        viewModel.reset()
+        val action = BoardFragmentDirections.actionBoardToDetail(post)
+        findNavController().navigate(action)
     }
 }

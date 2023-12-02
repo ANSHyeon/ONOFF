@@ -10,8 +10,17 @@ object DateFormatText {
     private val currentLocale
         get() = SystemConfiguration.currentLocale
 
+    fun convertToDate(dateString: String): Date {
+        return SimpleDateFormat(DATE_YEAR_MONTH_DAY_TIME_PATTERN, currentLocale).parse(dateString)
+            ?: Date()
+    }
+
     fun getCurrentTime(): String {
         return applyDateFormat(DATE_YEAR_MONTH_DAY_TIME_PATTERN)
+    }
+
+    fun getCurrentDate(): Date {
+        return Calendar.getInstance(TimeZone.getTimeZone("UTC")).time
     }
 
     fun getFileNameFormat(): String {
@@ -20,7 +29,7 @@ object DateFormatText {
 
     private fun applyDateFormat(pattern: String): String {
         val formatter = SimpleDateFormat(pattern, currentLocale)
-        val currentDate = Calendar.getInstance(TimeZone.getTimeZone("UTC")).time
+        val currentDate = getCurrentDate()
         return formatter.format(currentDate)
     }
 }
