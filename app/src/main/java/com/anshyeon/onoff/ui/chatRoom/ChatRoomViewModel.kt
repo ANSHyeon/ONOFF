@@ -10,6 +10,7 @@ import com.anshyeon.onoff.data.repository.ChatRoomRepository
 import com.anshyeon.onoff.network.extentions.onError
 import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,13 +52,24 @@ class ChatRoomViewModel @Inject constructor(
             _isLoading.value = true
             val result = authRepository.getUser()
             result.onSuccess {
-                _currentUser.value = it.values.first()
+                _currentUser.value = it.values.first().profileUri?.let { uri ->
+                    it.values.first().copy(
+                        profileUrl = downloadImage(uri)
+                    )
+                } ?: it.values.first()
+
+
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {
                 _snackBarText.emit(R.string.error_message_retry)
             }
         }
+    }
+
+    private suspend fun downloadImage(location: String): String {
+        val storageRef = FirebaseStorage.getInstance().reference
+        return storageRef.child(location).downloadUrl.await().toString()
     }
 
     fun getMessage(chatRoomId: String) {
