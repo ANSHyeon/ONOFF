@@ -77,7 +77,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        setLayout()
+        verifySignInToken()
+    }
+
+    private fun verifySignInToken() {
+        val localGoogleIdToken = viewModel.getLocalGoogleIdToken()
+        if (localGoogleIdToken.isEmpty()) {
+            val action =
+                HomeFragmentDirections.actionHomeToSignIn()
+            findNavController().navigate(action)
+        }
     }
 
     private fun setLayout() {
@@ -98,6 +107,36 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                     setSnackBar()
                 }
             }
+        }
+    }
+
+    private suspend fun initializeMapWithPermissions() {
+        viewModel.isPermissionGranted.collect { isPermissionGranted ->
+            isPermissionGranted?.let {
+                if (it) {
+                    dismissDialog()
+                    moveMapCamera()
+                    viewModel.chatRoomList.collect { chatRoomList ->
+                        chatRoomList.forEach { chatRoom ->
+                            setMarker(chatRoom)
+                        }
+                    }
+                } else {
+                    val action =
+                        HomeFragmentDirections.actionHomeToPermissionOffDialog()
+                    findNavController().navigate(action)
+                }
+            }
+        }
+    }
+
+    private suspend fun setSnackBar() {
+        viewModel.snackBarText.collect {
+            Snackbar.make(
+                binding.root,
+                getString(it),
+                Snackbar.LENGTH_SHORT,
+            ).show()
         }
     }
 
@@ -122,6 +161,41 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 }
                 viewModel.selectedChatRoom = chatRoom
                 observeCurrentPlaceInfo()
+            }
+        }
+    }
+
+    private fun observeCurrentPlaceInfo() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.currentPlaceInfo.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                it?.let { placeInfo ->
+                    val selectedPlaceInfo = viewModel.selectedChatRoom
+                    selectedPlaceInfo?.let { chatRoom ->
+                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
+                            handleSamePlace(chatRoom)
+                        } else {
+                            binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun handleSamePlace(chatRoom: ChatRoom) {
+        viewModel.insertChatRoom(chatRoom)
+
+        viewModel.savedChatRoom.collect { savedChatRoom ->
+            savedChatRoom?.let {
+                val action =
+                    HomeFragmentDirections.actionHomeToChatRoom(
+                        savedChatRoom.placeName,
+                        savedChatRoom.chatRoomId
+                    )
+                findNavController().navigate(action)
             }
         }
     }
