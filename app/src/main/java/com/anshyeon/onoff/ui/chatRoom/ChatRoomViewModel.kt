@@ -105,7 +105,10 @@ class ChatRoomViewModel @Inject constructor(
                 val message = Message(
                     messageId,
                     chatRoomId,
-                    currentUser.value ?: User(),
+                    currentUser.value?.nickName ?: "",
+                    currentUser.value?.email ?: "",
+                    currentUser.value?.profileUri,
+                    currentUser.value?.profileUrl,
                     sendMessage.value,
                     currentTime
                 )
@@ -142,6 +145,14 @@ class ChatRoomViewModel @Inject constructor(
     private fun updateChatRoomInRoom(chatRoomId: String) {
         viewModelScope.launch {
             chatRoomRepository.updateChatRoomInRoom(chatRoomId)
+            _isLoading.value = false
+        }
+    }
+
+    fun insertMessage(message: Message) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            chatRoomRepository.insertMessage(message)
             _isLoading.value = false
         }
     }

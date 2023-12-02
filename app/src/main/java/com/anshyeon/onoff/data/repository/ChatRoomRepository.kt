@@ -1,6 +1,7 @@
 package com.anshyeon.onoff.data.repository
 
 import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
+import com.anshyeon.onoff.data.local.dao.MessageDao
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.network.FireBaseApiClient
@@ -9,6 +10,7 @@ import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
 import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.network.model.ApiResultException
+import com.anshyeon.onoff.util.DateFormatText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,6 +21,7 @@ import javax.inject.Inject
 class ChatRoomRepository @Inject constructor(
     private val fireBaseApiClient: FireBaseApiClient,
     private val chatRoomInfoDao: ChatRoomInfoDao,
+    private val messageDao: MessageDao,
     private val userDataSource: UserDataSource,
 ) {
 
@@ -129,5 +132,13 @@ class ChatRoomRepository @Inject constructor(
 
     fun getChatRoomListByRoom(): Flow<List<ChatRoom>> {
         return chatRoomInfoDao.getAllChatRoomList()
+    }
+
+    suspend fun insertMessage(message: Message) {
+        messageDao.insert(message)
+    }
+
+    fun getMessageListByRoom(chatRoomId: String): Flow<List<Message>> {
+        return messageDao.getMessageListByChatRoomId(chatRoomId)
     }
 }

@@ -130,6 +130,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                         list.addAll(existingMessages)
                         list.add(newMessage)
                         adapter.submitList(list.sortedBy { it.sendAt })
+                        viewModel.insertMessage(newMessage)
                         viewLifecycleOwner.lifecycleScope.launch {
                             delay(100)
                             binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
