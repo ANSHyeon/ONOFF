@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.ChatRoom
@@ -61,12 +62,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
 
     @UiThread
     override fun onMapReady(map: NaverMap) {
-        naverMap = map.apply {
-            locationSource = fusedLocationSource
-            locationTrackingMode = LocationTrackingMode.Follow
-            uiSettings.isLocationButtonEnabled = true
+        naverMap = map.also {
+            it.locationSource = fusedLocationSource
+            it.locationTrackingMode = LocationTrackingMode.Follow
+            it.uiSettings.isLocationButtonEnabled = true
         }
         setNaverMapZoom()
+        setLayout()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,85 +82,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
 
     private fun setLayout() {
         binding.viewModel = viewModel
-        setSnackBarMessage()
-        observeChatRoomList()
-        observeIsPermissionGranted()
+        setMapView()
         setSearchPlaceBarClickListener()
-        observeIsSaved()
-        insertChatRoom()
     }
 
-    private fun observeChatRoomList() {
-        lifecycleScope.launch {
-            viewModel.chatRoomList.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
+    private fun setMapView() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
                 Lifecycle.State.STARTED,
-            ).collect {
-                if (it.isNotEmpty()) {
-                    it.forEach { chatRoom ->
-                        setMarker(chatRoom)
-                    }
-                    moveMapCamera()
+            ) {
+                launch {
+                    initializeMapWithPermissions()
                 }
-            }
-        }
-    }
-
-    private fun observeIsPermissionGranted() {
-        lifecycleScope.launch {
-            viewModel.isPermissionGranted.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect { isPermissionGranted ->
-                isPermissionGranted?.let {
-                    if (it) {
-                        viewModel.getChatRooms()
-                        dismissDialog()
-                    } else {
-                        val action =
-                            HomeFragmentDirections.actionHomeToPermissionOffDialog()
-                        findNavController().navigate(action)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun observeIsSaved() {
-        lifecycleScope.launch {
-            viewModel.savedChatRoom.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect {
-                it?.let {
-                    val action =
-                        HomeFragmentDirections.actionHomeToChatRoom(
-                            it.placeName,
-                            it.chatRoomId
-                        )
-                    viewModel.reset()
-                    findNavController().navigate(action)
-                }
-            }
-        }
-    }
-
-    private fun insertChatRoom() {
-        lifecycleScope.launch {
-            viewModel.currentPlaceInfo.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect {
-                it?.let { placeInfo ->
-                    val selectedPlaceInfo = viewModel.selectedChatRoom
-                    selectedPlaceInfo?.let { chatRoom ->
-                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
-                            viewModel.insertChatRoom(chatRoom)
-                        } else {
-                            viewModel.reset()
-                            binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
-                        }
-                    }
+                launch {
+                    setSnackBar()
                 }
             }
         }
@@ -166,25 +103,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
 
     private fun setSearchPlaceBarClickListener() {
         binding.areaSearchBar.setOnClickListener {
-            viewModel.reset()
             val action =
                 HomeFragmentDirections.actionHomeToSearch()
             findNavController().navigate(action)
-        }
-    }
-
-    private fun setSnackBarMessage() {
-        lifecycleScope.launch {
-            viewModel.snackBarText.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect {
-                Snackbar.make(
-                    binding.root,
-                    getString(it),
-                    Snackbar.LENGTH_SHORT,
-                ).show()
-            }
         }
     }
 
@@ -200,6 +121,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                     )
                 }
                 viewModel.selectedChatRoom = chatRoom
+                observeCurrentPlaceInfo()
             }
         }
     }

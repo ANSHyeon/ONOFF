@@ -16,9 +16,8 @@ data class Documents(
 
 @JsonClass(generateAdapter = true)
 data class RoadAddress(
+    @Json(name = "address_name") val addressName: String = "",
     @Json(name = "building_name") val buildingName: String = "",
-    @Json(name = "road_name") val roadName: String = "",
-    @Json(name = "main_building_no") val mainBuildingNo: String = "",
 )
 
 @JsonClass(generateAdapter = true)

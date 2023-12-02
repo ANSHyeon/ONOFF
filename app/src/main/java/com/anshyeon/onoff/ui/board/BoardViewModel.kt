@@ -28,7 +28,7 @@ class BoardViewModel @Inject constructor(
     private val placeRepository: PlaceRepository
 ) : ViewModel() {
 
-    lateinit var postLsit: StateFlow<List<Post>>
+    lateinit var postList: StateFlow<List<Post>>
 
     private val _currentPlaceInfo: MutableStateFlow<Address?> = MutableStateFlow(null)
     val currentPlaceInfo: StateFlow<Address?> = _currentPlaceInfo
@@ -40,7 +40,8 @@ class BoardViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading
 
     fun getPostList(location: String) {
-        postLsit = transformPostList(location).stateIn(
+        _isLoading.value = true
+        postList = transformPostList(location).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
@@ -54,7 +55,7 @@ class BoardViewModel @Inject constructor(
                 _isLoading.value = false
             },
             onError = {
-
+                _isLoading.value = false
             }
         ).map {
             it.sortedByDescending { post -> post.createdDate }
@@ -71,9 +72,5 @@ class BoardViewModel @Inject constructor(
                 _snackBarText.emit(R.string.error_message_retry)
             }
         }
-    }
-
-    fun reset(){
-        _isLoading.value = true
     }
 }

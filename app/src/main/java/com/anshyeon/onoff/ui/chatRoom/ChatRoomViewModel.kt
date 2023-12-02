@@ -31,6 +31,7 @@ class ChatRoomViewModel @Inject constructor(
     val sendMessage = MutableStateFlow("")
 
     lateinit var messageList: StateFlow<List<Message>>
+        private set
 
     private val _currentUser: MutableStateFlow<User?> = MutableStateFlow(null)
     val currentUser: StateFlow<User?> = _currentUser

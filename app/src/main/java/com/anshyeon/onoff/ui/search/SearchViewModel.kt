@@ -1,6 +1,5 @@
 package com.anshyeon.onoff.ui.search
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.R
@@ -57,12 +56,14 @@ class SearchViewModel @Inject constructor(
                 } catch (e: NoSuchElementException) {
                     _snackBarText.emit(R.string.error_message_search_place_name)
                 }
+                _isLoading.value = false
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
             }.onException {
                 _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 
@@ -71,15 +72,15 @@ class SearchViewModel @Inject constructor(
             _isLoading.value = true
             val result = chatRoomRepository.getChatRoomOfPlace(place.placeName)
             result.onSuccess {
+                _isLoading.value = false
                 if (it.isNotEmpty()) {
                     _placeChatRoom.value = it.values.first()
                 }
             }.onError { code, message ->
-                Log.d("test", "Error")
+                _isLoading.value = false
             }.onException {
-                Log.d("test", "Exeption${it.message}")
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 
@@ -89,12 +90,14 @@ class SearchViewModel @Inject constructor(
             val result = placeRepository.getPlaceInfoByLocation(latitude, longitude)
             result.onSuccess {
                 _currentPlaceInfo.value = it
+                _isLoading.value = false
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
             }.onException {
                 _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 
@@ -113,12 +116,12 @@ class SearchViewModel @Inject constructor(
             val result = chatRoomRepository.createChatRoom(chatRoom)
             result.onSuccess {
                 insertChatRoom(chatRoom)
+                _isLoading.value = false
             }.onError { code, message ->
-                Log.d("test", "Error")
+                _isLoading.value = false
             }.onException {
-                Log.d("test", "Exeption${it.message}")
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 }

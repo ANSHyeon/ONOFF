@@ -22,16 +22,25 @@ class ChatRoomRepository @Inject constructor(
     private val userDataSource: UserDataSource,
 ) {
 
-    suspend fun getChatRoom(
-    ): ApiResponse<Map<String, ChatRoom>> {
-        return try {
-            fireBaseApiClient.getChatRoom(
-                userDataSource.getIdToken()
-            )
-        } catch (e: Exception) {
-            ApiResultException(e)
+    fun getChatRoom(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<List<ChatRoom>> = flow {
+        val response = fireBaseApiClient.getChatRoom(
+            userDataSource.getIdToken()
+        )
+        response.onSuccess { data ->
+            emit(data.map { entry ->
+                entry.value
+            })
+        }.onError { code, message ->
+            onError("code: $code, message: $message")
+        }.onException {
+            onError(it.message)
         }
-    }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(Dispatchers.Default)
 
     suspend fun getChatRoomOfPlace(
         placeName: String

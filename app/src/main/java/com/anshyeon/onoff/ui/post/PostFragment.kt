@@ -60,7 +60,7 @@ class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
     }
 
     private fun setComplete() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.isSaved.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,

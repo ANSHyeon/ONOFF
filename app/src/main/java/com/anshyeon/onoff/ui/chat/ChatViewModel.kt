@@ -52,12 +52,14 @@ class ChatViewModel @Inject constructor(
             val result = placeRepository.getPlaceInfoByLocation(latitude, longitude)
             result.onSuccess {
                 _currentPlaceInfo.value = it
+                _isLoading.value = false
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
             }.onException {
                 _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 }
