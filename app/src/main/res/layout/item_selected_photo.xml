@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="clickListener"
+            type="com.anshyeon.onoff.ui.post.PhotoRemoverOnclickListener" />
+
+        <variable
+            name="imageContent"
+            type="com.anshyeon.onoff.data.model.ImageContent" />
+
+        <variable
+            name="position"
+            type="Integer" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="74dp"
+        android:layout_height="74dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_selected_image"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@{imageContent.uri}"
+            android:contentDescription="@string/description_selected_photo"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:shapeAppearanceOverlay="@style/Rounded10"
+            tools:src="@color/grey" />
+
+        <ImageButton
+            android:id="@+id/btn_delete_image"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@string/description_delete_photo"
+            android:onClick="@{() -> clickListener.removeImage(position)}"
+            android:src="@drawable/ic_delete"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

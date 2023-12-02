@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="post"
+            type="com.anshyeon.onoff.data.model.Post" />
+
+        <variable
+            name="clickListener"
+            type="com.anshyeon.onoff.ui.board.OnPostClickListener" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> clickListener.onPostClick(post)}"
+        android:padding="15dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_post_image"
+            imageUrl="@{post.imageUrlList[0]}"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/Rounded10" />
+
+        <TextView
+            android:id="@+id/tv_post_title"
+            style="@style/TextBody14"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{post.title}"
+            app:layout_constraintEnd_toStartOf="@id/iv_post_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_post_image"
+            tools:text="치과 잘하는 곳 추천해주세요~~~!!~~!! 추천해 주세요" />
+
+        <TextView
+            android:id="@+id/tv_post_description"
+            style="@style/TextBody12"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="@{post.description}"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintEnd_toStartOf="@id/iv_post_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_post_title"
+            tools:text="크라운 임플란트 발치를 해야하는데 .. 신경써서 잘해주는 치과 어디 없나요? " />
+
+        <TextView
+            android:id="@+id/tv_post_upload_date"
+            style="@style/TextBody12"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toStartOf="@id/iv_post_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_post_description"
+            tools:text="10분 전" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

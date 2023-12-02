@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="clickListener"
+            type="com.anshyeon.onoff.ui.post.PhotoSelectorOnclickListener" />
+
+        <variable
+            name="header"
+            type="com.anshyeon.onoff.data.model.ImageContentHeader" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="74dp"
+        android:layout_height="74dp">
+
+        <View
+            android:id="@+id/area_select_image"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="14dp"
+            android:background="@drawable/shape_grey_rounded_rectangle"
+            android:onClick="@{() -> clickListener.onImageContentRequest()}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_select_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/description_select_image"
+            android:src="@drawable/ic_camera"
+            app:layout_constraintEnd_toEndOf="@id/area_select_image"
+            app:layout_constraintStart_toStartOf="@id/area_select_image"
+            app:layout_constraintTop_toTopOf="@id/area_select_image" />
+
+        <TextView
+            android:id="@+id/tv_selected_image_size"
+            style="@style/TextBody14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@{String.valueOf(header.size)}"
+            app:layout_constraintEnd_toStartOf="@id/tv_selected_image_limit"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="@id/area_select_image"
+            app:layout_constraintTop_toBottomOf="@id/iv_select_image"
+            tools:text="0" />
+
+        <TextView
+            android:id="@+id/tv_selected_image_limit"
+            style="@style/TextBody14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@{@string/format_image_size_limit(header.limit)}"
+            app:layout_constraintEnd_toEndOf="@id/area_select_image"
+            app:layout_constraintStart_toEndOf="@id/tv_selected_image_size"
+            app:layout_constraintTop_toBottomOf="@id/iv_select_image"
+            tools:text="/10" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

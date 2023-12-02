@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="post"
+            type="com.anshyeon.onoff.data.model.Post" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.detail.DetailFragment">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/detail_app_bar_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/detail_app_bar"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                app:navigationIcon="@drawable/ic_arrow" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewpager_detail_image"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/viewpager_detail_image_indicator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/detail_app_bar_layout" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/viewpager_detail_image_indicator"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:visibility="@{post.imageUrlList.size() > 0 ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewpager_detail_image"
+            app:tabBackground="@drawable/selector_viewpager_indicator"
+            app:tabGravity="center"
+            app:tabIndicatorHeight="0dp" />
+
+        <TextView
+            android:id="@+id/tv_detail_title"
+            style="@style/TextTitle18.Bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="@{post.title}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewpager_detail_image_indicator"
+            tools:text="같이 산책해요" />
+
+        <TextView
+            android:id="@+id/tv_detail_name"
+            style="@style/TextBody14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@{post.writer.nickName}"
+            app:layout_constraintStart_toStartOf="@id/tv_detail_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_detail_title"
+            tools:text="Andy" />
+
+        <TextView
+            android:id="@+id/tv_detail_elapsed_time"
+            style="@style/TextBody14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toEndOf="@id/tv_detail_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_detail_title"
+            tools:text="10분 전" />
+
+
+        <TextView
+            android:id="@+id/tv_detail_description"
+            style="@style/TextBody16"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="14dp"
+            android:text="@{post.description}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_detail_name"
+            app:layout_constraintVertical_bias="0.571"
+            tools:text="게시물 내용" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
