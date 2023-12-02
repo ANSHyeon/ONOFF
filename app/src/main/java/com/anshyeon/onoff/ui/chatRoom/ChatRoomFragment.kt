@@ -7,6 +7,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.anshyeon.onoff.BuildConfig
@@ -20,6 +21,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -36,7 +38,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
         super.onViewCreated(view, savedInstanceState)
         viewModel.getUser()
         viewModel.getMessage(args.chatRoomId)
-
+        viewModel.getChatRoomOfPlace(args.placeName)
         database = FirebaseDatabase.getInstance(BuildConfig.FIREBASE_REALTIME_DB_URL)
         chatRoomRef = database.getReference("message")
         observeCurrentUser()
@@ -44,24 +46,40 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
 
     private fun setLayout() {
         binding.rvMessageList.adapter = adapter
+        binding.rvMessageList.addOnLayoutChangeListener(onLayoutChangeListener)
         binding.toolbarChat.title = args.placeName
         binding.chatRoomId = args.chatRoomId
         binding.viewModel = viewModel
         setNavigationOnClickListener()
         setImeSendActionListener()
-        observeMessageListList()
-        receiveMessages()
+        observeChatRoomKey()
     }
 
-    private fun observeMessageListList() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.messageList.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect {
-                if (it.isNotEmpty()) {
-                    adapter.submitList(it)
+    private val onLayoutChangeListener =
+        View.OnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+            if (bottom < oldBottom) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    delay(10)
                     binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
+                }
+            }
+        }
+
+    private fun observeChatRoomKey() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED,
+            ) {
+                launch {
+                    viewModel.chatRoomKey.collect {
+                        if (it.isNotBlank()) {
+                            viewModel.messageList.collect { messageList ->
+                                adapter.submitList(messageList)
+                                binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
+                                receiveMessages()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -103,12 +121,19 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
             .addChildEventListener(object : ChildEventListener {
                 override fun onChildAdded(dataSnapshot: DataSnapshot, prevChildKey: String?) {
                     val newMessage = dataSnapshot.getValue(Message::class.java) ?: return
-                    if (adapter.currentList.isNotEmpty()) {
+                    val existingMessages = adapter.currentList
+                    val isMessageExists =
+                        existingMessages.any { it.messageId == newMessage.messageId }
+
+                    if (!isMessageExists) {
                         val list = mutableListOf<Message>()
-                        list.addAll(adapter.currentList)
+                        list.addAll(existingMessages)
                         list.add(newMessage)
-                        adapter.submitList(list)
-                        binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
+                        adapter.submitList(list.sortedBy { it.sendAt })
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            delay(100)
+                            binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
+                        }
                     }
                 }
 
@@ -121,5 +146,10 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                 override fun onCancelled(error: DatabaseError) {
                 }
             })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        chatRoomRef.removeEventListener(messageListener)
     }
 }

@@ -12,4 +12,7 @@ interface ChatRoomInfoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(chatRoom: ChatRoom)
+
+    @Query("UPDATE chat_room_info SET lastMessageDate = :lastMessageDate WHERE chatRoomId = :chatRoomId")
+    suspend fun update(chatRoomId: String, lastMessageDate: String)
 }

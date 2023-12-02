@@ -33,6 +33,9 @@ class ChatRoomViewModel @Inject constructor(
     lateinit var messageList: StateFlow<List<Message>>
         private set
 
+    private val _chatRoomKey: MutableStateFlow<String> = MutableStateFlow("")
+    val chatRoomKey: StateFlow<String> = _chatRoomKey
+
     private val _currentUser: MutableStateFlow<User?> = MutableStateFlow(null)
     val currentUser: StateFlow<User?> = _currentUser
 
@@ -53,7 +56,6 @@ class ChatRoomViewModel @Inject constructor(
             }.onException {
                 _snackBarText.emit(R.string.error_message_retry)
             }
-            //_isLoading.value = false
         }
     }
 
@@ -78,6 +80,22 @@ class ChatRoomViewModel @Inject constructor(
             it.sortedBy { message -> message.sendAt }
         }
 
+    fun getChatRoomOfPlace(placeName: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = chatRoomRepository.getChatRoomOfPlace(placeName)
+            result.onSuccess {
+                if (it.isNotEmpty()) {
+                    _chatRoomKey.value = it.keys.first()
+                }
+            }.onError { code, message ->
+                _isLoading.value = false
+            }.onException {
+                _isLoading.value = false
+            }
+        }
+    }
+
     fun createMessage(chatRoomId: String) {
         if (sendMessage.value.isNotBlank()) {
             viewModelScope.launch {
@@ -94,7 +112,7 @@ class ChatRoomViewModel @Inject constructor(
                 sendMessage.value = ""
                 val result = chatRoomRepository.createMessage(message)
                 result.onSuccess {
-                    _isLoading.value = false
+                    updateChatRoom(chatRoomKey.value, chatRoomId)
                 }.onError { code, message ->
                     _isLoading.value = false
                     _snackBarText.emit(R.string.error_message_retry)
@@ -103,6 +121,28 @@ class ChatRoomViewModel @Inject constructor(
                     _snackBarText.emit(R.string.error_message_retry)
                 }
             }
+        }
+    }
+
+    private fun updateChatRoom(chatRoomKey: String, chatRoomId: String) {
+        viewModelScope.launch {
+            val result = chatRoomRepository.updateChatRoom(chatRoomKey)
+            result.onSuccess {
+                updateChatRoomInRoom(chatRoomId)
+            }.onError { code, message ->
+                _isLoading.value = false
+                _snackBarText.emit(R.string.error_message_retry)
+            }.onException {
+                _isLoading.value = false
+                _snackBarText.emit(R.string.error_message_retry)
+            }
+        }
+    }
+
+    private fun updateChatRoomInRoom(chatRoomId: String) {
+        viewModelScope.launch {
+            chatRoomRepository.updateChatRoomInRoom(chatRoomId)
+            _isLoading.value = false
         }
     }
 }

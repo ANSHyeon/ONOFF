@@ -7,7 +7,9 @@ import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.network.model.ApiResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface FireBaseApiClient {
@@ -27,6 +29,13 @@ interface FireBaseApiClient {
     suspend fun createChatRoom(
         @Query("auth") auth: String?,
         @Body chatRoom: ChatRoom
+    ): ApiResponse<Map<String, String>>
+
+    @PATCH("chatRoom/{chatRoomKey}.json")
+    suspend fun updateChatRoom(
+        @Path("chatRoomKey") chatRoomKey: String?,
+        @Query("auth") auth: String?,
+        @Body lastMessageDate: Map<String, String>
     ): ApiResponse<Map<String, String>>
 
     @GET("chatRoom.json")

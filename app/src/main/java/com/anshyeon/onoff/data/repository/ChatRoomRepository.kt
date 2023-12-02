@@ -68,6 +68,20 @@ class ChatRoomRepository @Inject constructor(
         }
     }
 
+    suspend fun updateChatRoom(
+        chatRoomKey: String
+    ): ApiResponse<Map<String, String>> {
+        return try {
+            fireBaseApiClient.updateChatRoom(
+                chatRoomKey,
+                userDataSource.getIdToken(),
+                mapOf("lastMessageDate" to DateFormatText.getCurrentTime())
+            )
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
     suspend fun createMessage(
         message: Message
     ): ApiResponse<Map<String, String>> {
@@ -107,6 +121,10 @@ class ChatRoomRepository @Inject constructor(
 
     suspend fun insertChatRoom(chatRoom: ChatRoom) {
         chatRoomInfoDao.insert(chatRoom)
+    }
+
+    suspend fun updateChatRoomInRoom(chatRoomId: String) {
+        chatRoomInfoDao.update(chatRoomId, DateFormatText.getCurrentTime())
     }
 
     fun getChatRoomListByRoom(): Flow<List<ChatRoom>> {
