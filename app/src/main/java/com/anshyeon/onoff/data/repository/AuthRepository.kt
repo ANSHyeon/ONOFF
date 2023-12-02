@@ -52,7 +52,7 @@ class AuthRepository @Inject constructor(
     suspend fun getUser(
     ): ApiResponse<Map<String, User>> {
         return try {
-            fireBaseApiClient.getUser(userDataSource.getIdToken(), userDataSource.getUid())
+            fireBaseApiClient.getUser(userDataSource.getIdToken(), "\"${userDataSource.getUid()}\"")
         } catch (e: Exception) {
             ApiResultException(e)
         }

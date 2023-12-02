@@ -39,6 +39,7 @@ class SearchViewModel @Inject constructor(
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+
     private val _savedChatRoom: MutableStateFlow<ChatRoom?> = MutableStateFlow(null)
     val savedChatRoom: StateFlow<ChatRoom?> = _savedChatRoom
 

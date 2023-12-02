@@ -19,7 +19,7 @@ interface FireBaseApiClient {
     @GET("users.json?orderBy=\"userId\"")
     suspend fun getUser(
         @Query("auth") auth: String?,
-        @Query("userId") userId: String
+        @Query("equalTo") userId: String
     ): ApiResponse<Map<String, User>>
 
     @POST("chatRoom.json")
@@ -38,6 +38,12 @@ interface FireBaseApiClient {
         @Query("auth") auth: String?,
         @Query("equalTo") placeName: String,
     ): ApiResponse<Map<String, ChatRoom>>
+
+    @POST("message.json")
+    suspend fun createMessage(
+        @Query("auth") auth: String?,
+        @Body message: Message,
+    ): ApiResponse<Map<String, String>>
 
     @GET("message.json?orderBy=\"chatRoomId\"")
     suspend fun getMessage(

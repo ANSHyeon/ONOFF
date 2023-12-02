@@ -1,16 +1,24 @@
 package com.anshyeon.onoff.data.repository
 
-import com.anshyeon.onoff.data.local.AppDatabase
+import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.network.FireBaseApiClient
+import com.anshyeon.onoff.network.extentions.onError
+import com.anshyeon.onoff.network.extentions.onException
+import com.anshyeon.onoff.network.extentions.onSuccess
 import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.network.model.ApiResultException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 class ChatRoomRepository @Inject constructor(
     private val fireBaseApiClient: FireBaseApiClient,
-    private val database: AppDatabase,
+    private val chatRoomInfoDao: ChatRoomInfoDao,
     private val userDataSource: UserDataSource,
 ) {
 
@@ -51,18 +59,48 @@ class ChatRoomRepository @Inject constructor(
         }
     }
 
-    suspend fun getMessage(chatRoomId: String): ApiResponse<Map<String, Message>> {
+    suspend fun createMessage(
+        message: Message
+    ): ApiResponse<Map<String, String>> {
         return try {
-            fireBaseApiClient.getMessage(
+            fireBaseApiClient.createMessage(
                 userDataSource.getIdToken(),
-                "\"$chatRoomId\"",
+                message
             )
         } catch (e: Exception) {
             ApiResultException(e)
         }
     }
 
+    fun getMessage(
+        chatRoomId: String,
+        onComplete: () -> Unit,
+        onError: () -> Unit
+    ): Flow<List<Message>> = flow {
+        val response = fireBaseApiClient.getMessage(
+            userDataSource.getIdToken(),
+            "\"$chatRoomId\"",
+        )
+        response.onSuccess { data ->
+            emit(
+                data.filter { entry ->
+                    entry.value.chatRoomId == chatRoomId
+                }.map { it.value }
+            )
+        }.onError { code, message ->
+            onError()
+        }.onException {
+            onError()
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(Dispatchers.Default)
+
     suspend fun insertChatRoom(chatRoom: ChatRoom) {
-        database.chatRoomDao().insert(chatRoom)
+        chatRoomInfoDao.insert(chatRoom)
+    }
+
+    fun getChatRoomListByRoom(): Flow<List<ChatRoom>> {
+        return chatRoomInfoDao.getAllChatRoomList()
     }
 }

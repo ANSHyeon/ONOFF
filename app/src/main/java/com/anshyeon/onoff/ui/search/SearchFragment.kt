@@ -93,7 +93,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
             val address = roadAddressName.ifBlank { addressName }
             binding.placeInfoSearch.setPlaceName(placeName)
             binding.placeInfoSearch.setAddress(address)
-            setDefaultPlaceInfoButton(this)
+            setDefaultPlaceInfoButton()
         }
     }
 
@@ -125,7 +125,12 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
             ).collect {
                 it?.let {
                     setPlaceInfoButton(getString(R.string.label_enter_chat_room)) {
-                        viewModel.insertChatRoom(it)
+                        client.lastLocation.addOnSuccessListener { location ->
+                            viewModel.getCurrentPlaceInfo(
+                                location.latitude.toString(),
+                                location.longitude.toString()
+                            )
+                        }
                     }
                 }
             }
@@ -139,12 +144,12 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 Lifecycle.State.STARTED,
             ).collect {
                 it?.let {
-                    client.lastLocation.addOnSuccessListener { location ->
-                        viewModel.getCurrentPlaceInfo(
-                            location.latitude.toString(),
-                            location.longitude.toString()
+                    val action =
+                        SearchFragmentDirections.actionSearchToChatRoom(
+                            it.placeName,
+                            it.chatRoomId
                         )
-                    }
+                    findNavController().navigate(action)
                 }
             }
         }
@@ -157,15 +162,28 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 Lifecycle.State.STARTED,
             ).collect {
                 it?.let { placeInfo ->
-                    val selectedPlaceInfo = viewModel.savedChatRoom.value
+                    val selectedPlaceInfo = viewModel.placeChatRoom.value
                     selectedPlaceInfo?.let { chatRoom ->
                         if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
-                            val action =
-                                SearchFragmentDirections.actionSearchToChatRoom(
-                                    selectedPlaceInfo.placeName,
-                                    selectedPlaceInfo.chatRoomId
+                            viewModel.insertChatRoom(chatRoom)
+                        } else {
+                            binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
+                        }
+                    } ?: run {
+                        val searchedPlace = viewModel.searchedPlace.value ?: Place()
+
+                        if (SamePlaceChecker.isSamePlace(placeInfo, searchedPlace)) {
+                            with(searchedPlace) {
+                                viewModel.createChatRoom(
+                                    ChatRoom(
+                                        y + x,
+                                        placeName,
+                                        roadAddressName.ifBlank { addressName },
+                                        y,
+                                        x
+                                    )
                                 )
-                            findNavController().navigate(action)
+                            }
 
                         } else {
                             binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
@@ -185,17 +203,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         }
     }
 
-    private fun setDefaultPlaceInfoButton(place: Place) {
+    private fun setDefaultPlaceInfoButton() {
         setPlaceInfoButton(getString(R.string.label_create_chat_room)) {
-            viewModel.createChatRoom(
-                ChatRoom(
-                    place.y + place.x,
-                    place.placeName,
-                    place.roadAddressName.ifBlank { place.addressName },
-                    place.y,
-                    place.x
+            client.lastLocation.addOnSuccessListener { location ->
+                viewModel.getCurrentPlaceInfo(
+                    location.latitude.toString(),
+                    location.longitude.toString()
                 )
-            )
+            }
         }
     }
 

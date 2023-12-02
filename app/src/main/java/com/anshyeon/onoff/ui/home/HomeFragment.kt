@@ -85,7 +85,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         observeIsPermissionGranted()
         setSearchPlaceBarClickListener()
         observeIsSaved()
-        observeCurrentPlaceInfo()
+        insertChatRoom()
     }
 
     private fun observeChatRoomList() {
@@ -131,35 +131,29 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 Lifecycle.State.STARTED,
             ).collect {
                 it?.let {
-                    client.lastLocation.addOnSuccessListener { location ->
-                        viewModel.getCurrentPlaceInfo(
-                            location.latitude.toString(),
-                            location.longitude.toString()
+                    val action =
+                        HomeFragmentDirections.actionHomeToChatRoom(
+                            it.placeName,
+                            it.chatRoomId
                         )
-                    }
+                    viewModel.reset()
+                    findNavController().navigate(action)
                 }
             }
         }
     }
 
-    private fun observeCurrentPlaceInfo() {
+    private fun insertChatRoom() {
         lifecycleScope.launch {
             viewModel.currentPlaceInfo.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
                 it?.let { placeInfo ->
-                    val selectedPlaceInfo = viewModel.savedChatRoom.value
+                    val selectedPlaceInfo = viewModel.selectedChatRoom
                     selectedPlaceInfo?.let { chatRoom ->
                         if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
-                            val action =
-                                HomeFragmentDirections.actionHomeToChatRoom(
-                                    selectedPlaceInfo.placeName,
-                                    selectedPlaceInfo.chatRoomId
-                                )
-                            viewModel.reset()
-                            findNavController().navigate(action)
-
+                            viewModel.insertChatRoom(chatRoom)
                         } else {
                             viewModel.reset()
                             binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
@@ -199,7 +193,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             setPlaceName(chatRoom.placeName)
             setButtonText(getString(R.string.label_enter_chat_room))
             setClickListener {
-                viewModel.insertChatRoom(chatRoom)
+                client.lastLocation.addOnSuccessListener { location ->
+                    viewModel.getCurrentPlaceInfo(
+                        location.latitude.toString(),
+                        location.longitude.toString()
+                    )
+                }
+                viewModel.selectedChatRoom = chatRoom
             }
         }
     }

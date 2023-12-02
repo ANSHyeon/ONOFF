@@ -4,16 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Message
+import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.data.repository.AuthRepository
 import com.anshyeon.onoff.data.repository.ChatRoomRepository
 import com.anshyeon.onoff.network.extentions.onError
 import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,11 +30,10 @@ class ChatRoomViewModel @Inject constructor(
 
     val sendMessage = MutableStateFlow("")
 
-    private val _currentUserEmail: MutableStateFlow<String?> = MutableStateFlow(null)
-    val currentUserEmail: StateFlow<String?> = _currentUserEmail
+    lateinit var messageList: StateFlow<List<Message>>
 
-    private val _dummyMessageList: MutableStateFlow<List<Message>> = MutableStateFlow(emptyList())
-    val dummyMessageList: StateFlow<List<Message>> = _dummyMessageList
+    private val _currentUser: MutableStateFlow<User?> = MutableStateFlow(null)
+    val currentUser: StateFlow<User?> = _currentUser
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
@@ -42,7 +46,7 @@ class ChatRoomViewModel @Inject constructor(
             _isLoading.value = true
             val result = authRepository.getUser()
             result.onSuccess {
-                _currentUserEmail.value = it.values.first().email
+                _currentUser.value = it.values.first()
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {
@@ -52,14 +56,43 @@ class ChatRoomViewModel @Inject constructor(
         }
     }
 
-    fun getMessage(buildingName: String) {
+    fun getMessage(chatRoomId: String) {
+        messageList = transformMessageList(chatRoomId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+    }
+
+    private fun transformMessageList(chatRoomId: String): Flow<List<Message>> =
+        chatRoomRepository.getMessage(
+            chatRoomId,
+            onComplete = {
+
+            },
+            onError = {
+
+            }
+        ).map {
+            it.sortedBy { message -> message.sendAt }
+        }
+
+    fun createMessage(chatRoomId: String) {
         viewModelScope.launch {
             _isLoading.value = true
-            val result = chatRoomRepository.getMessage(buildingName)
+            val currentTime = System.currentTimeMillis()
+            val messageId = chatRoomId + (currentUser.value?.userId) + currentTime
+            val message = Message(
+                messageId,
+                chatRoomId,
+                currentUser.value ?: User(),
+                sendMessage.value,
+                currentTime
+            )
+
+            val result = chatRoomRepository.createMessage(message)
             result.onSuccess {
-                if (it.isNotEmpty()) {
-                    _dummyMessageList.value = it.values.toList()
-                }
+                sendMessage.value = ""
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
             }.onException {
