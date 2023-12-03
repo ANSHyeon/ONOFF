@@ -29,17 +29,21 @@ class ChatRoomRepository @Inject constructor(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
     ): Flow<List<ChatRoom>> = flow {
-        val response = fireBaseApiClient.getChatRoom(
-            userDataSource.getIdToken()
-        )
-        response.onSuccess { data ->
-            emit(data.map { entry ->
-                entry.value
-            })
-        }.onError { code, message ->
-            onError("code: $code, message: $message")
-        }.onException {
-            onError(it.message)
+        try {
+            val response = fireBaseApiClient.getChatRoom(
+                userDataSource.getIdToken()
+            )
+            response.onSuccess { data ->
+                emit(data.map { entry ->
+                    entry.value
+                })
+            }.onError { code, message ->
+                onError("code: $code, message: $message")
+            }.onException {
+                onError(it.message)
+            }
+        } catch (e: Exception) {
+            onError(e.message)
         }
     }.onCompletion {
         onComplete()
@@ -103,19 +107,23 @@ class ChatRoomRepository @Inject constructor(
         onComplete: () -> Unit,
         onError: () -> Unit
     ): Flow<List<Message>> = flow {
-        val response = fireBaseApiClient.getMessage(
-            userDataSource.getIdToken(),
-            "\"$chatRoomId\"",
-        )
-        response.onSuccess { data ->
-            emit(
-                data.filter { entry ->
-                    entry.value.chatRoomId == chatRoomId
-                }.map { it.value }
+        try {
+            val response = fireBaseApiClient.getMessage(
+                userDataSource.getIdToken(),
+                "\"$chatRoomId\"",
             )
-        }.onError { code, message ->
-            onError()
-        }.onException {
+            response.onSuccess { data ->
+                emit(
+                    data.filter { entry ->
+                        entry.value.chatRoomId == chatRoomId
+                    }.map { it.value }
+                )
+            }.onError { code, message ->
+                onError()
+            }.onException {
+                onError()
+            }
+        } catch (e: Exception) {
             onError()
         }
     }.onCompletion {
