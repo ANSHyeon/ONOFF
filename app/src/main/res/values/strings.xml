@@ -52,4 +52,6 @@
     <string name="elapsed_time_days">%d일 전</string>
     <string name="elapsed_time_weeks">%d주 전</string>
     <string name="elapsed_time_months">%d달 전</string>
+    <string name="label_network_error">네트워크 연결 끊어짐</string>
+    <string name="label_nothing_post">게시물이 없습니다.</string>
 </resources>
