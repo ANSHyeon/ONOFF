@@ -19,6 +19,7 @@ import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.showMessage
 import com.anshyeon.onoff.util.SamePlaceChecker
 import com.anshyeon.onoff.util.Constants
+import com.anshyeon.onoff.util.NetworkConnection
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
@@ -92,6 +93,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         binding.viewModel = viewModel
         setMapView()
         setSearchPlaceBarClickListener()
+        setNetworkErrorBar()
     }
 
     private fun setMapView() {
@@ -200,6 +202,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                     )
                 findNavController().navigate(action)
             }
+        }
+    }
+
+    private fun setNetworkErrorBar() {
+        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
+            binding.networkErrorBar.visibility = if (it) View.GONE else View.VISIBLE
         }
     }
 
