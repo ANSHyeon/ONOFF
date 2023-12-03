@@ -5,7 +5,6 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -36,12 +35,12 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.getUser()
         viewModel.getMessage(args.chatRoomId)
         viewModel.getChatRoomOfPlace(args.placeName)
         database = FirebaseDatabase.getInstance(BuildConfig.FIREBASE_REALTIME_DB_URL)
         chatRoomRef = database.getReference("message")
-        observeCurrentUser()
+        adapter.setCurrentUserEmail(viewModel.getLocalUserEmail())
+        setLayout()
     }
 
     private fun setLayout() {
@@ -80,20 +79,6 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-
-    private fun observeCurrentUser() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.currentUser.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect {
-                it?.let {
-                    adapter.setCurrentUserEmail(it.email)
-                    setLayout()
                 }
             }
         }

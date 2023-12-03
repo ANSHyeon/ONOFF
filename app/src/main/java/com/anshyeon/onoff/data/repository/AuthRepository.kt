@@ -28,6 +28,17 @@ class AuthRepository @Inject constructor(
         )
     }
 
+    fun getLocalUserEmail(): String {
+        return preferenceManager.getString(Constants.KEY_USER_EMAIL, "")
+    }
+
+    fun saveUserEmail() {
+        preferenceManager.setUserEmail(
+            Constants.KEY_USER_EMAIL,
+            userDataSource.getEmail()
+        )
+    }
+
     suspend fun createUser(
         nickname: String,
         uri: Uri?

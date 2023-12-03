@@ -57,6 +57,7 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
     fun saveUserInfo() {
         viewModelScope.launch {
             repository.saveIdToken()
+            repository.saveUserEmail()
             _isSaveUserInfo.value = true
         }
     }
