@@ -12,6 +12,7 @@ import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Post
 import com.anshyeon.onoff.databinding.FragmentBoardBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.util.NetworkConnection
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,7 +38,7 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
 
     private fun setLayout() {
         binding.viewModel = viewModel
-        getPostList()
+        setNetworkErrorBar()
     }
 
     private fun getPostList() {
@@ -56,7 +57,12 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
                         setToolBar(location)
                         viewModel.getPostList(location)
                         viewModel.postList
-                            .collect { postList -> adapter.submitList(postList) }
+                            .collect { postList ->
+                                adapter.submitList(postList)
+                                if (postList.isNotEmpty()) {
+                                    binding.tvNothingPost.visibility = View.GONE
+                                }
+                            }
                     }
                 }
             }
@@ -87,6 +93,18 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
                     false
                 }
             }
+        }
+    }
+
+    private fun setNetworkErrorBar() {
+        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
+            val visibility = if (it) {
+                getPostList()
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+            binding.networkErrorBar.visibility = visibility
         }
     }
 
