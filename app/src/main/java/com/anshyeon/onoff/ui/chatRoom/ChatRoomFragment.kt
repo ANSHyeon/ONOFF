@@ -1,10 +1,12 @@
 package com.anshyeon.onoff.ui.chatRoom
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -14,6 +16,10 @@ import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.databinding.FragmentChatRoomBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.util.NetworkConnection
+import com.anshyeon.onoff.util.SamePlaceChecker
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -23,6 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("MissingPermission")
 @AndroidEntryPoint
 class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment_chat_room) {
 
@@ -31,27 +38,54 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     private lateinit var messageListener: ChildEventListener
     private val args: ChatRoomFragmentArgs by navArgs()
     private val viewModel by viewModels<ChatRoomViewModel>()
+    private lateinit var client: FusedLocationProviderClient
     private val adapter = ChatRoomAdapter()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        client = LocationServices.getFusedLocationProviderClient(requireActivity())
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.getMessage(args.chatRoomId)
-        viewModel.getChatRoomOfPlace(args.placeName)
         database = FirebaseDatabase.getInstance(BuildConfig.FIREBASE_REALTIME_DB_URL)
         chatRoomRef = database.getReference("message")
-        adapter.setCurrentUserEmail(viewModel.getLocalUserEmail())
         setLayout()
     }
 
     private fun setLayout() {
-        binding.rvMessageList.adapter = adapter
-        binding.rvMessageList.addOnLayoutChangeListener(onLayoutChangeListener)
+        setAdapter()
+        setBinding()
+        setNavigationOnClickListener()
+        setImeSendActionListener()
+        setNetworkErrorBar()
+    }
+
+    private fun setBinding() {
         binding.toolbarChat.title = args.placeName
         binding.chatRoomId = args.chatRoomId
         binding.viewModel = viewModel
-        setNavigationOnClickListener()
-        setImeSendActionListener()
-        observeChatRoomKey()
+    }
+
+    private fun setAdapter() {
+        adapter.setCurrentUserEmail(viewModel.getLocalUserEmail())
+        binding.rvMessageList.adapter = adapter
+        binding.rvMessageList.addOnLayoutChangeListener(onLayoutChangeListener)
+    }
+
+    private fun setNetworkErrorBar() {
+        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
+            if (it) {
+                viewModel.getMessage(args.chatRoomId)
+                viewModel.getChatRoomOfPlace(args.placeName)
+                checkSamePlace(args.chatRoomAddress)
+                observeChatRoomKey()
+                binding.networkErrorBar.visibility = View.GONE
+            } else {
+                binding.etChatSendText.isEnabled = false
+                binding.networkErrorBar.visibility = View.VISIBLE
+            }
+        }
     }
 
     private val onLayoutChangeListener =
@@ -78,6 +112,31 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                                 receiveMessages()
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkSamePlace(chatRoomAddress: String) {
+        client.lastLocation.addOnSuccessListener { location ->
+            viewModel.getCurrentPlaceInfo(
+                location.latitude.toString(),
+                location.longitude.toString()
+            )
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.currentPlaceInfo.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                it?.let { placeInfo ->
+                    if (SamePlaceChecker.isSamePlace(placeInfo, chatRoomAddress)) {
+                        binding.etChatSendText.isEnabled = true
+                        binding.tvErrorSamePlace.visibility = View.GONE
+                    } else {
+                        binding.tvErrorSamePlace.visibility = View.VISIBLE
                     }
                 }
             }

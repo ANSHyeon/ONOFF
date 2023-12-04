@@ -1,6 +1,5 @@
 package com.anshyeon.onoff.util
 
-import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Place
 import com.anshyeon.onoff.data.model.PlaceInfo
 
@@ -10,10 +9,10 @@ object SamePlaceChecker {
         return address.split(" ").takeLast(2).joinToString(" ")
     }
 
-    fun isSamePlace(placeInfo: PlaceInfo, selectedPlaceInfo: ChatRoom): Boolean {
+    fun isSamePlace(placeInfo: PlaceInfo, selectedPlaceInfo: String): Boolean {
         val currentPlaceInfo = placeInfo.documents.first().roadAddress
         val currentRoadAddress = getRoadAddress(currentPlaceInfo.addressName)
-        val selectedRoadAddress = getRoadAddress(selectedPlaceInfo.address)
+        val selectedRoadAddress = getRoadAddress(selectedPlaceInfo)
 
         return currentRoadAddress == selectedRoadAddress
     }

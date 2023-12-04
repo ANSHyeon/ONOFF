@@ -148,7 +148,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     val action =
                         SearchFragmentDirections.actionSearchToChatRoom(
                             it.placeName,
-                            it.chatRoomId
+                            it.chatRoomId,
+                            it.address
                         )
                     findNavController().navigate(action)
                 }
@@ -165,7 +166,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 it?.let { placeInfo ->
                     val selectedPlaceInfo = viewModel.placeChatRoom.value
                     selectedPlaceInfo?.let { chatRoom ->
-                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
+                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom.address)) {
                             viewModel.insertChatRoom(chatRoom)
                         } else {
                             binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)

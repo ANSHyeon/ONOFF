@@ -1,6 +1,5 @@
 package com.anshyeon.onoff.ui.chat
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
@@ -19,18 +18,11 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@SuppressLint("MissingPermission")
 @AndroidEntryPoint
 class ChatFragment : BaseFragment<FragmentChatBinding>(R.layout.fragment_chat),
     OnEnterButtonClickListener {
 
     private val viewModel by viewModels<ChatViewModel>()
-    private lateinit var client: FusedLocationProviderClient
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        client = LocationServices.getFusedLocationProviderClient(requireActivity())
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,36 +45,12 @@ class ChatFragment : BaseFragment<FragmentChatBinding>(R.layout.fragment_chat),
     }
 
     override fun enterChatRoom(chatRoom: ChatRoom) {
-        client.lastLocation.addOnSuccessListener { location ->
-            viewModel.getCurrentPlaceInfo(
-                location.latitude.toString(),
-                location.longitude.toString()
+        val action =
+            ChatFragmentDirections.actionChatToChatRoom(
+                chatRoom.placeName,
+                chatRoom.chatRoomId,
+                chatRoom.address
             )
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.currentPlaceInfo.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect {
-                it?.let { placeInfo ->
-                    if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
-                        val action =
-                            ChatFragmentDirections.actionChatToChatRoom(
-                                chatRoom.placeName,
-                                chatRoom.chatRoomId
-                            )
-                        findNavController().navigate(action)
-
-                    } else {
-                        Snackbar.make(
-                            binding.root,
-                            getString(R.string.error_message_not_same_place),
-                            Snackbar.LENGTH_SHORT,
-                        ).show()
-                    }
-                }
-            }
-        }
+        findNavController().navigate(action)
     }
 }

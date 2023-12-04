@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Message
+import com.anshyeon.onoff.data.model.PlaceInfo
 import com.anshyeon.onoff.data.repository.AuthRepository
 import com.anshyeon.onoff.data.repository.ChatRoomRepository
+import com.anshyeon.onoff.data.repository.PlaceRepository
 import com.anshyeon.onoff.network.extentions.onError
 import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
@@ -24,7 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatRoomViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val chatRoomRepository: ChatRoomRepository
+    private val chatRoomRepository: ChatRoomRepository,
+    private val placeRepository: PlaceRepository,
 ) : ViewModel() {
 
     val sendMessage = MutableStateFlow("")
@@ -35,10 +38,13 @@ class ChatRoomViewModel @Inject constructor(
     private val _chatRoomKey: MutableStateFlow<String> = MutableStateFlow("")
     val chatRoomKey: StateFlow<String> = _chatRoomKey
 
+    private val _currentPlaceInfo: MutableStateFlow<PlaceInfo?> = MutableStateFlow(null)
+    val currentPlaceInfo: StateFlow<PlaceInfo?> = _currentPlaceInfo
+
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     fun getLocalUserEmail(): String {
@@ -53,18 +59,20 @@ class ChatRoomViewModel @Inject constructor(
         )
     }
 
-    private fun transformMessageList(chatRoomId: String): Flow<List<Message>> =
-        chatRoomRepository.getMessage(
+    private fun transformMessageList(chatRoomId: String): Flow<List<Message>> {
+        _isLoading.value = true
+        return chatRoomRepository.getMessage(
             chatRoomId,
             onComplete = {
                 _isLoading.value = false
             },
             onError = {
-
+                _isLoading.value = false
             }
         ).map {
             it.sortedBy { message -> message.sendAt }
         }
+    }
 
     fun getChatRoomOfPlace(placeName: String) {
         viewModelScope.launch {
@@ -129,6 +137,23 @@ class ChatRoomViewModel @Inject constructor(
             _isLoading.value = true
             chatRoomRepository.insertMessage(message)
             _isLoading.value = false
+        }
+    }
+
+    fun getCurrentPlaceInfo(latitude: String, longitude: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = placeRepository.getPlaceInfoByLocation(latitude, longitude)
+            result.onSuccess {
+                _currentPlaceInfo.value = it
+                _isLoading.value = false
+            }.onError { code, message ->
+                _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
+            }.onException {
+                _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
+            }
         }
     }
 }

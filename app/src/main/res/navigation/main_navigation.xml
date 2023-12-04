@@ -109,6 +109,9 @@
         <argument
             android:name="chatRoomId"
             app:argType="string" />
+        <argument
+            android:name="chatRoomAddress"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/navigation_post"

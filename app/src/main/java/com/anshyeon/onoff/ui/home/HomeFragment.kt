@@ -177,7 +177,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                         it?.let { placeInfo ->
                             val selectedPlaceInfo = viewModel.selectedChatRoom
                             selectedPlaceInfo?.let { chatRoom ->
-                                if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
+                                if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom.address)) {
                                     handleSamePlace(chatRoom)
                                 } else {
                                     binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
@@ -198,7 +198,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 val action =
                     HomeFragmentDirections.actionHomeToChatRoom(
                         savedChatRoom.placeName,
-                        savedChatRoom.chatRoomId
+                        savedChatRoom.chatRoomId,
+                        savedChatRoom.address
                     )
                 findNavController().navigate(action)
             }
