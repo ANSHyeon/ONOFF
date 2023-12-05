@@ -12,6 +12,7 @@ import androidx.navigation.fragment.navArgs
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentEditBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.ui.extensions.setClickEvent
 import com.anshyeon.onoff.ui.extensions.showMessage
 import com.anshyeon.onoff.util.NetworkConnection
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,7 +43,9 @@ class EditFragment : BaseFragment<FragmentEditBinding>(R.layout.fragment_edit) {
         setDefaultUserInfo()
         setNavigationOnClickListener()
         setSnackBarMessage()
+        observeIsUpdated()
         setImageSelectorClickListener()
+        setSubmitButtonClickListener()
     }
 
     private fun setNetworkErrorBar() {
@@ -59,6 +62,24 @@ class EditFragment : BaseFragment<FragmentEditBinding>(R.layout.fragment_edit) {
     private fun setImageSelectorClickListener() {
         binding.ivUserProfileCamera.setOnClickListener {
             getMultipleContents.launch("image/*")
+        }
+    }
+
+    private fun setSubmitButtonClickListener() {
+        binding.btnUserEdit.setClickEvent(viewLifecycleOwner.lifecycleScope) {
+            viewModel.updateUserInfo(args.imageLocation, args.userKey)
+        }
+    }
+
+    private fun observeIsUpdated() {
+        lifecycleScope.launch {
+            viewModel.isUpdated
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    if (it) {
+                        findNavController().navigateUp()
+                    }
+                }
         }
     }
 

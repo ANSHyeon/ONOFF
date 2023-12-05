@@ -6,6 +6,9 @@ import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.local.dao.MessageDao
 import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.network.FireBaseApiClient
+import com.anshyeon.onoff.network.extentions.onError
+import com.anshyeon.onoff.network.extentions.onException
+import com.anshyeon.onoff.network.extentions.onSuccess
 import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.network.model.ApiResultException
 import com.anshyeon.onoff.util.Constants
@@ -98,6 +101,34 @@ class AuthRepository @Inject constructor(
                 userDataSource.getIdToken(),
                 "\"${userDataSource.getUid()}\""
             )
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
+    suspend fun updateUser(
+        nickname: String,
+        uri: Uri?,
+        location: String,
+        userKey: String
+    ): ApiResponse<Map<String, String>> {
+        return try {
+            val uriLocation = uri?.let { uploadImage(it) } ?: location.ifBlank { null }
+            val updates = mapOf(
+                "nickName" to nickname,
+                "profileUri" to uriLocation
+            )
+            fireBaseApiClient.updateUser(
+                userKey,
+                userDataSource.getIdToken(),
+                updates
+            ).onSuccess {
+                saveUserInLocal(User(nickName = nickname, profileUrl = uriLocation))
+            }.onError { code, message ->
+                throw Exception()
+            }.onException {
+                throw Exception()
+            }
         } catch (e: Exception) {
             ApiResultException(e)
         }
