@@ -208,7 +208,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private fun setPlaceInfoButton(text: String, operation: () -> Unit) {
         with(binding.placeInfoSearch) {
             setButtonText(text)
-            setClickListener {
+            setClickListener(viewLifecycleOwner.lifecycleScope) {
                 operation()
             }
         }

@@ -154,7 +154,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             setPlaceName(chatRoom.placeName)
             setAddress(chatRoom.address)
             setButtonText(getString(R.string.label_enter_chat_room))
-            setClickListener {
+            setClickListener(viewLifecycleOwner.lifecycleScope) {
                 client.lastLocation.addOnSuccessListener { location ->
                     viewModel.getCurrentPlaceInfo(
                         location.latitude.toString(),
