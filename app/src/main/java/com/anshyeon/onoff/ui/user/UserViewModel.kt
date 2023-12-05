@@ -8,6 +8,7 @@ import com.anshyeon.onoff.data.repository.AuthRepository
 import com.anshyeon.onoff.network.extentions.onError
 import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -38,6 +39,9 @@ class UserViewModel @Inject constructor(
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _isLogOut: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isLogOut: StateFlow<Boolean> = _isLogOut
 
     fun getUserInfo() {
         viewModelScope.launch {
@@ -77,6 +81,14 @@ class UserViewModel @Inject constructor(
 
     private fun getLocalUserProfileImage(): String? {
         return authRepository.getLocalUserProfileImage()
+    }
+
+    fun logOut() {
+        viewModelScope.launch {
+            authRepository.logOut()
+            FirebaseAuth.getInstance().signOut()
+            _isLogOut.value = true
+        }
     }
 
     private suspend fun getDownloadUrl(location: String): String {

@@ -2,11 +2,13 @@ package com.anshyeon.onoff.ui.user
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentUserBinding
 import com.anshyeon.onoff.ui.BaseFragment
@@ -29,6 +31,7 @@ class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
         binding.viewModel = viewModel
         setNetworkErrorBar()
         setToolBar()
+        setLogOutButtonClickListener()
         setSnackBarMessage()
     }
 
@@ -53,6 +56,13 @@ class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
                 launch {
                     viewModel.currentUserInfo.collect { user ->
                         viewModel.saveUserInLocal(user)
+                    }
+                }
+                launch {
+                    viewModel.isLogOut.collect {
+                        if (it) {
+                            findNavController().navigateUp()
+                        }
                     }
                 }
             }
@@ -82,6 +92,20 @@ class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
                 Snackbar.make(
                     binding.root,
                     getString(it),
+                    Snackbar.LENGTH_SHORT,
+                ).show()
+            }
+        }
+    }
+
+    private fun setLogOutButtonClickListener() {
+        binding.btnLogOut.setOnClickListener {
+            if (!binding.networkErrorBar.isVisible) {
+                viewModel.logOut()
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.error_message_retry),
                     Snackbar.LENGTH_SHORT,
                 ).show()
             }

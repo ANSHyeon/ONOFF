@@ -2,6 +2,8 @@ package com.anshyeon.onoff.data.repository
 
 import android.net.Uri
 import com.anshyeon.onoff.data.PreferenceManager
+import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
+import com.anshyeon.onoff.data.local.dao.MessageDao
 import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.network.FireBaseApiClient
 import com.anshyeon.onoff.network.model.ApiResponse
@@ -15,6 +17,8 @@ class AuthRepository @Inject constructor(
     private val fireBaseApiClient: FireBaseApiClient,
     private val preferenceManager: PreferenceManager,
     private val userDataSource: UserDataSource,
+    private val chatRoomInfoDao: ChatRoomInfoDao,
+    private val messageDao: MessageDao,
 ) {
 
     fun getLocalIdToken(): String? {
@@ -97,6 +101,15 @@ class AuthRepository @Inject constructor(
         } catch (e: Exception) {
             ApiResultException(e)
         }
+    }
+
+    suspend fun logOut() {
+        preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN, "")
+        preferenceManager.setUserNickName(Constants.KEY_USER_NICKNAME, "")
+        preferenceManager.setUserEmail(Constants.KEY_USER_EMAIL, "")
+        preferenceManager.setUserImage(Constants.KEY_USER_PROFILE_URI, "")
+        chatRoomInfoDao.deleteAll()
+        messageDao.deleteAll()
     }
 
     private suspend fun uploadImage(uri: Uri): String {
