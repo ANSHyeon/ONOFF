@@ -52,6 +52,7 @@ class InfoInputViewModel @Inject constructor(private val repository: AuthReposit
                 result.onSuccess {
                     repository.saveIdToken()
                     repository.saveUserEmail()
+                    repository.saveUserNickName(nickName)
                     _isSaved.value = true
                 }.onError { code, message ->
                     _isLoading.value = false

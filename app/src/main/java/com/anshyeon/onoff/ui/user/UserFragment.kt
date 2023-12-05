@@ -3,11 +3,17 @@ package com.anshyeon.onoff.ui.user
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentUserBinding
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.util.NetworkConnection
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
@@ -23,16 +29,33 @@ class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
         binding.viewModel = viewModel
         setNetworkErrorBar()
         setToolBar()
+        setSnackBarMessage()
     }
 
     private fun setNetworkErrorBar() {
         NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
             val visibility = if (it) {
+                viewModel.getUserInfo()
+                setUserInfo()
                 View.GONE
             } else {
                 View.VISIBLE
             }
             binding.networkErrorBar.visibility = visibility
+        }
+    }
+
+    private fun setUserInfo() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED,
+            ) {
+                launch {
+                    viewModel.currentUserInfo.collect { user ->
+                        viewModel.saveUserInLocal(user)
+                    }
+                }
+            }
         }
     }
 
@@ -46,6 +69,21 @@ class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
                 else -> {
                     false
                 }
+            }
+        }
+    }
+
+    private fun setSnackBarMessage() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.snackBarText.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                Snackbar.make(
+                    binding.root,
+                    getString(it),
+                    Snackbar.LENGTH_SHORT,
+                ).show()
             }
         }
     }

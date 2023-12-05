@@ -17,7 +17,7 @@ class AuthRepository @Inject constructor(
     private val userDataSource: UserDataSource,
 ) {
 
-    fun getLocalIdToken(): String {
+    fun getLocalIdToken(): String? {
         return preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
     }
 
@@ -28,8 +28,16 @@ class AuthRepository @Inject constructor(
         )
     }
 
-    fun getLocalUserEmail(): String {
+    fun getLocalUserEmail(): String? {
         return preferenceManager.getString(Constants.KEY_USER_EMAIL, "")
+    }
+
+    fun getLocalUserNickName(): String? {
+        return preferenceManager.getString(Constants.KEY_USER_NICKNAME, "")
+    }
+
+    fun getLocalUserProfileImage(): String? {
+        return preferenceManager.getString(Constants.KEY_USER_PROFILE_URI, null)
     }
 
     fun saveUserEmail() {
@@ -37,6 +45,26 @@ class AuthRepository @Inject constructor(
             Constants.KEY_USER_EMAIL,
             userDataSource.getEmail()
         )
+    }
+
+    fun saveUserNickName(nickname: String) {
+        preferenceManager.setUserNickName(
+            Constants.KEY_USER_NICKNAME,
+            nickname
+        )
+    }
+
+    private fun saveUserProfileUri(profileUrl: String?) {
+        preferenceManager.setUserImage(
+            Constants.KEY_USER_PROFILE_URI,
+            profileUrl
+        )
+    }
+
+    fun saveUserInLocal(user: User) {
+        saveUserNickName(user.nickName)
+        saveUserEmail()
+        saveUserProfileUri(user.profileUrl)
     }
 
     suspend fun createUser(

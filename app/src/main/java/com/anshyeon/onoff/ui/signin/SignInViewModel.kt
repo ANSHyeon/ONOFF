@@ -18,6 +18,9 @@ import javax.inject.Inject
 @HiltViewModel
 class SignInViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
 
+    private var nickName = ""
+    private var profileUri: String? = null
+
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
@@ -36,6 +39,10 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
             val result = repository.getUser()
             result.onSuccess {
                 _hasUserInfo.value = it.values.isNotEmpty()
+                if (hasUserInfo.value!!) {
+                    nickName = it.values.first().nickName
+                    profileUri = it.values.first().profileUri
+                }
             }.onError { code, message ->
                 _hasUserInfo.value = false
                 _isLoading.value = false
@@ -58,6 +65,7 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
         viewModelScope.launch {
             repository.saveIdToken()
             repository.saveUserEmail()
+            repository.saveUserNickName(nickName)
             _isSaveUserInfo.value = true
         }
     }
