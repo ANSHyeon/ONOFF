@@ -79,7 +79,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/green"
-            android:onClick="@{() -> viewModel.submitPost(location)}"
             android:text="@string/label_post_send_btn"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
