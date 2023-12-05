@@ -73,6 +73,25 @@ class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
         binding.toolbarUser.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.user_app_bar_edit -> {
+                    if (!binding.networkErrorBar.isVisible) {
+                        val nickname = viewModel.currentUserInfo.value.nickName
+                        val profileUrl = viewModel.currentUserInfo.value.profileUrl ?: ""
+                        val profileUri = viewModel.currentUserInfo.value.profileUri ?: ""
+                        val action =
+                            UserFragmentDirections.actionUserToEdit(
+                                nickname,
+                                profileUrl,
+                                profileUri,
+                                viewModel.userKey
+                            )
+                        findNavController().navigate(action)
+                    } else {
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.error_message_retry),
+                            Snackbar.LENGTH_SHORT,
+                        ).show()
+                    }
                     true
                 }
 

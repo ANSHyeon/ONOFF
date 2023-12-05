@@ -82,7 +82,11 @@
         android:id="@+id/navigation_user"
         android:name="com.anshyeon.onoff.ui.user.UserFragment"
         android:label="@string/label_user_destination"
-        tools:layout="@layout/fragment_user" />
+        tools:layout="@layout/fragment_user">
+        <action
+            android:id="@+id/action_user_to_edit"
+            app:destination="@id/navigation_edit" />
+    </fragment>
     <dialog
         android:id="@+id/navigation_location_permission_off_dialog"
         android:name="com.anshyeon.onoff.ui.common.PermissionOffDialogFragment"
@@ -130,5 +134,22 @@
         <argument
             android:name="post"
             app:argType="com.anshyeon.onoff.data.model.Post" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_edit"
+        android:name="com.anshyeon.onoff.ui.edit.EditFragment"
+        android:label="@string/label_edit_destination">
+        <argument
+            android:name="nickName"
+            app:argType="string" />
+        <argument
+            android:name="profileUrl"
+            app:argType="string" />
+        <argument
+            android:name="imageLocation"
+            app:argType="string" />
+        <argument
+            android:name="userKey"
+            app:argType="string" />
     </fragment>
 </navigation>
