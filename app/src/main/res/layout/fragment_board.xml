@@ -53,6 +53,7 @@
         <com.anshyeon.onoff.ui.common.NetworkErrorView
             android:id="@+id/network_error_bar"
             android:layout_width="0dp"
+            android:visibility="gone"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
