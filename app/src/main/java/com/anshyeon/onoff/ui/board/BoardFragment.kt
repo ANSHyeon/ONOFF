@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Post
@@ -37,7 +37,31 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
 
     private fun setLayout() {
         binding.viewModel = viewModel
+        getPostList()
+    }
+
+    private fun getPostList() {
+        val adapter = BoardAdapter(this)
+        binding.rvBoardList.adapter = adapter
+
         getCurrentPlaceInfo()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(
+                Lifecycle.State.STARTED,
+            ) {
+                viewModel.currentPlaceInfo.collect {
+                    it?.let { placeInfo ->
+                        val location = placeInfo.region3depthName
+                        setToolBar(location)
+                        viewModel.getPostList(location)
+                        viewModel.postList
+                            .collect { postList -> adapter.submitList(postList) }
+                    }
+                }
+            }
+
+        }
     }
 
     private fun getCurrentPlaceInfo() {
@@ -47,30 +71,6 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
                 location.longitude.toString()
             )
         }
-
-        lifecycleScope.launch {
-            viewModel.currentPlaceInfo.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect {
-                it?.let { placeInfo ->
-                    val location = placeInfo.region3depthName
-                    setToolBar(location)
-                    viewModel.getPostList(location)
-                    setPostList()
-                }
-            }
-        }
-    }
-
-    private fun setPostList() {
-        val adapter = BoardAdapter(this)
-        binding.rvBoardList.adapter = adapter
-        lifecycleScope.launch {
-            viewModel.postLsit
-                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-                .collect { postList -> adapter.submitList(postList) }
-        }
     }
 
     private fun setToolBar(address: String) {
@@ -78,7 +78,6 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
         binding.toolbarBoard.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.home_app_bar_add -> {
-                    viewModel.reset()
                     val action = BoardFragmentDirections.actionBoardToPost(address)
                     findNavController().navigate(action)
                     true
@@ -92,7 +91,6 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
     }
 
     override fun onPostClick(post: Post) {
-        viewModel.reset()
         val action = BoardFragmentDirections.actionBoardToDetail(post)
         findNavController().navigate(action)
     }

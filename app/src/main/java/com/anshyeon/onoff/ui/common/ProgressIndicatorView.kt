@@ -16,7 +16,7 @@ class ProgressIndicatorView @JvmOverloads constructor(
 
     init {
         ViewProgressIndicatorBinding.inflate(LayoutInflater.from(context), this)
-        setOnKeyListener { a,keyCode,event ->
+        setOnKeyListener { _,keyCode,event ->
             return@setOnKeyListener keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP
         }
     }
