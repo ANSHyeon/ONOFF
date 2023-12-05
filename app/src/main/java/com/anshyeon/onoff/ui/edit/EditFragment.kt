@@ -2,6 +2,7 @@ package com.anshyeon.onoff.ui.edit
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -21,6 +22,14 @@ class EditFragment : BaseFragment<FragmentEditBinding>(R.layout.fragment_edit) {
 
     private val viewModel by viewModels<EditViewModel>()
     private val args: EditFragmentArgs by navArgs()
+    private val getMultipleContents =
+        registerForActivityResult(ActivityResultContracts.GetContent()) {
+            it?.let {
+                binding.ivUserProfile.setImageURI(it)
+                binding.ivUserProfile.visibility = View.VISIBLE
+                viewModel.updateProfileUri(it)
+            }
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -33,6 +42,7 @@ class EditFragment : BaseFragment<FragmentEditBinding>(R.layout.fragment_edit) {
         setDefaultUserInfo()
         setNavigationOnClickListener()
         setSnackBarMessage()
+        setImageSelectorClickListener()
     }
 
     private fun setNetworkErrorBar() {
@@ -43,6 +53,12 @@ class EditFragment : BaseFragment<FragmentEditBinding>(R.layout.fragment_edit) {
                 View.VISIBLE
             }
             binding.networkErrorBar.visibility = visibility
+        }
+    }
+
+    private fun setImageSelectorClickListener() {
+        binding.ivUserProfileCamera.setOnClickListener {
+            getMultipleContents.launch("image/*")
         }
     }
 

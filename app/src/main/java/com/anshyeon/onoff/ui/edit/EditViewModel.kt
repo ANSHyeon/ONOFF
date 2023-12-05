@@ -1,5 +1,6 @@
 package com.anshyeon.onoff.ui.edit
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.anshyeon.onoff.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +17,7 @@ class EditViewModel @Inject constructor(
 
     val nickName = MutableStateFlow("")
     val profileUrl: MutableStateFlow<String?> = MutableStateFlow(null)
+    private var imageUri: Uri? = null
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
@@ -26,5 +28,9 @@ class EditViewModel @Inject constructor(
     fun setUserInfo(userNickName: String, userProfileUrl: String?) {
         nickName.value = userNickName
         profileUrl.value = userProfileUrl
+    }
+
+    fun updateProfileUri(uri: Uri?) {
+        imageUri = uri
     }
 }
