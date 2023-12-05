@@ -82,8 +82,10 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                 observeChatRoomKey()
                 binding.networkErrorBar.visibility = View.GONE
             } else {
+                viewModel.getLocalMessage(args.chatRoomId)
                 binding.etChatSendText.isEnabled = false
                 binding.networkErrorBar.visibility = View.VISIBLE
+                observeLocalMessages()
             }
         }
     }
@@ -112,6 +114,21 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                                 receiveMessages()
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeLocalMessages() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED,
+            ) {
+                launch {
+                    viewModel.localMessageList.collect { messageList ->
+                        adapter.submitList(messageList)
+                        binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
                     }
                 }
             }
@@ -191,10 +208,5 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                 override fun onCancelled(error: DatabaseError) {
                 }
             })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        chatRoomRef.removeEventListener(messageListener)
     }
 }

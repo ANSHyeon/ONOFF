@@ -35,6 +35,9 @@ class ChatRoomViewModel @Inject constructor(
     lateinit var messageList: StateFlow<List<Message>>
         private set
 
+    lateinit var localMessageList: StateFlow<List<Message>>
+        private set
+
     private val _chatRoomKey: MutableStateFlow<String> = MutableStateFlow("")
     val chatRoomKey: StateFlow<String> = _chatRoomKey
 
@@ -70,6 +73,20 @@ class ChatRoomViewModel @Inject constructor(
                 _isLoading.value = false
             }
         ).map {
+            it.sortedBy { message -> message.sendAt }
+        }
+    }
+
+    fun getLocalMessage(chatRoomId: String) {
+        localMessageList = transformLocalMessageList(chatRoomId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+    }
+
+    private fun transformLocalMessageList(chatRoomId: String): Flow<List<Message>> {
+        return chatRoomRepository.getMessageListByRoom(chatRoomId).map {
             it.sortedBy { message -> message.sendAt }
         }
     }
