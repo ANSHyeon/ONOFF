@@ -16,6 +16,8 @@ import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.databinding.FragmentChatRoomBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.ui.extensions.setClickEvent
+import com.anshyeon.onoff.ui.extensions.showMessage
 import com.anshyeon.onoff.util.NetworkConnection
 import com.anshyeon.onoff.util.SamePlaceChecker
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -57,13 +59,11 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
         setAdapter()
         setBinding()
         setNavigationOnClickListener()
-        setImeSendActionListener()
         setNetworkErrorBar()
     }
 
     private fun setBinding() {
         binding.toolbarChat.title = args.placeName
-        binding.chatRoomId = args.chatRoomId
         binding.viewModel = viewModel
     }
 
@@ -76,18 +76,26 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     private fun setNetworkErrorBar() {
         NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
             if (it) {
-                viewModel.getMessage(args.chatRoomId)
-                viewModel.getChatRoomOfPlace(args.placeName)
-                checkSamePlace(args.chatRoomAddress)
-                observeChatRoomKey()
-                binding.networkErrorBar.visibility = View.GONE
+                handleNetworkConnection()
             } else {
-                viewModel.getLocalMessage(args.chatRoomId)
-                binding.etChatSendText.isEnabled = false
-                binding.networkErrorBar.visibility = View.VISIBLE
-                observeLocalMessages()
+                handleNetworkConnectionFailure()
             }
         }
+    }
+
+    private fun handleNetworkConnectionFailure() {
+        viewModel.getLocalMessage(args.chatRoomId)
+        binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
+            binding.etChatSendText.showMessage(R.string.error_message_retry)
+        }
+        binding.networkErrorBar.visibility = View.VISIBLE
+        observeLocalMessages()
+    }
+
+    private fun handleNetworkConnection() {
+        viewModel.getChatRoomOfPlace(args.placeName)
+        observeChatRoomKey()
+        binding.networkErrorBar.visibility = View.GONE
     }
 
     private val onLayoutChangeListener =
@@ -108,11 +116,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                 launch {
                     viewModel.chatRoomKey.collect {
                         if (it.isNotBlank()) {
-                            viewModel.messageList.collect { messageList ->
-                                adapter.submitList(messageList)
-                                binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
-                                receiveMessages()
-                            }
+                            checkSamePlace(args.chatRoomAddress)
                         }
                     }
                 }
@@ -150,9 +154,14 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
             ).collect {
                 it?.let { placeInfo ->
                     if (SamePlaceChecker.isSamePlace(placeInfo, chatRoomAddress)) {
-                        binding.etChatSendText.isEnabled = true
+                        binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
+                            viewModel.createMessage(args.chatRoomId)
+                        }
                         binding.tvErrorSamePlace.visibility = View.GONE
                     } else {
+                        binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
+                            binding.etChatSendText.showMessage(R.string.error_message_not_same_place)
+                        }
                         binding.tvErrorSamePlace.visibility = View.VISIBLE
                     }
                 }
@@ -166,16 +175,6 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
         }
     }
 
-    private fun setImeSendActionListener() {
-        binding.etChatSendText.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEND) {
-                viewModel.createMessage(args.chatRoomId)
-                true
-            } else {
-                false
-            }
-        }
-    }
 
     private fun receiveMessages() {
         messageListener = chatRoomRef.orderByChild("chatRoomId").equalTo(args.chatRoomId)

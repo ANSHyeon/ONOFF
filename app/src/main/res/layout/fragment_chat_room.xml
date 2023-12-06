@@ -6,10 +6,6 @@
     <data>
 
         <variable
-            name="chatRoomId"
-            type="String" />
-
-        <variable
             name="viewModel"
             type="com.anshyeon.onoff.ui.chatRoom.ChatRoomViewModel" />
     </data>
@@ -55,7 +51,6 @@
             android:layout_marginHorizontal="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/shape_grey_rounded_rectangle"
-            android:enabled="false"
             android:importantForAutofill="no"
             android:inputType="text"
             android:paddingBottom="10dp"
@@ -71,7 +66,6 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="15dp"
             android:enabled="@{!viewModel.sendMessage.isEmpty()}"
-            android:onClick="@{()-> viewModel.createMessage(chatRoomId)}"
             android:src="@drawable/ic_send"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
