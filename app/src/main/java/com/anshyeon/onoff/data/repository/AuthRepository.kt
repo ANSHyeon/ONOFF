@@ -28,6 +28,17 @@ class AuthRepository @Inject constructor(
         )
     }
 
+    fun getLocalUserEmail(): String {
+        return preferenceManager.getString(Constants.KEY_USER_EMAIL, "")
+    }
+
+    fun saveUserEmail() {
+        preferenceManager.setUserEmail(
+            Constants.KEY_USER_EMAIL,
+            userDataSource.getEmail()
+        )
+    }
+
     suspend fun createUser(
         nickname: String,
         uri: Uri?
@@ -49,10 +60,12 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun getUser(
-    ): ApiResponse<Map<String, User>> {
+    suspend fun getUser(): ApiResponse<Map<String, User>> {
         return try {
-            fireBaseApiClient.getUser(userDataSource.getIdToken(), "\"${userDataSource.getUid()}\"")
+            fireBaseApiClient.getUser(
+                userDataSource.getIdToken(),
+                "\"${userDataSource.getUid()}\""
+            )
         } catch (e: Exception) {
             ApiResultException(e)
         }

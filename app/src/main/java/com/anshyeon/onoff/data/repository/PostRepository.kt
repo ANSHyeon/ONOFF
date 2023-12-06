@@ -59,24 +59,28 @@ class PostRepository @Inject constructor(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
     ): Flow<List<Post>> = flow {
-        val response = fireBaseApiClient.getPostList(
-            userDataSource.getIdToken(),
-            "\"$location\""
-        )
-        response.onSuccess { data ->
-            emit(data.map { entry ->
-                entry.value.run {
-                    copy(
-                        imageUrlList = imageLocations?.map { location ->
-                            getDownloadUrl(location)
-                        } ?: emptyList()
-                    )
-                }
-            })
-        }.onError { code, message ->
-            onError("code: $code, message: $message")
-        }.onException {
-            onError(it.message)
+        try {
+            val response = fireBaseApiClient.getPostList(
+                userDataSource.getIdToken(),
+                "\"$location\""
+            )
+            response.onSuccess { data ->
+                emit(data.map { entry ->
+                    entry.value.run {
+                        copy(
+                            imageUrlList = imageLocations?.map { location ->
+                                getDownloadUrl(location)
+                            } ?: emptyList()
+                        )
+                    }
+                })
+            }.onError { code, message ->
+                onError("code: $code, message: $message")
+            }.onException {
+                onError(it.message)
+            }
+        } catch (e: Exception) {
+            onError(e.message)
         }
     }.onCompletion {
         onComplete()

@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/network_error_bar"
             app:navigationIcon="@drawable/ic_arrow"
             app:title="@string/label_app_bar_board_post" />
 
@@ -79,7 +79,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/green"
-            android:onClick="@{() -> viewModel.submitPost(location)}"
             android:text="@string/label_post_send_btn"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -92,6 +91,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+
+        <com.anshyeon.onoff.ui.common.NetworkErrorView
+            android:id="@+id/network_error_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

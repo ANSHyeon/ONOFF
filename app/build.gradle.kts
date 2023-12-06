@@ -9,6 +9,7 @@ plugins {
     id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
+    id("com.google.firebase.crashlytics")
 }
 
 val properties = Properties()
@@ -91,6 +92,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
 
     //Google
     implementation("com.google.android.gms:play-services-auth:20.7.0")

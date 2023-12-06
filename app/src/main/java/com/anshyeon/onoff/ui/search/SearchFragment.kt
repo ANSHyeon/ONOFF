@@ -15,6 +15,8 @@ import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Place
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.showMessage
+import com.anshyeon.onoff.util.DateFormatText
+import com.anshyeon.onoff.util.NetworkConnection
 import com.anshyeon.onoff.util.SamePlaceChecker
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -65,6 +67,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         observePlaceChatRoom()
         observeIsSaved()
         observeCurrentPlaceInfo()
+        setNetworkErrorBar()
+    }
+
+    private fun setNetworkErrorBar() {
+        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
+            binding.networkErrorBar.visibility = if (it) View.GONE else View.VISIBLE
+        }
     }
 
     override fun onMapReady(map: NaverMap) {
@@ -147,7 +156,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     val action =
                         SearchFragmentDirections.actionSearchToChatRoom(
                             it.placeName,
-                            it.chatRoomId
+                            it.chatRoomId,
+                            it.address
                         )
                     findNavController().navigate(action)
                 }
@@ -164,7 +174,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 it?.let { placeInfo ->
                     val selectedPlaceInfo = viewModel.placeChatRoom.value
                     selectedPlaceInfo?.let { chatRoom ->
-                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
+                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom.address)) {
                             viewModel.insertChatRoom(chatRoom)
                         } else {
                             binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
@@ -180,7 +190,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                                         placeName,
                                         roadAddressName.ifBlank { addressName },
                                         y,
-                                        x
+                                        x,
+                                        DateFormatText.getCurrentTime()
                                     )
                                 )
                             }
@@ -197,7 +208,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private fun setPlaceInfoButton(text: String, operation: () -> Unit) {
         with(binding.placeInfoSearch) {
             setButtonText(text)
-            setClickListener {
+            setClickListener(viewLifecycleOwner.lifecycleScope) {
                 operation()
             }
         }

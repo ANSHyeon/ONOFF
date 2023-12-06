@@ -9,7 +9,6 @@ import androidx.annotation.UiThread
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -20,6 +19,7 @@ import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.showMessage
 import com.anshyeon.onoff.util.SamePlaceChecker
 import com.anshyeon.onoff.util.Constants
+import com.anshyeon.onoff.util.NetworkConnection
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
@@ -93,6 +93,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
         binding.viewModel = viewModel
         setMapView()
         setSearchPlaceBarClickListener()
+        setNetworkErrorBar()
     }
 
     private fun setMapView() {
@@ -151,8 +152,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
     private fun setPlaceInfoView(chatRoom: ChatRoom) {
         with(binding.placeInfoSearch) {
             setPlaceName(chatRoom.placeName)
+            setAddress(chatRoom.address)
             setButtonText(getString(R.string.label_enter_chat_room))
-            setClickListener {
+            setClickListener(viewLifecycleOwner.lifecycleScope) {
                 client.lastLocation.addOnSuccessListener { location ->
                     viewModel.getCurrentPlaceInfo(
                         location.latitude.toString(),
@@ -167,17 +169,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
 
     private fun observeCurrentPlaceInfo() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.currentPlaceInfo.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
+            viewLifecycleOwner.repeatOnLifecycle(
                 Lifecycle.State.STARTED,
-            ).collect {
-                it?.let { placeInfo ->
-                    val selectedPlaceInfo = viewModel.selectedChatRoom
-                    selectedPlaceInfo?.let { chatRoom ->
-                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom)) {
-                            handleSamePlace(chatRoom)
-                        } else {
-                            binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
+            ) {
+                launch {
+                    viewModel.currentPlaceInfo.collect {
+                        it?.let { placeInfo ->
+                            val selectedPlaceInfo = viewModel.selectedChatRoom
+                            selectedPlaceInfo?.let { chatRoom ->
+                                if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom.address)) {
+                                    handleSamePlace(chatRoom)
+                                } else {
+                                    binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
+                                }
+                            }
                         }
                     }
                 }
@@ -193,10 +198,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 val action =
                     HomeFragmentDirections.actionHomeToChatRoom(
                         savedChatRoom.placeName,
-                        savedChatRoom.chatRoomId
+                        savedChatRoom.chatRoomId,
+                        savedChatRoom.address
                     )
                 findNavController().navigate(action)
             }
+        }
+    }
+
+    private fun setNetworkErrorBar() {
+        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
+            binding.networkErrorBar.visibility = if (it) View.GONE else View.VISIBLE
         }
     }
 

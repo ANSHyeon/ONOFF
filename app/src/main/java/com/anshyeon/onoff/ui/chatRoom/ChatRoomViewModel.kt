@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Message
-import com.anshyeon.onoff.data.model.User
+import com.anshyeon.onoff.data.model.PlaceInfo
 import com.anshyeon.onoff.data.repository.AuthRepository
 import com.anshyeon.onoff.data.repository.ChatRoomRepository
+import com.anshyeon.onoff.data.repository.PlaceRepository
 import com.anshyeon.onoff.network.extentions.onError
 import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
@@ -25,7 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatRoomViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val chatRoomRepository: ChatRoomRepository
+    private val chatRoomRepository: ChatRoomRepository,
+    private val placeRepository: PlaceRepository,
 ) : ViewModel() {
 
     val sendMessage = MutableStateFlow("")
@@ -33,28 +35,23 @@ class ChatRoomViewModel @Inject constructor(
     lateinit var messageList: StateFlow<List<Message>>
         private set
 
-    private val _currentUser: MutableStateFlow<User?> = MutableStateFlow(null)
-    val currentUser: StateFlow<User?> = _currentUser
+    lateinit var localMessageList: StateFlow<List<Message>>
+        private set
+
+    private val _chatRoomKey: MutableStateFlow<String> = MutableStateFlow("")
+    val chatRoomKey: StateFlow<String> = _chatRoomKey
+
+    private val _currentPlaceInfo: MutableStateFlow<PlaceInfo?> = MutableStateFlow(null)
+    val currentPlaceInfo: StateFlow<PlaceInfo?> = _currentPlaceInfo
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    fun getUser() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val result = authRepository.getUser()
-            result.onSuccess {
-                _currentUser.value = it.values.first()
-            }.onError { code, message ->
-                _snackBarText.emit(R.string.error_message_retry)
-            }.onException {
-                _snackBarText.emit(R.string.error_message_retry)
-            }
-            //_isLoading.value = false
-        }
+    fun getLocalUserEmail(): String {
+        return authRepository.getLocalUserEmail()
     }
 
     fun getMessage(chatRoomId: String) {
@@ -65,36 +62,60 @@ class ChatRoomViewModel @Inject constructor(
         )
     }
 
-    private fun transformMessageList(chatRoomId: String): Flow<List<Message>> =
-        chatRoomRepository.getMessage(
+    private fun transformMessageList(chatRoomId: String): Flow<List<Message>> {
+        _isLoading.value = true
+        return chatRoomRepository.getMessage(
             chatRoomId,
             onComplete = {
                 _isLoading.value = false
             },
             onError = {
-
+                _isLoading.value = false
             }
         ).map {
             it.sortedBy { message -> message.sendAt }
         }
+    }
+
+    fun getLocalMessage(chatRoomId: String) {
+        localMessageList = transformLocalMessageList(chatRoomId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+    }
+
+    private fun transformLocalMessageList(chatRoomId: String): Flow<List<Message>> {
+        return chatRoomRepository.getMessageListByRoom(chatRoomId).map {
+            it.sortedBy { message -> message.sendAt }
+        }
+    }
+
+    fun getChatRoomOfPlace(placeName: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = chatRoomRepository.getChatRoomOfPlace(placeName)
+            result.onSuccess {
+                if (it.isNotEmpty()) {
+                    _chatRoomKey.value = it.keys.first()
+                }
+            }.onError { code, message ->
+                _isLoading.value = false
+            }.onException {
+                _isLoading.value = false
+            }
+        }
+    }
 
     fun createMessage(chatRoomId: String) {
         if (sendMessage.value.isNotBlank()) {
             viewModelScope.launch {
                 _isLoading.value = true
-                val currentTime = System.currentTimeMillis()
-                val messageId = chatRoomId + (currentUser.value?.userId) + currentTime
-                val message = Message(
-                    messageId,
-                    chatRoomId,
-                    currentUser.value ?: User(),
-                    sendMessage.value,
-                    currentTime
-                )
+                val message = sendMessage.value
                 sendMessage.value = ""
-                val result = chatRoomRepository.createMessage(message)
+                val result = chatRoomRepository.createMessage(chatRoomId, message)
                 result.onSuccess {
-                    _isLoading.value = false
+                    updateChatRoom(chatRoomKey.value, chatRoomId)
                 }.onError { code, message ->
                     _isLoading.value = false
                     _snackBarText.emit(R.string.error_message_retry)
@@ -102,6 +123,53 @@ class ChatRoomViewModel @Inject constructor(
                     _isLoading.value = false
                     _snackBarText.emit(R.string.error_message_retry)
                 }
+            }
+        }
+    }
+
+    private fun updateChatRoom(chatRoomKey: String, chatRoomId: String) {
+        viewModelScope.launch {
+            val result = chatRoomRepository.updateChatRoom(chatRoomKey)
+            result.onSuccess {
+                updateChatRoomInRoom(chatRoomId)
+            }.onError { code, message ->
+                _isLoading.value = false
+                _snackBarText.emit(R.string.error_message_retry)
+            }.onException {
+                _isLoading.value = false
+                _snackBarText.emit(R.string.error_message_retry)
+            }
+        }
+    }
+
+    private fun updateChatRoomInRoom(chatRoomId: String) {
+        viewModelScope.launch {
+            chatRoomRepository.updateChatRoomInRoom(chatRoomId)
+            _isLoading.value = false
+        }
+    }
+
+    fun insertMessage(message: Message) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            chatRoomRepository.insertMessage(message)
+            _isLoading.value = false
+        }
+    }
+
+    fun getCurrentPlaceInfo(latitude: String, longitude: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = placeRepository.getPlaceInfoByLocation(latitude, longitude)
+            result.onSuccess {
+                _currentPlaceInfo.value = it
+                _isLoading.value = false
+            }.onError { code, message ->
+                _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
+            }.onException {
+                _snackBarText.emit(R.string.error_message_retry)
+                _isLoading.value = false
             }
         }
     }

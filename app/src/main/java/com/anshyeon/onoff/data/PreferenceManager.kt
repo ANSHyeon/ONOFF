@@ -17,4 +17,8 @@ class PreferenceManager @Inject constructor(@ApplicationContext context: Context
     fun setGoogleIdToken(key: String, googleIdToken: String) {
         sharedPreferences.edit().putString(key, googleIdToken).apply()
     }
+
+    fun setUserEmail(key: String, email: String) {
+        sharedPreferences.edit().putString(key, email).apply()
+    }
 }

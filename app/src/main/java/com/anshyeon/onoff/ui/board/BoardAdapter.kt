@@ -20,6 +20,10 @@ class BoardAdapter(
         holder.bind(getItem(position))
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
     class PostItemViewHolder(
         private val binding: ItemPostBinding,
         private val clickListener: OnPostClickListener

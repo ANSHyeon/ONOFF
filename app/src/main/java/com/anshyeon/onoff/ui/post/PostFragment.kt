@@ -15,7 +15,9 @@ import androidx.recyclerview.widget.ConcatAdapter
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentPostBinding
 import com.anshyeon.onoff.ui.BaseFragment
+import com.anshyeon.onoff.ui.extensions.setClickEvent
 import com.anshyeon.onoff.util.DateFormatText
+import com.anshyeon.onoff.util.NetworkConnection
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -46,6 +48,8 @@ class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
         setToolbar()
         setImageList()
         setComplete()
+        setNetworkErrorBar()
+        setSubmitButton()
     }
 
     private fun setToolbar() {
@@ -99,5 +103,22 @@ class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
             it.moveToFirst()
             it.getString(nameIndex)
         } ?: ""
+    }
+
+    private fun setNetworkErrorBar() {
+        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
+            val visibility = if (it) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+            binding.networkErrorBar.visibility = visibility
+        }
+    }
+
+    private fun setSubmitButton() {
+        binding.btnPostSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
+            viewModel.submitPost(args.location)
+        }
     }
 }

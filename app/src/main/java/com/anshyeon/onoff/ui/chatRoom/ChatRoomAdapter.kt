@@ -48,10 +48,10 @@ class ChatRoomAdapter :
 
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
-        val previousSender = if (position < 1) "" else getItem(position - 1).sender.email
-        return if (currentUserEmail == item.sender.email) {
+        val previousSender = if (position < 1) "" else getItem(position - 1).email
+        return if (currentUserEmail == item.email) {
             VIEW_TYPE_SEND_MESSAGE
-        } else if (item.sender.email == previousSender) {
+        } else if (item.email == previousSender) {
             VIEW_TYPE_RECEIVE_MESSAGE
         } else {
             VIEW_TYPE_FIRST_RECEIVE_MESSAGE

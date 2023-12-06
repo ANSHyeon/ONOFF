@@ -35,7 +35,7 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
             _isLoading.value = true
             val result = repository.getUser()
             result.onSuccess {
-                _hasUserInfo.value = true
+                _hasUserInfo.value = it.values.isNotEmpty()
             }.onError { code, message ->
                 _hasUserInfo.value = false
                 _isLoading.value = false
@@ -57,6 +57,7 @@ class SignInViewModel @Inject constructor(private val repository: AuthRepository
     fun saveUserInfo() {
         viewModelScope.launch {
             repository.saveIdToken()
+            repository.saveUserEmail()
             _isSaveUserInfo.value = true
         }
     }

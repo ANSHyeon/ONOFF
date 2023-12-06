@@ -89,7 +89,6 @@
             app:layout_constraintTop_toBottomOf="@id/tv_detail_title"
             tools:text="10분 전" />
 
-
         <TextView
             android:id="@+id/tv_detail_description"
             style="@style/TextBody16"

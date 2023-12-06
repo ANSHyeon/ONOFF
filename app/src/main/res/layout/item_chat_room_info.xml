@@ -46,6 +46,7 @@
         <TextView
             android:id="@+id/tv_last_chat_time"
             style="@style/TextBody12"
+            elapsedTimeFormat="@{chatRoom.lastMessageDate}"
             android:layout_width="wrap_content"
             android:layout_height="28dp"
             android:layout_marginStart="34dp"
