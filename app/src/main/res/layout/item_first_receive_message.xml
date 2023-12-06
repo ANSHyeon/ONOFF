@@ -13,13 +13,15 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingVertical="2dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/iv_sender_profile_image"
             imageUrl="@{message.profileUrl}"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_marginStart="10dp"
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
