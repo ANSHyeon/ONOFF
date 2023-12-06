@@ -3,7 +3,6 @@ package com.anshyeon.onoff.ui.chatRoom
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -11,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
 import com.anshyeon.onoff.BuildConfig
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Message
@@ -71,10 +71,21 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
         adapter.setCurrentUserEmail(viewModel.getLocalUserEmail())
         binding.rvMessageList.adapter = adapter
         binding.rvMessageList.addOnLayoutChangeListener(onLayoutChangeListener)
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                val insertedPosition = positionStart + itemCount - 1
+                binding.rvMessageList.scrollToPosition(insertedPosition)
+            }
+        })
     }
 
     private fun setNetworkErrorBar() {
         NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
+            receiveMessages()
+            viewModel.getLocalMessage(args.chatRoomId)
+            observeLocalMessages()
             if (it) {
                 handleNetworkConnection()
             } else {
@@ -132,7 +143,6 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                 launch {
                     viewModel.localMessageList.collect { messageList ->
                         adapter.submitList(messageList)
-                        binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
                     }
                 }
             }
@@ -181,21 +191,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
             .addChildEventListener(object : ChildEventListener {
                 override fun onChildAdded(dataSnapshot: DataSnapshot, prevChildKey: String?) {
                     val newMessage = dataSnapshot.getValue(Message::class.java) ?: return
-                    val existingMessages = adapter.currentList
-                    val isMessageExists =
-                        existingMessages.any { it.messageId == newMessage.messageId }
-
-                    if (!isMessageExists) {
-                        val list = mutableListOf<Message>()
-                        list.addAll(existingMessages)
-                        list.add(newMessage)
-                        adapter.submitList(list.sortedBy { it.sendAt })
-                        viewModel.insertMessage(newMessage)
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            delay(100)
-                            binding.rvMessageList.scrollToPosition(adapter.itemCount - 1)
-                        }
-                    }
+                    viewModel.insertMessage(newMessage)
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}

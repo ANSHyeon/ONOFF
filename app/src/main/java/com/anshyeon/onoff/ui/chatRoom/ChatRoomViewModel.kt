@@ -32,9 +32,6 @@ class ChatRoomViewModel @Inject constructor(
 
     val sendMessage = MutableStateFlow("")
 
-    lateinit var messageList: StateFlow<List<Message>>
-        private set
-
     lateinit var localMessageList: StateFlow<List<Message>>
         private set
 
@@ -52,29 +49,6 @@ class ChatRoomViewModel @Inject constructor(
 
     fun getLocalUserEmail(): String {
         return authRepository.getLocalUserEmail() ?: ""
-    }
-
-    fun getMessage(chatRoomId: String) {
-        messageList = transformMessageList(chatRoomId).stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
-    }
-
-    private fun transformMessageList(chatRoomId: String): Flow<List<Message>> {
-        _isLoading.value = true
-        return chatRoomRepository.getMessage(
-            chatRoomId,
-            onComplete = {
-                _isLoading.value = false
-            },
-            onError = {
-                _isLoading.value = false
-            }
-        ).map {
-            it.sortedBy { message -> message.sendAt }
-        }
     }
 
     fun getLocalMessage(chatRoomId: String) {
