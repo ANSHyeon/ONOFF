@@ -60,7 +60,7 @@ class EditFragment : BaseFragment<FragmentEditBinding>(R.layout.fragment_edit) {
     }
 
     private fun setImageSelectorClickListener() {
-        binding.ivUserProfileCamera.setOnClickListener {
+        binding.ivUserProfileCameraBackground.setOnClickListener {
             getMultipleContents.launch("image/*")
         }
     }
