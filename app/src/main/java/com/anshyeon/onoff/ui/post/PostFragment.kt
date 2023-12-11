@@ -24,14 +24,14 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
-    PhotoSelectorOnclickListener {
+    PhotoSelectorOnclickListener, PhotoRemoverOnclickListener {
 
     private val viewModel by viewModels<PostViewModel>()
     private val args: PostFragmentArgs by navArgs()
 
     private val imageHeaderAdapter = PostPhotoSelectorAdapter(this)
     private val imageCountLimit = 10
-    private val imageListAdapter = PostSelectedPhotoAdapter(imageCountLimit)
+    private val imageListAdapter = PostSelectedPhotoAdapter(imageCountLimit, this)
 
     private val getMultipleContents =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
@@ -80,6 +80,11 @@ class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
 
     override fun onImageContentRequest() {
         getMultipleContents.launch("image/*")
+    }
+
+    override fun removeImage(position: Int) {
+        imageListAdapter.removeImage(position)
+        imageHeaderAdapter.updateImageHeader(imageListAdapter.itemCount)
     }
 
     private fun addImageList(uriList: List<Uri>) {

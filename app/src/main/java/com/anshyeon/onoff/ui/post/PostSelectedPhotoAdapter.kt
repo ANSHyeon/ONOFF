@@ -7,9 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.anshyeon.onoff.data.model.ImageContent
 import com.anshyeon.onoff.databinding.ItemSelectedPhotoBinding
 
-class PostSelectedPhotoAdapter(private val limit: Int) :
-    RecyclerView.Adapter<PostSelectedPhotoAdapter.ImageContentViewHolder>(),
-    PhotoRemoverOnclickListener {
+class PostSelectedPhotoAdapter(
+    private val limit: Int,
+    private val clickListener: PhotoRemoverOnclickListener
+) : RecyclerView.Adapter<PostSelectedPhotoAdapter.ImageContentViewHolder>() {
 
     private val items = mutableListOf<ImageContent>()
 
@@ -18,7 +19,7 @@ class PostSelectedPhotoAdapter(private val limit: Int) :
     }
 
     override fun onBindViewHolder(holder: ImageContentViewHolder, position: Int) {
-        holder.bind(position, items[position], this)
+        holder.bind(position, items[position], clickListener)
     }
 
     override fun getItemCount(): Int {
@@ -37,9 +38,10 @@ class PostSelectedPhotoAdapter(private val limit: Int) :
         }
     }
 
-    override fun removeImage(position: Int) {
+    fun removeImage(position: Int) {
         items.removeAt(position)
         notifyItemRemoved(position)
+        notifyItemRangeChanged(position, itemCount - position)
     }
 
 
