@@ -16,6 +16,7 @@ import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentPostBinding
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.setClickEvent
+import com.anshyeon.onoff.ui.extensions.showMessage
 import com.anshyeon.onoff.util.DateFormatText
 import com.anshyeon.onoff.util.NetworkConnection
 import dagger.hilt.android.AndroidEntryPoint
@@ -50,6 +51,7 @@ class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
         setComplete()
         setNetworkErrorBar()
         setSubmitButton()
+        setSnackBarMessage()
     }
 
     private fun setToolbar() {
@@ -119,6 +121,17 @@ class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
     private fun setSubmitButton() {
         binding.btnPostSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
             viewModel.submitPost(args.location)
+        }
+    }
+
+    private fun setSnackBarMessage() {
+        lifecycleScope.launch {
+            viewModel.snackBarText.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                binding.btnPostSend.showMessage(it)
+            }
         }
     }
 }
