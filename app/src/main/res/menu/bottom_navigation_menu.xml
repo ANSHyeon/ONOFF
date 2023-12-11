@@ -7,7 +7,7 @@
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_map"
-        android:title="@string/label_user_destination" />
+        android:title="@string/label_home_destination" />
     <item
         android:id="@+id/navigation_board"
         android:icon="@drawable/ic_board"
