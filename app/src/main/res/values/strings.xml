@@ -15,6 +15,7 @@
     <string name="error_message_search_place_name">장소를 다시 입력해주세요.</string>
     <string name="error_message_place_info_name">장소를 다시 입력해주세요.</string>
     <string name="error_message_not_same_place">해당 장소가 현재위치와 다릅니다.</string>
+    <string name="error_message_place_info">동네 정보를 불러올 수 없습니다.</string>
 
     <string name="label_post_destination">Post</string>
     <string name="label_home_destination">Home</string>

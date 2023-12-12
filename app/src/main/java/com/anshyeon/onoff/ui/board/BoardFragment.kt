@@ -15,6 +15,7 @@ import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.util.NetworkConnection
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -39,6 +40,7 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
     private fun setLayout() {
         binding.viewModel = viewModel
         setNetworkErrorBar()
+        setDefaultToolBar()
     }
 
     private fun getPostList() {
@@ -86,6 +88,25 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
                 R.id.home_app_bar_add -> {
                     val action = BoardFragmentDirections.actionBoardToPost(address)
                     findNavController().navigate(action)
+                    true
+                }
+
+                else -> {
+                    false
+                }
+            }
+        }
+    }
+
+    private fun setDefaultToolBar() {
+        binding.toolbarBoard.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.home_app_bar_add -> {
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.error_message_place_info),
+                        Snackbar.LENGTH_SHORT,
+                    ).show()
                     true
                 }
 
