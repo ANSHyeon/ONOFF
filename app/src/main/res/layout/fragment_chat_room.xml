@@ -49,12 +49,13 @@
             style="@style/TextBody12"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:layout_marginHorizontal="10dp"
+            android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/shape_grey_rounded_rectangle"
+            android:imeOptions="actionSend"
             android:importantForAutofill="no"
             android:inputType="text"
-            android:paddingBottom="10dp"
+            android:paddingHorizontal="10dp"
             android:text="@={viewModel.sendMessage}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/iv_chat_send"
@@ -62,14 +63,14 @@
 
         <ImageView
             android:id="@+id/iv_chat_send"
-            android:layout_width="19dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="15dp"
-            android:enabled="@{!viewModel.sendMessage.isEmpty()}"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="15dp"
             android:src="@drawable/ic_send"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/et_chat_send_text" />
 
         <com.anshyeon.onoff.ui.common.ProgressIndicatorView
             android:id="@+id/loading_progress_indicator"

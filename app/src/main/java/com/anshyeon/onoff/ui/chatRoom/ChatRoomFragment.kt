@@ -3,6 +3,8 @@ package com.anshyeon.onoff.ui.chatRoom
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import androidx.annotation.StringRes
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -96,6 +98,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
 
     private fun handleNetworkConnectionFailure() {
         viewModel.getLocalMessage(args.chatRoomId)
+        setImeSendActionFailureListener(R.string.error_message_retry)
         binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
             binding.etChatSendText.showMessage(R.string.error_message_retry)
         }
@@ -178,11 +181,13 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                                 selectedLongitude
                             )
                         ) {
+                            setImeSendActionListener()
                             binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
                                 viewModel.createMessage(args.chatRoomId)
                             }
                             binding.tvErrorSamePlace.visibility = View.GONE
                         } else {
+                            setImeSendActionFailureListener(R.string.error_message_not_same_place)
                             binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
                                 binding.etChatSendText.showMessage(R.string.error_message_not_same_place)
                             }
@@ -190,6 +195,28 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private fun setImeSendActionListener() {
+        binding.etChatSendText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                viewModel.createMessage(args.chatRoomId)
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun setImeSendActionFailureListener(@StringRes messageId: Int) {
+        binding.etChatSendText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                binding.etChatSendText.showMessage(messageId)
+                true
+            } else {
+                false
             }
         }
     }

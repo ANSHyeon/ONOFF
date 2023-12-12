@@ -44,7 +44,7 @@ class ChatFragment : BaseFragment<FragmentChatBinding>(R.layout.fragment_chat),
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.chatRoomList
                 .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-                .collect { chatRoomList -> adapter.submitList(chatRoomList) }
+                .collect { chatRoomList -> adapter.submitList(chatRoomList.sortedByDescending { it.lastMessageDate }) }
         }
     }
 
