@@ -58,17 +58,18 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
                         val location = placeInfo.region3depthName
                         setToolBar(location)
                         viewModel.getPostList(location)
-                        viewModel.postList
-                            .collect { postList ->
-                                adapter.submitList(postList)
-                                if (postList.isNotEmpty()) {
-                                    binding.tvNothingPost.visibility = View.GONE
+                        viewModel.isCompleted.collect { isCompleted ->
+                            viewModel.postList
+                                .collect { postList ->
+                                    adapter.submitList(postList)
+                                    if (isCompleted && postList.isEmpty()) {
+                                        binding.tvNothingPost.visibility = View.VISIBLE
+                                    }
                                 }
-                            }
+                        }
                     }
                 }
             }
-
         }
     }
 

@@ -39,8 +39,12 @@ class BoardViewModel @Inject constructor(
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _isCompleted: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isCompleted: StateFlow<Boolean> = _isCompleted
+
     fun getPostList(location: String) {
         _isLoading.value = true
+        _isCompleted.value = false
         postList = transformPostList(location).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -53,6 +57,7 @@ class BoardViewModel @Inject constructor(
             location,
             onComplete = {
                 _isLoading.value = false
+                _isCompleted.value = true
             },
             onError = {
                 _isLoading.value = false
