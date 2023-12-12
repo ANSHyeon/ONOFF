@@ -53,7 +53,9 @@ class ChatFragment : BaseFragment<FragmentChatBinding>(R.layout.fragment_chat),
             ChatFragmentDirections.actionChatToChatRoom(
                 chatRoom.placeName,
                 chatRoom.chatRoomId,
-                chatRoom.address
+                chatRoom.address,
+                chatRoom.latitude,
+                chatRoom.longitude
             )
         findNavController().navigate(action)
     }

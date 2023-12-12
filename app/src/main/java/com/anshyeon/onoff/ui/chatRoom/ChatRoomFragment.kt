@@ -127,7 +127,11 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                 launch {
                     viewModel.chatRoomKey.collect {
                         if (it.isNotBlank()) {
-                            checkSamePlace(args.chatRoomAddress)
+                            checkSamePlace(
+                                args.chatRoomAddress,
+                                args.latitude.toDouble(),
+                                args.longitude.toDouble()
+                            )
                         }
                     }
                 }
@@ -149,30 +153,41 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
         }
     }
 
-    private fun checkSamePlace(chatRoomAddress: String) {
+    private fun checkSamePlace(
+        chatRoomAddress: String,
+        selectedLatitude: Double,
+        selectedLongitude: Double
+    ) {
         client.lastLocation.addOnSuccessListener { location ->
-            viewModel.getCurrentPlaceInfo(
-                location.latitude.toString(),
-                location.longitude.toString()
-            )
-        }
+            val currentLatitude = location.latitude
+            val currentLongitude = location.longitude
+            viewModel.getCurrentPlaceInfo(currentLatitude.toString(), currentLongitude.toString())
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.currentPlaceInfo.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED,
-            ).collect {
-                it?.let { placeInfo ->
-                    if (SamePlaceChecker.isSamePlace(placeInfo, chatRoomAddress)) {
-                        binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
-                            viewModel.createMessage(args.chatRoomId)
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.currentPlaceInfo.flowWithLifecycle(
+                    viewLifecycleOwner.lifecycle,
+                    Lifecycle.State.STARTED,
+                ).collect {
+                    it?.let { placeInfo ->
+                        if (SamePlaceChecker.isSamePlace(
+                                placeInfo,
+                                chatRoomAddress,
+                                currentLatitude,
+                                currentLongitude,
+                                selectedLatitude,
+                                selectedLongitude
+                            )
+                        ) {
+                            binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
+                                viewModel.createMessage(args.chatRoomId)
+                            }
+                            binding.tvErrorSamePlace.visibility = View.GONE
+                        } else {
+                            binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
+                                binding.etChatSendText.showMessage(R.string.error_message_not_same_place)
+                            }
+                            binding.tvErrorSamePlace.visibility = View.VISIBLE
                         }
-                        binding.tvErrorSamePlace.visibility = View.GONE
-                    } else {
-                        binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
-                            binding.etChatSendText.showMessage(R.string.error_message_not_same_place)
-                        }
-                        binding.tvErrorSamePlace.visibility = View.VISIBLE
                     }
                 }
             }

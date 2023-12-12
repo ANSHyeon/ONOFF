@@ -156,18 +156,19 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             setButtonText(getString(R.string.label_enter_chat_room))
             setClickListener(viewLifecycleOwner.lifecycleScope) {
                 client.lastLocation.addOnSuccessListener { location ->
+                    val currentLatitude = location.latitude
+                    val currentLongitude = location.longitude
                     viewModel.getCurrentPlaceInfo(
-                        location.latitude.toString(),
-                        location.longitude.toString()
+                        currentLatitude.toString(),
+                        currentLongitude.toString()
                     )
+                    observeCurrentPlaceInfo(currentLatitude, currentLongitude)
                 }
-                viewModel.selectedChatRoom = chatRoom
-                observeCurrentPlaceInfo()
             }
         }
     }
 
-    private fun observeCurrentPlaceInfo() {
+    private fun observeCurrentPlaceInfo(currentLatitude: Double, currentLongitude: Double) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(
                 Lifecycle.State.STARTED,
@@ -177,7 +178,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                         it?.let { placeInfo ->
                             val selectedPlaceInfo = viewModel.selectedChatRoom
                             selectedPlaceInfo?.let { chatRoom ->
-                                if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom.address)) {
+                                if (SamePlaceChecker.isSamePlace(
+                                        placeInfo,
+                                        chatRoom.address,
+                                        currentLatitude,
+                                        currentLongitude,
+                                        chatRoom.latitude.toDouble(),
+                                        chatRoom.longitude.toDouble()
+                                    )
+                                ) {
                                     handleSamePlace(chatRoom)
                                 } else {
                                     binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
@@ -197,9 +206,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             savedChatRoom?.let {
                 val action =
                     HomeFragmentDirections.actionHomeToChatRoom(
-                        savedChatRoom.placeName,
-                        savedChatRoom.chatRoomId,
-                        savedChatRoom.address
+                        chatRoom.placeName,
+                        chatRoom.chatRoomId,
+                        chatRoom.address,
+                        chatRoom.latitude,
+                        chatRoom.longitude
                     )
                 findNavController().navigate(action)
             }
@@ -264,6 +275,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             position = LatLng(chatRoom.latitude.toDouble(), chatRoom.longitude.toDouble())
             map = naverMap
             setOnClickListener {
+                viewModel.selectedChatRoom = chatRoom
                 setPlaceInfoView(chatRoom)
                 binding.placeInfoSearch.visibility = View.VISIBLE
                 true

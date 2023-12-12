@@ -10,7 +10,7 @@ data class PlaceInfo(
 
 @JsonClass(generateAdapter = true)
 data class Documents(
-    @Json(name = "road_address") val roadAddress: RoadAddress,
+    @Json(name = "road_address") val roadAddress: RoadAddress?,
     val address: Address,
 )
 

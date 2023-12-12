@@ -116,6 +116,12 @@
         <argument
             android:name="chatRoomAddress"
             app:argType="string" />
+        <argument
+            android:name="latitude"
+            app:argType="string" />
+        <argument
+            android:name="longitude"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/navigation_post"

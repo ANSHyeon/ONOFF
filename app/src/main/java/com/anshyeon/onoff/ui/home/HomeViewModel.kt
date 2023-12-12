@@ -97,7 +97,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             chatRoomRepository.insertChatRoom(chatRoom)
-            _isLoading.value = false
             _savedChatRoom.value = chatRoom
         }
     }

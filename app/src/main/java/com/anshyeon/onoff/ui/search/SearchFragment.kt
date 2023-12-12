@@ -66,7 +66,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         observeSearchedPlace()
         observePlaceChatRoom()
         observeIsSaved()
-        observeCurrentPlaceInfo()
         setNetworkErrorBar()
     }
 
@@ -135,10 +134,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 it?.let {
                     setPlaceInfoButton(getString(R.string.label_enter_chat_room)) {
                         client.lastLocation.addOnSuccessListener { location ->
+                            val currentLatitude = location.latitude
+                            val currentLongitude = location.longitude
                             viewModel.getCurrentPlaceInfo(
-                                location.latitude.toString(),
-                                location.longitude.toString()
+                                currentLatitude.toString(),
+                                currentLongitude.toString()
                             )
+                            observeCurrentPlaceInfo(currentLatitude, currentLongitude)
                         }
                     }
                 }
@@ -157,7 +159,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                         SearchFragmentDirections.actionSearchToChatRoom(
                             it.placeName,
                             it.chatRoomId,
-                            it.address
+                            it.address,
+                            it.latitude,
+                            it.longitude
                         )
                     findNavController().navigate(action)
                 }
@@ -165,7 +169,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         }
     }
 
-    private fun observeCurrentPlaceInfo() {
+    private fun observeCurrentPlaceInfo(currentLatitude: Double, currentLongitude: Double) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.currentPlaceInfo.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
@@ -174,7 +178,15 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 it?.let { placeInfo ->
                     val selectedPlaceInfo = viewModel.placeChatRoom.value
                     selectedPlaceInfo?.let { chatRoom ->
-                        if (SamePlaceChecker.isSamePlace(placeInfo, chatRoom.address)) {
+                        if (SamePlaceChecker.isSamePlace(
+                                placeInfo,
+                                chatRoom.address,
+                                currentLatitude,
+                                currentLongitude,
+                                chatRoom.latitude.toDouble(),
+                                chatRoom.longitude.toDouble()
+                            )
+                        ) {
                             viewModel.insertChatRoom(chatRoom)
                         } else {
                             binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
@@ -182,7 +194,15 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     } ?: run {
                         val searchedPlace = viewModel.searchedPlace.value ?: Place()
 
-                        if (SamePlaceChecker.isSamePlace(placeInfo, searchedPlace)) {
+                        if (SamePlaceChecker.isSamePlace(
+                                placeInfo,
+                                searchedPlace.roadAddressName,
+                                currentLatitude,
+                                currentLongitude,
+                                searchedPlace.y.toDouble(),
+                                searchedPlace.x.toDouble()
+                            )
+                        ) {
                             with(searchedPlace) {
                                 viewModel.createChatRoom(
                                     ChatRoom(
@@ -217,10 +237,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private fun setDefaultPlaceInfoButton() {
         setPlaceInfoButton(getString(R.string.label_create_chat_room)) {
             client.lastLocation.addOnSuccessListener { location ->
+                val currentLatitude = location.latitude
+                val currentLongitude = location.longitude
                 viewModel.getCurrentPlaceInfo(
-                    location.latitude.toString(),
-                    location.longitude.toString()
+                    currentLatitude.toString(),
+                    currentLongitude.toString()
                 )
+                observeCurrentPlaceInfo(currentLatitude, currentLongitude)
             }
         }
     }
