@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.anshyeon.onoff.ui.edit.EditViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.edit.EditFragment">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_edit"
+            style="@style/ToolBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/network_error_bar"
+            app:navigationIcon="@drawable/ic_arrow"
+            app:title="@string/label_app_bar_user_edit" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_previous_user_profile"
+            imageUrl="@{viewModel.profileUrl}"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="36dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_edit"
+            app:shapeAppearanceOverlay="@style/Circle"
+            tools:src="@drawable/ic_profile" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_user_profile"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="36dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_edit"
+            app:shapeAppearanceOverlay="@style/Circle"
+            tools:src="@drawable/ic_profile" />
+
+        <ImageView
+            android:id="@+id/iv_user_profile_camera_background"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="48dp"
+            android:src="@drawable/shape_circle"
+            app:layout_constraintStart_toStartOf="@id/iv_previous_user_profile"
+            app:layout_constraintTop_toTopOf="@id/iv_previous_user_profile" />
+
+        <ImageView
+            android:id="@+id/iv_user_profile_camera"
+            android:layout_width="13dp"
+            android:layout_height="13dp"
+            android:src="@drawable/ic_camera"
+            app:layout_constraintBottom_toBottomOf="@id/iv_user_profile_camera_background"
+            app:layout_constraintEnd_toEndOf="@id/iv_user_profile_camera_background"
+            app:layout_constraintStart_toStartOf="@id/iv_user_profile_camera_background"
+            app:layout_constraintTop_toTopOf="@id/iv_user_profile_camera_background" />
+
+        <EditText
+            android:id="@+id/et_post_description"
+            style="@style/TextBody12.Bold"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="36dp"
+            android:background="@drawable/shape_grey_rounded_rectangle"
+            android:hint="@string/hint_info_input_nickname"
+            android:inputType="textMultiLine"
+            android:text="@={viewModel.nickName}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_previous_user_profile" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_user_edit"
+            style="@style/TextTitle18.Bold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/green"
+            android:text="@string/label_post_send_btn"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.anshyeon.onoff.ui.common.ProgressIndicatorView
+            android:id="@+id/loading_progress_indicator"
+            visible="@{viewModel.isLoading}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+
+        <com.anshyeon.onoff.ui.common.NetworkErrorView
+            android:id="@+id/network_error_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -25,6 +25,13 @@ interface FireBaseApiClient {
         @Query("equalTo") userId: String
     ): ApiResponse<Map<String, User>>
 
+    @PATCH("users/{userKey}.json")
+    suspend fun updateUser(
+        @Path("userKey") userKey: String,
+        @Query("auth") auth: String?,
+        @Body updates: Map<String, String?>
+    ): ApiResponse<Map<String, String>>
+
     @POST("chatRoom.json")
     suspend fun createChatRoom(
         @Query("auth") auth: String?,

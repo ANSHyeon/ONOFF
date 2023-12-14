@@ -5,6 +5,7 @@
     <string name="label_app_bar_chat">채팅</string>
     <string name="label_app_bar_board">게시판</string>
     <string name="label_app_bar_board_post">게시판 글쓰기</string>
+    <string name="label_app_bar_user_edit">프로필 수정하기</string>
 
     <string name="error_message_sign_in">로그인에 실패했습니다. 잠시 후 다시 시도해주세요.</string>
     <string name="error_message_retry">잠시 후 다시 시도해주세요.</string>
@@ -26,10 +27,12 @@
     <string name="label_user_destination">User</string>
     <string name="label_search_destination">Search</string>
     <string name="label_chat_room_destination">ChatRoom</string>
+    <string name="label_edit_destination">Edit</string>
     <string name="label_location_permission_off_destination">위치 권한 요청 안내 다이얼로그</string>
 
     <string name="hint_info_input_nickname">닉네임을 입력하세요</string>
     <string name="btn_submit_user_info">시작하기</string>
+    <string name="btn_log_out">로그아웃</string>
     <string name="label_chat_room_search_again">현재 위치에서 재검색</string>
     <string name="hint_info_input_place_name">장소를 입력하세요.</string>
     <string name="description_selected_photo">선택한 이미지</string>
@@ -42,6 +45,7 @@
     <string name="label_create_chat_room">생성하기</string>
     <string name="label_post_send_btn">완료</string>
     <string name="label_add">Add</string>
+    <string name="label_edit">Edit</string>
 
     <string name="format_image_size_limit">/%d</string>
     <string name="format_file_name">%s_%s</string>

@@ -65,7 +65,7 @@ class HomeViewModel @Inject constructor(
         )
 
     fun getLocalGoogleIdToken(): String {
-        return authRepository.getLocalIdToken()
+        return authRepository.getLocalIdToken() ?: ""
     }
 
     fun getCurrentPlaceInfo(latitude: String, longitude: String) {

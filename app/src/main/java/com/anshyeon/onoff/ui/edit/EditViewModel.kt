@@ -1,4 +1,4 @@
-package com.anshyeon.onoff.ui.infoInput
+package com.anshyeon.onoff.ui.edit
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -18,52 +18,53 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class InfoInputViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
+class EditViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
-    private var nickName: String? = null
+    val nickName = MutableStateFlow("")
+    val profileUrl: MutableStateFlow<String?> = MutableStateFlow(null)
     private var imageUri: Uri? = null
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    private val _isValidInfo: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isValidInfo: StateFlow<Boolean> = _isValidInfo
-
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _isSaved: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isSaved: StateFlow<Boolean> = _isSaved
+    private val _isUpdated: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isUpdated: StateFlow<Boolean> = _isUpdated
 
-    fun updateNickName(text: String) {
-        nickName = text
-        _isValidInfo.value = isValidNickname(text)
-    }
-
-    fun updateProfileImage(uri: Uri?) {
-        imageUri = uri
-    }
-
-    fun saveUserInfo() {
+    fun updateUserInfo(location: String, userKey: String) {
         viewModelScope.launch {
-            _isLoading.value = true
-            nickName?.let { nickName ->
-                val result = repository.createUser(nickName, imageUri)
+            if (isValidNickname(nickName.value)) {
+                _isLoading.value = true
+                val result = authRepository.updateUser(nickName.value, imageUri, location, userKey)
                 result.onSuccess {
-                    repository.saveIdToken()
-                    repository.saveUserEmail()
-                    repository.saveUserNickName(nickName)
-                    _isSaved.value = true
+                    _isUpdated.value = true
+                    _isLoading.value = false
                 }.onError { code, message ->
                     _isLoading.value = false
-                    _isSaved.value = false
+                    _isUpdated.value = false
                     _snackBarText.emit(R.string.error_message_retry)
                 }.onException {
                     _isLoading.value = false
-                    _isSaved.value = false
+                    _isUpdated.value = false
                     _snackBarText.emit(R.string.error_message_retry)
                 }
+
+            } else {
+                _snackBarText.emit(R.string.guide_message_invalid_nick_name)
             }
         }
+    }
+
+    fun setUserInfo(userNickName: String, userProfileUrl: String?) {
+        nickName.value = userNickName
+        profileUrl.value = userProfileUrl
+    }
+
+    fun updateProfileUri(uri: Uri?) {
+        imageUri = uri
     }
 }

@@ -15,4 +15,7 @@ interface ChatRoomInfoDao {
 
     @Query("UPDATE chat_room_info SET lastMessageDate = :lastMessageDate WHERE chatRoomId = :chatRoomId")
     suspend fun update(chatRoomId: String, lastMessageDate: String)
+
+    @Query("DELETE FROM chat_room_info")
+    suspend fun deleteAll()
 }

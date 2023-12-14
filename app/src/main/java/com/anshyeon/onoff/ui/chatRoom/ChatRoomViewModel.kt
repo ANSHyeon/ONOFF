@@ -51,7 +51,7 @@ class ChatRoomViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading
 
     fun getLocalUserEmail(): String {
-        return authRepository.getLocalUserEmail()
+        return authRepository.getLocalUserEmail() ?: ""
     }
 
     fun getMessage(chatRoomId: String) {
