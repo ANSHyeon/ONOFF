@@ -4,6 +4,7 @@ import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.local.dao.MessageDao
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Message
+import com.anshyeon.onoff.data.model.Place
 import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.network.FireBaseApiClient
 import com.anshyeon.onoff.network.extentions.onError
@@ -11,6 +12,7 @@ import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
 import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.network.model.ApiResultException
+import com.anshyeon.onoff.network.model.ApiResultSuccess
 import com.anshyeon.onoff.util.DateFormatText
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
@@ -32,15 +34,13 @@ class ChatRoomRepository @Inject constructor(
     fun getChatRoom(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
-    ): Flow<List<ChatRoom>> = flow {
+    ): Flow<Map<String, ChatRoom>> = flow {
         try {
             val response = fireBaseApiClient.getChatRoom(
                 userDataSource.getIdToken()
             )
             response.onSuccess { data ->
-                emit(data.map { entry ->
-                    entry.value
-                })
+                emit(data)
             }.onError { code, message ->
                 onError("code: $code, message: $message")
             }.onException {
@@ -67,13 +67,47 @@ class ChatRoomRepository @Inject constructor(
     }
 
     suspend fun createChatRoom(
-        chatRoom: ChatRoom
+        searchedPlace: Place
     ): ApiResponse<Map<String, String>> {
         return try {
+            val chatRoom = with(searchedPlace) {
+                ChatRoom(
+                    y + x,
+                    placeName,
+                    roadAddressName.ifBlank { addressName },
+                    y,
+                    x,
+                    DateFormatText.getCurrentTime(),
+                    listOf(userDataSource.getUid())
+                )
+            }
             fireBaseApiClient.createChatRoom(
                 userDataSource.getIdToken(),
                 chatRoom
             )
+            insertChatRoom(chatRoom)
+            ApiResultSuccess(mapOf())
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
+    suspend fun addMemberToChatRoom(
+        chatRoom: ChatRoom,
+        chatRoomKey: String
+    ): ApiResponse<Map<String, String>> {
+        return try {
+            val userId = userDataSource.getUid()
+            val memberList = chatRoom.memberList.toMutableList()
+            if (userId !in chatRoom.memberList) {
+                memberList.add(userId)
+                fireBaseApiClient.updateMember(
+                    chatRoomKey,
+                    userDataSource.getIdToken(),
+                    mapOf("memberList" to memberList)
+                )
+            }
+            ApiResultSuccess(mapOf())
         } catch (e: Exception) {
             ApiResultException(e)
         }

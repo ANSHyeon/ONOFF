@@ -117,8 +117,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
                 if (it) {
                     dismissDialog()
                     moveMapCamera()
-                    viewModel.chatRoomList.collect { chatRoomList ->
-                        chatRoomList.forEach { chatRoom ->
+                    viewModel.chatRoomList.collect { data ->
+                        data.values.forEach { chatRoom ->
                             setMarker(chatRoom)
                         }
                     }
@@ -200,7 +200,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
     }
 
     private suspend fun handleSamePlace(chatRoom: ChatRoom) {
-        viewModel.insertChatRoom(chatRoom)
+        viewModel.addMemberToChatRoom(chatRoom)
 
         viewModel.savedChatRoom.collect { savedChatRoom ->
             savedChatRoom?.let {

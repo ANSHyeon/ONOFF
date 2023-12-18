@@ -11,11 +11,9 @@ import androidx.lifecycle.lifecycleScope
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentSearchBinding
 import androidx.navigation.fragment.findNavController
-import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Place
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.showMessage
-import com.anshyeon.onoff.util.DateFormatText
 import com.anshyeon.onoff.util.NetworkConnection
 import com.anshyeon.onoff.util.SamePlaceChecker
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -150,20 +148,23 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
     private fun observeIsSaved() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.savedChatRoom.flowWithLifecycle(
+            viewModel.isSaved.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
-                it?.let {
-                    val action =
-                        SearchFragmentDirections.actionSearchToChatRoom(
-                            it.placeName,
-                            it.chatRoomId,
-                            it.address,
-                            it.latitude,
-                            it.longitude
-                        )
-                    findNavController().navigate(action)
+                if (it) {
+                    val searchedPlace = viewModel.searchedPlace.value
+                    searchedPlace?.let {
+                        val action =
+                            SearchFragmentDirections.actionSearchToChatRoom(
+                                searchedPlace.placeName,
+                                searchedPlace.y + searchedPlace.x,
+                                searchedPlace.roadAddressName,
+                                searchedPlace.y,
+                                searchedPlace.x
+                            )
+                        findNavController().navigate(action)
+                    }
                 }
             }
         }
@@ -187,7 +188,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                                 chatRoom.longitude.toDouble()
                             )
                         ) {
-                            viewModel.insertChatRoom(chatRoom)
+                            viewModel.addMemberToChatRoom(chatRoom)
                         } else {
                             binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
                         }
@@ -203,19 +204,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                                 searchedPlace.x.toDouble()
                             )
                         ) {
-                            with(searchedPlace) {
-                                viewModel.createChatRoom(
-                                    ChatRoom(
-                                        y + x,
-                                        placeName,
-                                        roadAddressName.ifBlank { addressName },
-                                        y,
-                                        x,
-                                        DateFormatText.getCurrentTime()
-                                    )
-                                )
-                            }
-
+                            viewModel.createChatRoom(searchedPlace)
                         } else {
                             binding.placeInfoSearch.showMessage(R.string.error_message_not_same_place)
                         }

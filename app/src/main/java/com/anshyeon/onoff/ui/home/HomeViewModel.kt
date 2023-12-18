@@ -36,10 +36,10 @@ class HomeViewModel @Inject constructor(
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
-    val chatRoomList: StateFlow<List<ChatRoom>> = transformChatRoomList().stateIn(
+    val chatRoomList: StateFlow<Map<String, ChatRoom>> = transformChatRoomList().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
+        initialValue = mapOf()
     )
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -54,7 +54,7 @@ class HomeViewModel @Inject constructor(
     private val _isPermissionGranted: MutableStateFlow<Boolean?> = MutableStateFlow(null)
     val isPermissionGranted: StateFlow<Boolean?> = _isPermissionGranted
 
-    private fun transformChatRoomList(): Flow<List<ChatRoom>> =
+    private fun transformChatRoomList(): Flow<Map<String, ChatRoom>> =
         chatRoomRepository.getChatRoom(
             onComplete = {
                 _isLoading.value = false
@@ -93,11 +93,28 @@ class HomeViewModel @Inject constructor(
         _isPermissionGranted.value = state
     }
 
-    fun insertChatRoom(chatRoom: ChatRoom) {
+    private fun insertChatRoom(chatRoom: ChatRoom) {
         viewModelScope.launch {
             _isLoading.value = true
             chatRoomRepository.insertChatRoom(chatRoom)
             _savedChatRoom.value = chatRoom
+        }
+    }
+
+    fun addMemberToChatRoom(chatRoom: ChatRoom) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val chatRoomKey =
+                chatRoomList.value.filterValues { data -> data.chatRoomId == chatRoom.chatRoomId }.keys.first()
+            val result = chatRoomRepository.addMemberToChatRoom(chatRoom, chatRoomKey)
+            result.onSuccess {
+                _isLoading.value = false
+                insertChatRoom(chatRoom)
+            }.onError { code, message ->
+                _isLoading.value = false
+            }.onException {
+                _isLoading.value = false
+            }
         }
     }
 }

@@ -14,4 +14,5 @@ data class ChatRoom(
     val latitude: String,
     val longitude: String,
     val lastMessageDate: String,
+    val memberList: List<String>,
 )

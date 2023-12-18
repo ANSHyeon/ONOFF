@@ -26,6 +26,7 @@ class SearchViewModel @Inject constructor(
 ) : ViewModel() {
 
     val searchedPlaceName = MutableStateFlow("")
+    private var chatRoomKey = ""
 
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
@@ -39,8 +40,8 @@ class SearchViewModel @Inject constructor(
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _savedChatRoom: MutableStateFlow<ChatRoom?> = MutableStateFlow(null)
-    val savedChatRoom: StateFlow<ChatRoom?> = _savedChatRoom
+    private val _isSaved: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isSaved: StateFlow<Boolean> = _isSaved
 
     private val _currentPlaceInfo: MutableStateFlow<PlaceInfo?> = MutableStateFlow(null)
     val currentPlaceInfo: StateFlow<PlaceInfo?> = _currentPlaceInfo
@@ -74,6 +75,7 @@ class SearchViewModel @Inject constructor(
             result.onSuccess {
                 _isLoading.value = false
                 if (it.isNotEmpty()) {
+                    chatRoomKey = it.keys.first()
                     _placeChatRoom.value = it.values.first()
                 }
             }.onError { code, message ->
@@ -101,22 +103,40 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun insertChatRoom(chatRoom: ChatRoom) {
+    private fun insertChatRoom(chatRoom: ChatRoom) {
+        _isSaved.value = false
         viewModelScope.launch {
             _isLoading.value = true
             chatRoomRepository.insertChatRoom(chatRoom)
             _isLoading.value = false
-            _savedChatRoom.value = chatRoom
+            _isSaved.value = true
         }
     }
 
-    fun createChatRoom(chatRoom: ChatRoom) {
+    fun createChatRoom(searchedPlace: Place) {
         viewModelScope.launch {
             _isLoading.value = true
-            val result = chatRoomRepository.createChatRoom(chatRoom)
+            val result = chatRoomRepository.createChatRoom(searchedPlace)
             result.onSuccess {
-                insertChatRoom(chatRoom)
                 _isLoading.value = false
+                _isSaved.value = true
+            }.onError { code, message ->
+                _isLoading.value = false
+                _isSaved.value = false
+            }.onException {
+                _isLoading.value = false
+                _isSaved.value = false
+            }
+        }
+    }
+
+    fun addMemberToChatRoom(chatRoom: ChatRoom) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = chatRoomRepository.addMemberToChatRoom(chatRoom, chatRoomKey)
+            result.onSuccess {
+                _isLoading.value = false
+                insertChatRoom(chatRoom)
             }.onError { code, message ->
                 _isLoading.value = false
             }.onException {

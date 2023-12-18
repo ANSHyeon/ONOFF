@@ -1,7 +1,9 @@
 package com.anshyeon.onoff.data.model
 
 import androidx.room.TypeConverter
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 
 class Converters {
 
@@ -28,6 +30,20 @@ class Converters {
     @TypeConverter
     fun userFromJson(json: String): User? {
         val jsonAdapter = moshi.adapter(User::class.java)
+        return jsonAdapter.fromJson(json)
+    }
+
+    @TypeConverter
+    fun listToJson(type: List<String>): String {
+        val listType = Types.newParameterizedType(List::class.java, String::class.java)
+        val jsonAdapter: JsonAdapter<List<String>> = moshi.adapter(listType)
+        return jsonAdapter.toJson(type)
+    }
+
+    @TypeConverter
+    fun listFromJson(json: String): List<String>? {
+        val listType = Types.newParameterizedType(List::class.java, String::class.java)
+        val jsonAdapter: JsonAdapter<List<String>> = moshi.adapter(listType)
         return jsonAdapter.fromJson(json)
     }
 }
