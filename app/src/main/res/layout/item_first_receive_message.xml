@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:paddingVertical="2dp">
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_sender_profile_image"
             imageUrl="@{message.profileUrl}"
             android:layout_width="30dp"
@@ -25,8 +25,8 @@
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/Circle"
             tools:src="@drawable/ic_profile" />
-
 
         <TextView
             android:id="@+id/tv_sender_nick_name"
