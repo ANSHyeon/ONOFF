@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.anshyeon.onoff.data.local.AppDatabase
 import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.local.dao.MessageDao
+import com.anshyeon.onoff.data.local.dao.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,5 +35,10 @@ object DatabaseModule {
     @Provides
     fun providerMessageDao(appDatabase: AppDatabase): MessageDao {
         return appDatabase.messageDao()
+    }
+
+    @Provides
+    fun providerUserInfoDao(appDatabase: AppDatabase): UserDao {
+        return appDatabase.userDao()
     }
 }
