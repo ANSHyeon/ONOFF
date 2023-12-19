@@ -2,6 +2,7 @@ package com.anshyeon.onoff.data.repository
 
 import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.local.dao.MessageDao
+import com.anshyeon.onoff.data.local.dao.UserDao
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.data.model.User
@@ -26,6 +27,7 @@ class ChatRoomRepository @Inject constructor(
     private val fireBaseApiClient: FireBaseApiClient,
     private val chatRoomInfoDao: ChatRoomInfoDao,
     private val messageDao: MessageDao,
+    private val userDao: UserDao,
     private val userDataSource: UserDataSource,
     private val authRepository: AuthRepository,
 ) {
@@ -153,6 +155,24 @@ class ChatRoomRepository @Inject constructor(
         }
     }
 
+    suspend fun getUserList(userList: List<String>): ApiResponse<Map<String, String>> {
+        return try {
+            userList.forEach { userId ->
+                authRepository.getUserByUserId(userId)
+                    .onSuccess { data ->
+                        insertUser(data.values.first())
+                    }.onException {
+                        throw Exception()
+                    }.onException {
+                        throw Exception()
+                    }
+            }
+            ApiResultSuccess(mapOf())
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
     fun getMessage(
         chatRoomId: String,
         onComplete: () -> Unit,
@@ -199,6 +219,10 @@ class ChatRoomRepository @Inject constructor(
 
     fun getMessageListByRoom(chatRoomId: String): Flow<List<Message>> {
         return messageDao.getMessageListByChatRoomId(chatRoomId)
+    }
+
+    private suspend fun insertUser(user: User) {
+        userDao.insert(user)
     }
 
     private suspend fun downloadImage(location: String): String {

@@ -110,6 +110,17 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    suspend fun getUserByUserId(userId: String): ApiResponse<Map<String, User>> {
+        return try {
+            fireBaseApiClient.getUser(
+                userDataSource.getIdToken(),
+                "\"$userId\""
+            )
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
     suspend fun updateUser(
         nickname: String,
         uri: Uri?,

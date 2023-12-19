@@ -44,6 +44,9 @@ class ChatRoomViewModel @Inject constructor(
     private val _snackBarText = MutableSharedFlow<Int>()
     val snackBarText = _snackBarText.asSharedFlow()
 
+    private val _isUserSaved: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isUserSaved: StateFlow<Boolean> = _isUserSaved
+
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
@@ -77,6 +80,24 @@ class ChatRoomViewModel @Inject constructor(
                 _isLoading.value = false
             }.onException {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    fun getUserList(userList: List<String>) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = chatRoomRepository.getUserList(userList)
+            result.onSuccess {
+                _isUserSaved.value = true
+            }.onError { code, message ->
+                _isUserSaved.value = false
+                _isLoading.value = false
+                _snackBarText.emit(R.string.error_message_retry)
+            }.onException {
+                _isUserSaved.value = false
+                _isLoading.value = false
+                _snackBarText.emit(R.string.error_message_retry)
             }
         }
     }
