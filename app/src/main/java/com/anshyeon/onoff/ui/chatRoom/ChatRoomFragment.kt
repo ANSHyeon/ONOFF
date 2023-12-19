@@ -65,7 +65,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     }
 
     private fun setBinding() {
-        binding.toolbarChat.title = args.placeName
+        binding.toolbarChat.title = args.chatRoom.placeName
         binding.viewModel = viewModel
     }
 
@@ -86,7 +86,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     private fun setNetworkErrorBar() {
         NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
             receiveMessages()
-            viewModel.getLocalMessage(args.chatRoomId)
+            viewModel.getLocalMessage(args.chatRoom.chatRoomId)
             observeLocalMessages()
             if (it) {
                 handleNetworkConnection()
@@ -97,7 +97,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     }
 
     private fun handleNetworkConnectionFailure() {
-        viewModel.getLocalMessage(args.chatRoomId)
+        viewModel.getLocalMessage(args.chatRoom.chatRoomId)
         setImeSendActionFailureListener(R.string.error_message_retry)
         binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
             binding.etChatSendText.showMessage(R.string.error_message_retry)
@@ -107,7 +107,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     }
 
     private fun handleNetworkConnection() {
-        viewModel.getChatRoomOfPlace(args.placeName)
+        viewModel.getChatRoomOfPlace(args.chatRoom.placeName)
         observeChatRoomKey()
         binding.networkErrorBar.visibility = View.GONE
     }
@@ -130,10 +130,11 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                 launch {
                     viewModel.chatRoomKey.collect {
                         if (it.isNotBlank()) {
+                            viewModel.getUserList(args.chatRoom.memberList)
                             checkSamePlace(
-                                args.chatRoomAddress,
-                                args.latitude.toDouble(),
-                                args.longitude.toDouble()
+                                args.chatRoom.address,
+                                args.chatRoom.latitude.toDouble(),
+                                args.chatRoom.longitude.toDouble()
                             )
                         }
                     }
@@ -183,7 +184,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                         ) {
                             setImeSendActionListener()
                             binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
-                                viewModel.createMessage(args.chatRoomId)
+                                viewModel.createMessage(args.chatRoom.chatRoomId)
                             }
                             binding.tvErrorSamePlace.visibility = View.GONE
                         } else {
@@ -202,7 +203,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     private fun setImeSendActionListener() {
         binding.etChatSendText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEND) {
-                viewModel.createMessage(args.chatRoomId)
+                viewModel.createMessage(args.chatRoom.chatRoomId)
                 true
             } else {
                 false
@@ -229,7 +230,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
 
 
     private fun receiveMessages() {
-        messageListener = chatRoomRef.orderByChild("chatRoomId").equalTo(args.chatRoomId)
+        messageListener = chatRoomRef.orderByChild("chatRoomId").equalTo(args.chatRoom.chatRoomId)
             .addChildEventListener(object : ChildEventListener {
                 override fun onChildAdded(dataSnapshot: DataSnapshot, prevChildKey: String?) {
                     val newMessage = dataSnapshot.getValue(Message::class.java) ?: return

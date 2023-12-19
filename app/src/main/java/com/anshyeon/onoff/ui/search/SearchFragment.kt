@@ -148,23 +148,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
     private fun observeIsSaved() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isSaved.flowWithLifecycle(
+            viewModel.savedChatRoom.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED,
             ).collect {
-                if (it) {
-                    val searchedPlace = viewModel.searchedPlace.value
-                    searchedPlace?.let {
-                        val action =
-                            SearchFragmentDirections.actionSearchToChatRoom(
-                                searchedPlace.placeName,
-                                searchedPlace.y + searchedPlace.x,
-                                searchedPlace.roadAddressName,
-                                searchedPlace.y,
-                                searchedPlace.x
-                            )
-                        findNavController().navigate(action)
-                    }
+                it?.let {
+                    val action =
+                        SearchFragmentDirections.actionSearchToChatRoom(it)
+                    findNavController().navigate(action)
                 }
             }
         }

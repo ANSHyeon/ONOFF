@@ -4,7 +4,6 @@ import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.local.dao.MessageDao
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Message
-import com.anshyeon.onoff.data.model.Place
 import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.network.FireBaseApiClient
 import com.anshyeon.onoff.network.extentions.onError
@@ -67,20 +66,9 @@ class ChatRoomRepository @Inject constructor(
     }
 
     suspend fun createChatRoom(
-        searchedPlace: Place
+        chatRoom: ChatRoom
     ): ApiResponse<Map<String, String>> {
         return try {
-            val chatRoom = with(searchedPlace) {
-                ChatRoom(
-                    y + x,
-                    placeName,
-                    roadAddressName.ifBlank { addressName },
-                    y,
-                    x,
-                    DateFormatText.getCurrentTime(),
-                    listOf(userDataSource.getUid())
-                )
-            }
             fireBaseApiClient.createChatRoom(
                 userDataSource.getIdToken(),
                 chatRoom

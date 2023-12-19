@@ -108,20 +108,8 @@
         android:label="@string/label_chat_room_destination"
         tools:layout="@layout/fragment_chat_room">
         <argument
-            android:name="placeName"
-            app:argType="string" />
-        <argument
-            android:name="chatRoomId"
-            app:argType="string" />
-        <argument
-            android:name="chatRoomAddress"
-            app:argType="string" />
-        <argument
-            android:name="latitude"
-            app:argType="string" />
-        <argument
-            android:name="longitude"
-            app:argType="string" />
+            android:name="chatRoom"
+            app:argType="com.anshyeon.onoff.data.model.ChatRoom" />
     </fragment>
     <fragment
         android:id="@+id/navigation_post"

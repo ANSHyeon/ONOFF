@@ -51,11 +51,7 @@ class ChatFragment : BaseFragment<FragmentChatBinding>(R.layout.fragment_chat),
     override fun enterChatRoom(chatRoom: ChatRoom) {
         val action =
             ChatFragmentDirections.actionChatToChatRoom(
-                chatRoom.placeName,
-                chatRoom.chatRoomId,
-                chatRoom.address,
-                chatRoom.latitude,
-                chatRoom.longitude
+                chatRoom
             )
         findNavController().navigate(action)
     }

@@ -28,6 +28,10 @@ class AuthRepository @Inject constructor(
         return preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
     }
 
+    fun getUserId(): String {
+        return userDataSource.getUid()
+    }
+
     suspend fun saveIdToken() {
         preferenceManager.setGoogleIdToken(
             Constants.KEY_GOOGLE_ID_TOKEN,

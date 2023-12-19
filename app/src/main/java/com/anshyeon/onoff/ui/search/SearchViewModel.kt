@@ -6,11 +6,13 @@ import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Place
 import com.anshyeon.onoff.data.model.PlaceInfo
+import com.anshyeon.onoff.data.repository.AuthRepository
 import com.anshyeon.onoff.data.repository.ChatRoomRepository
 import com.anshyeon.onoff.data.repository.PlaceRepository
 import com.anshyeon.onoff.network.extentions.onError
 import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
+import com.anshyeon.onoff.util.DateFormatText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val placeRepository: PlaceRepository,
+    private val authRepository: AuthRepository,
     private val chatRoomRepository: ChatRoomRepository
 ) : ViewModel() {
 
@@ -40,8 +43,8 @@ class SearchViewModel @Inject constructor(
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _isSaved: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isSaved: StateFlow<Boolean> = _isSaved
+    private val _savedChatRoom: MutableStateFlow<ChatRoom?> = MutableStateFlow(null)
+    val savedChatRoom: StateFlow<ChatRoom?> = _savedChatRoom
 
     private val _currentPlaceInfo: MutableStateFlow<PlaceInfo?> = MutableStateFlow(null)
     val currentPlaceInfo: StateFlow<PlaceInfo?> = _currentPlaceInfo
@@ -104,28 +107,38 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun insertChatRoom(chatRoom: ChatRoom) {
-        _isSaved.value = false
         viewModelScope.launch {
             _isLoading.value = true
             chatRoomRepository.insertChatRoom(chatRoom)
             _isLoading.value = false
-            _isSaved.value = true
+            _savedChatRoom.value = chatRoom
         }
     }
 
     fun createChatRoom(searchedPlace: Place) {
         viewModelScope.launch {
             _isLoading.value = true
-            val result = chatRoomRepository.createChatRoom(searchedPlace)
+            val chatRoom = with(searchedPlace) {
+                ChatRoom(
+                    y + x,
+                    placeName,
+                    roadAddressName.ifBlank { addressName },
+                    y,
+                    x,
+                    DateFormatText.getCurrentTime(),
+                    listOf(authRepository.getUserId())
+                )
+            }
+            val result = chatRoomRepository.createChatRoom(chatRoom)
             result.onSuccess {
                 _isLoading.value = false
-                _isSaved.value = true
+                _savedChatRoom.value = chatRoom
             }.onError { code, message ->
                 _isLoading.value = false
-                _isSaved.value = false
+                _savedChatRoom.value = chatRoom
             }.onException {
                 _isLoading.value = false
-                _isSaved.value = false
+                _savedChatRoom.value = chatRoom
             }
         }
     }

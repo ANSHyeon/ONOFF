@@ -206,11 +206,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home), 
             savedChatRoom?.let {
                 val action =
                     HomeFragmentDirections.actionHomeToChatRoom(
-                        chatRoom.placeName,
-                        chatRoom.chatRoomId,
-                        chatRoom.address,
-                        chatRoom.latitude,
-                        chatRoom.longitude
+                        chatRoom
                     )
                 findNavController().navigate(action)
             }
