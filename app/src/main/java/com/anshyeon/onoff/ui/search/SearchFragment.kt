@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
+import androidx.annotation.UiThread
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -46,7 +47,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setMapView(view, savedInstanceState)
-        setLayout()
     }
 
     private fun setMapView(view: View, savedInstanceState: Bundle?) {
@@ -65,9 +65,11 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         observeIsSaved()
     }
 
+    @UiThread
     override fun onMapReady(map: NaverMap) {
         naverMap = map
         setNaverMapZoom()
+        setLayout()
     }
 
     private fun observeSearchedPlace() {
