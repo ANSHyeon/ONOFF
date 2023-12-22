@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.anshyeon.onoff.data.model.Message
+import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.databinding.ItemFirstReceiveMessageBinding
 import com.anshyeon.onoff.databinding.ItemReceiveMessageBinding
 import com.anshyeon.onoff.databinding.ItemSendMessageBinding
@@ -17,7 +18,8 @@ private const val VIEW_TYPE_SEND_MESSAGE = 2
 class ChatRoomAdapter :
     ListAdapter<Message, RecyclerView.ViewHolder>(MessageDiffCallback()) {
 
-    private lateinit var currentUserEmail: String
+    private lateinit var currentUserId: String
+    private lateinit var userList: List<User>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -31,7 +33,7 @@ class ChatRoomAdapter :
         when (holder) {
             is FirstReceiveMessageViewHolder -> {
                 val item = getItem(position)
-                holder.bind(item)
+                holder.bind(item, userList)
             }
 
             is ReceiveMessageViewHolder -> {
@@ -48,25 +50,35 @@ class ChatRoomAdapter :
 
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
-        val previousSender = if (position < 1) "" else getItem(position - 1).email
-        return if (currentUserEmail == item.email) {
+        val previousSender = if (position < 1) "" else getItem(position - 1).userId
+        return if (currentUserId == item.userId) {
             VIEW_TYPE_SEND_MESSAGE
-        } else if (item.email == previousSender) {
+        } else if (item.userId == previousSender) {
             VIEW_TYPE_RECEIVE_MESSAGE
         } else {
             VIEW_TYPE_FIRST_RECEIVE_MESSAGE
         }
     }
 
-    fun setCurrentUserEmail(email: String) {
-        currentUserEmail = email
+    fun setCurrentUserId(userId: String) {
+        currentUserId = userId
+    }
+
+    fun setUserList(localUserList: List<User>) {
+        userList = localUserList
     }
 
     class FirstReceiveMessageViewHolder(private val binding: ItemFirstReceiveMessageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Message) {
-            binding.message = item
+        fun bind(item: Message, userList: List<User>) {
+            val user = userList.filter { user -> user.userId == item.userId }
+            if (user.isNotEmpty()) {
+                binding.message = item.copy(
+                    nickName = user.first().nickName,
+                    profileUrl = user.first().profileUrl
+                )
+            }
         }
 
         companion object {

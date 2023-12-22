@@ -10,8 +10,9 @@ import com.squareup.moshi.JsonClass
 data class Message(
     @PrimaryKey val messageId: String = "",
     @ColumnInfo(name = "chat_room_id") val chatRoomId: String = "",
-    @ColumnInfo(name = "nick_name") val nickName: String = "",
-    val email: String = "",
+    @ColumnInfo(name = "user_id") val userId: String = "",
+    @ColumnInfo(name = "nick_name") val nickName: String? = null,
+    val email: String? = null,
     @ColumnInfo(name = "profile_uri") val profileUri: String? = null,
     @ColumnInfo(name = "profile_url") val profileUrl: String? = null,
     val body: String = "",

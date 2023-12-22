@@ -2,13 +2,12 @@ package com.anshyeon.onoff.data.local.dao
 
 import androidx.room.*
 import com.anshyeon.onoff.data.model.User
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
 
     @Query("SELECT * FROM user WHERE userId = :userId")
-    fun getUserListByUserId(userId: String): Flow<List<User>>
+    fun getUserListByUserId(userId: String): User
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(user: User)

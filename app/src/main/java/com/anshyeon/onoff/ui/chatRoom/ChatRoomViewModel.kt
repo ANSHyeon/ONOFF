@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.data.model.PlaceInfo
+import com.anshyeon.onoff.data.model.User
 import com.anshyeon.onoff.data.repository.AuthRepository
 import com.anshyeon.onoff.data.repository.ChatRoomRepository
 import com.anshyeon.onoff.data.repository.PlaceRepository
@@ -35,6 +36,11 @@ class ChatRoomViewModel @Inject constructor(
     lateinit var localMessageList: StateFlow<List<Message>>
         private set
 
+    lateinit var localUserList: StateFlow<List<User>>
+        private set
+
+    val memberIdList = mutableSetOf<String>()
+
     private val _chatRoomKey: MutableStateFlow<String> = MutableStateFlow("")
     val chatRoomKey: StateFlow<String> = _chatRoomKey
 
@@ -50,8 +56,12 @@ class ChatRoomViewModel @Inject constructor(
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    fun getLocalUserEmail(): String {
-        return authRepository.getLocalUserEmail() ?: ""
+    fun setComplete() {
+        _isLoading.value = false
+    }
+
+    fun getUserId(): String {
+        return authRepository.getUserId()
     }
 
     fun getLocalMessage(chatRoomId: String) {
@@ -63,9 +73,33 @@ class ChatRoomViewModel @Inject constructor(
     }
 
     private fun transformLocalMessageList(chatRoomId: String): Flow<List<Message>> {
-        return chatRoomRepository.getMessageListByRoom(chatRoomId).map {
+        return chatRoomRepository.getMessageListByRoom(
+            chatRoomId,
+            onComplete = {
+                _isLoading.value = false
+            }
+        ).map {
             it.sortedBy { message -> message.sendAt }
         }
+    }
+
+    fun getLocalUser(userIdList: List<String>) {
+        localUserList = transformLocalUserList(userIdList).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+    }
+
+    private fun transformLocalUserList(userIdList: List<String>): Flow<List<User>> {
+        return chatRoomRepository.getUserListByRoom(
+            userIdList,
+            onComplete = {
+            },
+            onError = {
+                _isLoading.value = false
+            }
+        )
     }
 
     fun getChatRoomOfPlace(placeName: String) {
@@ -86,9 +120,11 @@ class ChatRoomViewModel @Inject constructor(
 
     fun getUserList(userList: List<String>) {
         viewModelScope.launch {
+            _isUserSaved.value = false
             _isLoading.value = true
             val result = chatRoomRepository.getUserList(userList)
             result.onSuccess {
+                memberIdList.addAll(userList)
                 _isUserSaved.value = true
             }.onError { code, message ->
                 _isUserSaved.value = false
@@ -154,11 +190,9 @@ class ChatRoomViewModel @Inject constructor(
 
     fun getCurrentPlaceInfo(latitude: String, longitude: String) {
         viewModelScope.launch {
-            _isLoading.value = true
             val result = placeRepository.getPlaceInfoByLocation(latitude, longitude)
             result.onSuccess {
                 _currentPlaceInfo.value = it
-                _isLoading.value = false
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
                 _isLoading.value = false

@@ -123,28 +123,12 @@ class ChatRoomRepository @Inject constructor(
     ): ApiResponse<Map<String, String>> {
         return try {
             val messageId = chatRoomId + (userDataSource.getUid()) + DateFormatText.getCurrentDate()
-            var user = User()
-            val result = authRepository.getUser()
-            result.onSuccess {
-                user = it.values.first().profileUri?.let { uri ->
-                    it.values.first().copy(
-                        profileUrl = downloadImage(uri)
-                    )
-                } ?: it.values.first()
-            }.onException {
-                throw it
-            }.onError { _, _ ->
-                throw Exception()
-            }
             val message = Message(
-                messageId,
-                chatRoomId,
-                user.nickName,
-                user.email,
-                user.profileUri,
-                user.profileUrl,
-                sendMessage,
-                System.currentTimeMillis()
+                messageId = messageId,
+                chatRoomId = chatRoomId,
+                userId = userDataSource.getUid(),
+                body = sendMessage,
+                sendAt = System.currentTimeMillis()
             )
             fireBaseApiClient.createMessage(
                 userDataSource.getIdToken(),
@@ -160,7 +144,12 @@ class ChatRoomRepository @Inject constructor(
             userList.forEach { userId ->
                 authRepository.getUserByUserId(userId)
                     .onSuccess { data ->
-                        insertUser(data.values.first())
+                        val user = data.values.first().profileUri?.let { uri ->
+                            data.values.first().copy(
+                                profileUrl = downloadImage(uri)
+                            )
+                        } ?: data.values.first()
+                        insertUser(user)
                     }.onException {
                         throw Exception()
                     }.onException {
@@ -217,9 +206,33 @@ class ChatRoomRepository @Inject constructor(
         messageDao.insert(message)
     }
 
-    fun getMessageListByRoom(chatRoomId: String): Flow<List<Message>> {
+    fun getMessageListByRoom(
+        chatRoomId: String,
+        onComplete: () -> Unit
+    ): Flow<List<Message>> {
         return messageDao.getMessageListByChatRoomId(chatRoomId)
+            .onCompletion { onComplete() }
     }
+
+    fun getUserListByRoom(
+        userIdList: List<String>,
+        onComplete: () -> Unit,
+        onError: () -> Unit
+    ): Flow<List<User>> = flow {
+        try {
+            val userList = mutableListOf<User>()
+            userIdList.forEach {
+                userList.add(userDao.getUserListByUserId(it))
+                emit(
+                    userList
+                )
+            }
+        } catch (e: Exception) {
+            onError()
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(Dispatchers.Default)
 
     private suspend fun insertUser(user: User) {
         userDao.insert(user)

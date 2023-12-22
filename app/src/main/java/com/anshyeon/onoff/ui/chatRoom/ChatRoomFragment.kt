@@ -29,6 +29,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,8 +39,10 @@ import kotlinx.coroutines.launch
 class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment_chat_room) {
 
     private lateinit var database: FirebaseDatabase
+    private lateinit var messageRef: DatabaseReference
     private lateinit var chatRoomRef: DatabaseReference
     private lateinit var messageListener: ChildEventListener
+    private lateinit var memberListener: ChildEventListener
     private val args: ChatRoomFragmentArgs by navArgs()
     private val viewModel by viewModels<ChatRoomViewModel>()
     private lateinit var client: FusedLocationProviderClient
@@ -53,7 +56,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance(BuildConfig.FIREBASE_REALTIME_DB_URL)
-        chatRoomRef = database.getReference("message")
+        messageRef = database.getReference("message")
         setLayout()
     }
 
@@ -70,7 +73,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     }
 
     private fun setAdapter() {
-        adapter.setCurrentUserEmail(viewModel.getLocalUserEmail())
+        adapter.setCurrentUserId(viewModel.getUserId())
         binding.rvMessageList.adapter = adapter
         binding.rvMessageList.addOnLayoutChangeListener(onLayoutChangeListener)
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
@@ -85,9 +88,6 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
 
     private fun setNetworkErrorBar() {
         NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
-            receiveMessages()
-            viewModel.getLocalMessage(args.chatRoom.chatRoomId)
-            observeLocalMessages()
             if (it) {
                 handleNetworkConnection()
             } else {
@@ -97,13 +97,13 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
     }
 
     private fun handleNetworkConnectionFailure() {
-        viewModel.getLocalMessage(args.chatRoom.chatRoomId)
+        viewModel.getLocalUser(args.chatRoom.memberList)
+        observeLocalUserList()
         setImeSendActionFailureListener(R.string.error_message_retry)
         binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
             binding.etChatSendText.showMessage(R.string.error_message_retry)
         }
         binding.networkErrorBar.visibility = View.VISIBLE
-        observeLocalMessages()
     }
 
     private fun handleNetworkConnection() {
@@ -139,6 +139,34 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                         }
                     }
                 }
+                launch {
+                    viewModel.isUserSaved.collect {
+                        if (it) {
+                            viewModel.getLocalUser(viewModel.memberIdList.toList())
+                            observeLocalUserList()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeLocalUserList() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED,
+            ) {
+                launch {
+                    viewModel.localUserList.collect {
+                        if (it.isNotEmpty()) {
+                            adapter.setUserList(it)
+                            receiveMessages()
+                            receiveMembers()
+                            viewModel.getLocalMessage(args.chatRoom.chatRoomId)
+                            observeLocalMessages()
+                        }
+                    }
+                }
             }
         }
     }
@@ -151,6 +179,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                 launch {
                     viewModel.localMessageList.collect { messageList ->
                         adapter.submitList(messageList)
+                        viewModel.setComplete()
                     }
                 }
             }
@@ -230,7 +259,7 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
 
 
     private fun receiveMessages() {
-        messageListener = chatRoomRef.orderByChild("chatRoomId").equalTo(args.chatRoom.chatRoomId)
+        messageListener = messageRef.orderByChild("chatRoomId").equalTo(args.chatRoom.chatRoomId)
             .addChildEventListener(object : ChildEventListener {
                 override fun onChildAdded(dataSnapshot: DataSnapshot, prevChildKey: String?) {
                     val newMessage = dataSnapshot.getValue(Message::class.java) ?: return
@@ -246,5 +275,36 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
                 override fun onCancelled(error: DatabaseError) {
                 }
             })
+    }
+
+    private fun receiveMembers() {
+        var isFirstLoaded = false
+        chatRoomRef = database.getReference("chatRoom/${viewModel.chatRoomKey.value}/memberList")
+        memberListener = chatRoomRef.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(dataSnapshot: DataSnapshot, prevChildKey: String?) {
+                if (isFirstLoaded) {
+                    val newUser = dataSnapshot.getValue(String::class.java) ?: return
+                    viewModel.getUserList(listOf(newUser))
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {}
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+
+        chatRoomRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                isFirstLoaded = true
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+            }
+        })
     }
 }
