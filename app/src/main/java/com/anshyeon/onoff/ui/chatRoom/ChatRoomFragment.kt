@@ -103,13 +103,11 @@ class ChatRoomFragment : BaseFragment<FragmentChatRoomBinding>(R.layout.fragment
         binding.ivChatSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
             binding.etChatSendText.showMessage(R.string.error_message_retry)
         }
-        binding.networkErrorBar.visibility = View.VISIBLE
     }
 
     private fun handleNetworkConnection() {
         viewModel.getChatRoomOfPlace(args.chatRoom.placeName)
         observeChatRoomKey()
-        binding.networkErrorBar.visibility = View.GONE
     }
 
     private val onLayoutChangeListener =

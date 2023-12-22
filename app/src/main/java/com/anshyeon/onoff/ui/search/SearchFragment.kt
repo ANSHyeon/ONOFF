@@ -14,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import com.anshyeon.onoff.data.model.Place
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.showMessage
-import com.anshyeon.onoff.util.NetworkConnection
 import com.anshyeon.onoff.util.SamePlaceChecker
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -64,13 +63,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         observeSearchedPlace()
         observePlaceChatRoom()
         observeIsSaved()
-        setNetworkErrorBar()
-    }
-
-    private fun setNetworkErrorBar() {
-        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
-            binding.networkErrorBar.visibility = if (it) View.GONE else View.VISIBLE
-        }
     }
 
     override fun onMapReady(map: NaverMap) {

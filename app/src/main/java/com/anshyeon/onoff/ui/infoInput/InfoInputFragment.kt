@@ -13,7 +13,6 @@ import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentInfoInputBinding
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.showMessage
-import com.anshyeon.onoff.util.NetworkConnection
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -40,13 +39,6 @@ class InfoInputFragment : BaseFragment<FragmentInfoInputBinding>(R.layout.fragme
         setImageSelectorClickListener()
         observeIsSave()
         setSnackBarMessage()
-        setNetworkErrorBar()
-    }
-
-    private fun setNetworkErrorBar() {
-        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
-            binding.networkErrorBar.visibility = if (it) View.GONE else View.VISIBLE
-        }
     }
 
     private fun setImageSelectorClickListener() {

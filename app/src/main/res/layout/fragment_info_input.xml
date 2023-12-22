@@ -28,7 +28,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
         <ImageView
             android:id="@+id/iv_info_input_camera_background"
             android:layout_width="24dp"
@@ -81,16 +80,6 @@
             android:layout_height="wrap_content"
             android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
-
-        <com.anshyeon.onoff.ui.common.NetworkErrorView
-            android:id="@+id/network_error_bar"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

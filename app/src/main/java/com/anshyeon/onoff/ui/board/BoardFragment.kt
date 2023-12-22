@@ -120,13 +120,9 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
 
     private fun setNetworkErrorBar() {
         NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
-            val visibility = if (it) {
+            if (it) {
                 getPostList()
-                View.GONE
-            } else {
-                View.VISIBLE
             }
-            binding.networkErrorBar.visibility = visibility
         }
     }
 

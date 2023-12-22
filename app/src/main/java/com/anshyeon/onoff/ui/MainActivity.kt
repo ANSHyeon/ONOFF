@@ -8,6 +8,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.ActivityMainBinding
+import com.anshyeon.onoff.util.NetworkConnection
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.cv_fragment)?.findNavController()
         navController?.let {
             setBottomNavigation(it)
+            setNetworkErrorBar()
         }
     }
 
@@ -44,6 +46,12 @@ class MainActivity : AppCompatActivity() {
                     View.GONE
                 }
             }
+        }
+    }
+
+    private fun setNetworkErrorBar() {
+        NetworkConnection(applicationContext).observe(this) {
+            binding.networkErrorBar.visibility = if (it) View.GONE else View.VISIBLE
         }
     }
 }
