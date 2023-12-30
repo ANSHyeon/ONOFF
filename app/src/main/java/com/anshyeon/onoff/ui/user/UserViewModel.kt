@@ -31,6 +31,9 @@ class UserViewModel @Inject constructor(
     var userKey: String = ""
         private set
 
+    var isConnected = false
+        private set
+
     private val _currentUserInfo: MutableStateFlow<User> = MutableStateFlow(user)
     val currentUserInfo: StateFlow<User> = _currentUserInfo
 
@@ -65,6 +68,10 @@ class UserViewModel @Inject constructor(
                 _snackBarText.emit(R.string.error_message_retry)
             }
         }
+    }
+
+    fun setConnectedState(state: Boolean) {
+        isConnected = state
     }
 
     fun saveUserInLocal(user: User) {

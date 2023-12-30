@@ -15,6 +15,7 @@ import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.util.NetworkConnection
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -39,6 +40,7 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
     private fun setLayout() {
         binding.viewModel = viewModel
         setNetworkErrorBar()
+        setDefaultToolBar()
     }
 
     private fun getPostList() {
@@ -56,17 +58,18 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
                         val location = placeInfo.region3depthName
                         setToolBar(location)
                         viewModel.getPostList(location)
-                        viewModel.postList
-                            .collect { postList ->
-                                adapter.submitList(postList)
-                                if (postList.isNotEmpty()) {
-                                    binding.tvNothingPost.visibility = View.GONE
+                        viewModel.isCompleted.collect { isCompleted ->
+                            viewModel.postList
+                                .collect { postList ->
+                                    adapter.submitList(postList)
+                                    if (isCompleted && postList.isEmpty()) {
+                                        binding.tvNothingPost.visibility = View.VISIBLE
+                                    }
                                 }
-                            }
+                        }
                     }
                 }
             }
-
         }
     }
 
@@ -96,15 +99,30 @@ class BoardFragment : BaseFragment<FragmentBoardBinding>(R.layout.fragment_board
         }
     }
 
+    private fun setDefaultToolBar() {
+        binding.toolbarBoard.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.home_app_bar_add -> {
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.error_message_place_info),
+                        Snackbar.LENGTH_SHORT,
+                    ).show()
+                    true
+                }
+
+                else -> {
+                    false
+                }
+            }
+        }
+    }
+
     private fun setNetworkErrorBar() {
         NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
-            val visibility = if (it) {
+            if (it) {
                 getPostList()
-                View.GONE
-            } else {
-                View.VISIBLE
             }
-            binding.networkErrorBar.visibility = visibility
         }
     }
 

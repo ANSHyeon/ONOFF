@@ -16,21 +16,21 @@ import com.anshyeon.onoff.R
 import com.anshyeon.onoff.databinding.FragmentPostBinding
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.setClickEvent
+import com.anshyeon.onoff.ui.extensions.showMessage
 import com.anshyeon.onoff.util.DateFormatText
-import com.anshyeon.onoff.util.NetworkConnection
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
-    PhotoSelectorOnclickListener {
+    PhotoSelectorOnclickListener, PhotoRemoverOnclickListener {
 
     private val viewModel by viewModels<PostViewModel>()
     private val args: PostFragmentArgs by navArgs()
 
     private val imageHeaderAdapter = PostPhotoSelectorAdapter(this)
     private val imageCountLimit = 10
-    private val imageListAdapter = PostSelectedPhotoAdapter(imageCountLimit)
+    private val imageListAdapter = PostSelectedPhotoAdapter(imageCountLimit, this)
 
     private val getMultipleContents =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
@@ -48,8 +48,8 @@ class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
         setToolbar()
         setImageList()
         setComplete()
-        setNetworkErrorBar()
         setSubmitButton()
+        setSnackBarMessage()
     }
 
     private fun setToolbar() {
@@ -80,6 +80,11 @@ class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
         getMultipleContents.launch("image/*")
     }
 
+    override fun removeImage(position: Int) {
+        imageListAdapter.removeImage(position)
+        imageHeaderAdapter.updateImageHeader(imageListAdapter.itemCount)
+    }
+
     private fun addImageList(uriList: List<Uri>) {
         for (uri in uriList) {
             val fileName = getFileName(uri)
@@ -105,20 +110,20 @@ class PostFragment : BaseFragment<FragmentPostBinding>(R.layout.fragment_post),
         } ?: ""
     }
 
-    private fun setNetworkErrorBar() {
-        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
-            val visibility = if (it) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
-            binding.networkErrorBar.visibility = visibility
-        }
-    }
-
     private fun setSubmitButton() {
         binding.btnPostSend.setClickEvent(viewLifecycleOwner.lifecycleScope) {
             viewModel.submitPost(args.location)
+        }
+    }
+
+    private fun setSnackBarMessage() {
+        lifecycleScope.launch {
+            viewModel.snackBarText.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                binding.btnPostSend.showMessage(it)
+            }
         }
     }
 }

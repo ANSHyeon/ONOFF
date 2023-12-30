@@ -48,7 +48,6 @@ class PostViewModel @Inject constructor(
             val result = authRepository.getUser()
             result.onSuccess {
                 createPost(it.values.first(), location)
-                _isLoading.value = false
             }.onError { code, message ->
                 _snackBarText.emit(R.string.error_message_retry)
                 _isLoading.value = false
@@ -60,9 +59,16 @@ class PostViewModel @Inject constructor(
     }
 
     private fun createPost(user: User, location: String) {
-        if (!isPostContentEmpty()) {
-            viewModelScope.launch {
-                _isLoading.value = true
+        viewModelScope.launch {
+            if (isTitleEmpty()) {
+                _isSaved.value = false
+                _isLoading.value = false
+                _snackBarText.emit(R.string.error_message_invalid_title)
+            } else if (isBodyEmpty()) {
+                _isSaved.value = false
+                _isLoading.value = false
+                _snackBarText.emit(R.string.error_message_invalid_body)
+            } else {
                 val result = postRepository.createPost(
                     title.value,
                     body.value,
@@ -81,12 +87,14 @@ class PostViewModel @Inject constructor(
                     _isLoading.value = false
                 }
             }
-        } else {
-            _isSaved.value = false
         }
     }
 
-    private fun isPostContentEmpty(): Boolean {
-        return title.value.isBlank() || body.value.isBlank()
+    private fun isTitleEmpty(): Boolean {
+        return title.value.isBlank()
+    }
+
+    private fun isBodyEmpty(): Boolean {
+        return body.value.isBlank()
     }
 }

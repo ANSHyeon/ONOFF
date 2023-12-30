@@ -2,6 +2,7 @@ package com.anshyeon.onoff.data.repository
 
 import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.local.dao.MessageDao
+import com.anshyeon.onoff.data.local.dao.UserDao
 import com.anshyeon.onoff.data.model.ChatRoom
 import com.anshyeon.onoff.data.model.Message
 import com.anshyeon.onoff.data.model.User
@@ -11,6 +12,7 @@ import com.anshyeon.onoff.network.extentions.onException
 import com.anshyeon.onoff.network.extentions.onSuccess
 import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.network.model.ApiResultException
+import com.anshyeon.onoff.network.model.ApiResultSuccess
 import com.anshyeon.onoff.util.DateFormatText
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +27,7 @@ class ChatRoomRepository @Inject constructor(
     private val fireBaseApiClient: FireBaseApiClient,
     private val chatRoomInfoDao: ChatRoomInfoDao,
     private val messageDao: MessageDao,
+    private val userDao: UserDao,
     private val userDataSource: UserDataSource,
     private val authRepository: AuthRepository,
 ) {
@@ -32,15 +35,13 @@ class ChatRoomRepository @Inject constructor(
     fun getChatRoom(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
-    ): Flow<List<ChatRoom>> = flow {
+    ): Flow<Map<String, ChatRoom>> = flow {
         try {
             val response = fireBaseApiClient.getChatRoom(
                 userDataSource.getIdToken()
             )
             response.onSuccess { data ->
-                emit(data.map { entry ->
-                    entry.value
-                })
+                emit(data)
             }.onError { code, message ->
                 onError("code: $code, message: $message")
             }.onException {
@@ -74,6 +75,29 @@ class ChatRoomRepository @Inject constructor(
                 userDataSource.getIdToken(),
                 chatRoom
             )
+            insertChatRoom(chatRoom)
+            ApiResultSuccess(mapOf())
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
+    suspend fun addMemberToChatRoom(
+        chatRoom: ChatRoom,
+        chatRoomKey: String
+    ): ApiResponse<Map<String, String>> {
+        return try {
+            val userId = userDataSource.getUid()
+            val memberList = chatRoom.memberList.toMutableList()
+            if (userId !in chatRoom.memberList) {
+                memberList.add(userId)
+                fireBaseApiClient.updateMember(
+                    chatRoomKey,
+                    userDataSource.getIdToken(),
+                    mapOf("memberList" to memberList)
+                )
+            }
+            ApiResultSuccess(mapOf())
         } catch (e: Exception) {
             ApiResultException(e)
         }
@@ -99,33 +123,40 @@ class ChatRoomRepository @Inject constructor(
     ): ApiResponse<Map<String, String>> {
         return try {
             val messageId = chatRoomId + (userDataSource.getUid()) + DateFormatText.getCurrentDate()
-            var user = User()
-            val result = authRepository.getUser()
-            result.onSuccess {
-                user = it.values.first().profileUri?.let { uri ->
-                    it.values.first().copy(
-                        profileUrl = downloadImage(uri)
-                    )
-                } ?: it.values.first()
-            }.onException {
-                throw it
-            }.onError { _, _ ->
-                throw Exception()
-            }
             val message = Message(
-                messageId,
-                chatRoomId,
-                user.nickName,
-                user.email,
-                user.profileUri,
-                user.profileUrl,
-                sendMessage,
-                System.currentTimeMillis()
+                messageId = messageId,
+                chatRoomId = chatRoomId,
+                userId = userDataSource.getUid(),
+                body = sendMessage,
+                sendAt = System.currentTimeMillis()
             )
             fireBaseApiClient.createMessage(
                 userDataSource.getIdToken(),
                 message
             )
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
+    suspend fun getUserList(userList: List<String>): ApiResponse<Map<String, String>> {
+        return try {
+            userList.forEach { userId ->
+                authRepository.getUserByUserId(userId)
+                    .onSuccess { data ->
+                        val user = data.values.first().profileUri?.let { uri ->
+                            data.values.first().copy(
+                                profileUrl = downloadImage(uri)
+                            )
+                        } ?: data.values.first()
+                        insertUser(user)
+                    }.onException {
+                        throw Exception()
+                    }.onException {
+                        throw Exception()
+                    }
+            }
+            ApiResultSuccess(mapOf())
         } catch (e: Exception) {
             ApiResultException(e)
         }
@@ -175,8 +206,36 @@ class ChatRoomRepository @Inject constructor(
         messageDao.insert(message)
     }
 
-    fun getMessageListByRoom(chatRoomId: String): Flow<List<Message>> {
+    fun getMessageListByRoom(
+        chatRoomId: String,
+        onComplete: () -> Unit
+    ): Flow<List<Message>> {
         return messageDao.getMessageListByChatRoomId(chatRoomId)
+            .onCompletion { onComplete() }
+    }
+
+    fun getUserListByRoom(
+        userIdList: List<String>,
+        onComplete: () -> Unit,
+        onError: () -> Unit
+    ): Flow<List<User>> = flow {
+        try {
+            val userList = mutableListOf<User>()
+            userIdList.forEach {
+                userList.add(userDao.getUserListByUserId(it))
+                emit(
+                    userList
+                )
+            }
+        } catch (e: Exception) {
+            onError()
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(Dispatchers.Default)
+
+    private suspend fun insertUser(user: User) {
+        userDao.insert(user)
     }
 
     private suspend fun downloadImage(location: String): String {

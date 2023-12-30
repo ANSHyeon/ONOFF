@@ -2,7 +2,6 @@ package com.anshyeon.onoff.ui.user
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -37,14 +36,11 @@ class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
 
     private fun setNetworkErrorBar() {
         NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
-            val visibility = if (it) {
+            viewModel.setConnectedState(it)
+            if (it) {
                 viewModel.getUserInfo()
                 setUserInfo()
-                View.GONE
-            } else {
-                View.VISIBLE
             }
-            binding.networkErrorBar.visibility = visibility
         }
     }
 
@@ -73,7 +69,7 @@ class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
         binding.toolbarUser.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.user_app_bar_edit -> {
-                    if (!binding.networkErrorBar.isVisible) {
+                    if (viewModel.isConnected) {
                         val nickname = viewModel.currentUserInfo.value.nickName
                         val profileUrl = viewModel.currentUserInfo.value.profileUrl ?: ""
                         val profileUri = viewModel.currentUserInfo.value.profileUri ?: ""
@@ -119,7 +115,7 @@ class UserFragment : BaseFragment<FragmentUserBinding>(R.layout.fragment_user) {
 
     private fun setLogOutButtonClickListener() {
         binding.btnLogOut.setOnClickListener {
-            if (!binding.networkErrorBar.isVisible) {
+            if (viewModel.isConnected) {
                 viewModel.logOut()
             } else {
                 Snackbar.make(

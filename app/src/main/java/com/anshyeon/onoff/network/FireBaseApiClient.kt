@@ -39,6 +39,13 @@ interface FireBaseApiClient {
     ): ApiResponse<Map<String, String>>
 
     @PATCH("chatRoom/{chatRoomKey}.json")
+    suspend fun updateMember(
+        @Path("chatRoomKey") chatRoomKey: String,
+        @Query("auth") auth: String?,
+        @Body updates: @JvmSuppressWildcards Map<String, List<String>>,
+    ): ApiResponse<Map<String, String>>
+
+    @PATCH("chatRoom/{chatRoomKey}.json")
     suspend fun updateChatRoom(
         @Path("chatRoomKey") chatRoomKey: String?,
         @Query("auth") auth: String?,

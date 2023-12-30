@@ -28,6 +28,10 @@ class AuthRepository @Inject constructor(
         return preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
     }
 
+    fun getUserId(): String {
+        return userDataSource.getUid()
+    }
+
     suspend fun saveIdToken() {
         preferenceManager.setGoogleIdToken(
             Constants.KEY_GOOGLE_ID_TOKEN,
@@ -100,6 +104,17 @@ class AuthRepository @Inject constructor(
             fireBaseApiClient.getUser(
                 userDataSource.getIdToken(),
                 "\"${userDataSource.getUid()}\""
+            )
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
+    suspend fun getUserByUserId(userId: String): ApiResponse<Map<String, User>> {
+        return try {
+            fireBaseApiClient.getUser(
+                userDataSource.getIdToken(),
+                "\"$userId\""
             )
         } catch (e: Exception) {
             ApiResultException(e)

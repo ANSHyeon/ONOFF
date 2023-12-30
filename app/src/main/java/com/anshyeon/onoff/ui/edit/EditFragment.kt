@@ -14,7 +14,6 @@ import com.anshyeon.onoff.databinding.FragmentEditBinding
 import com.anshyeon.onoff.ui.BaseFragment
 import com.anshyeon.onoff.ui.extensions.setClickEvent
 import com.anshyeon.onoff.ui.extensions.showMessage
-import com.anshyeon.onoff.util.NetworkConnection
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -39,7 +38,6 @@ class EditFragment : BaseFragment<FragmentEditBinding>(R.layout.fragment_edit) {
 
     private fun setLayout() {
         binding.viewModel = viewModel
-        setNetworkErrorBar()
         setDefaultUserInfo()
         setNavigationOnClickListener()
         setSnackBarMessage()
@@ -48,19 +46,8 @@ class EditFragment : BaseFragment<FragmentEditBinding>(R.layout.fragment_edit) {
         setSubmitButtonClickListener()
     }
 
-    private fun setNetworkErrorBar() {
-        NetworkConnection(requireContext()).observe(viewLifecycleOwner) {
-            val visibility = if (it) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
-            binding.networkErrorBar.visibility = visibility
-        }
-    }
-
     private fun setImageSelectorClickListener() {
-        binding.ivUserProfileCamera.setOnClickListener {
+        binding.ivUserProfileCameraBackground.setOnClickListener {
             getMultipleContents.launch("image/*")
         }
     }
