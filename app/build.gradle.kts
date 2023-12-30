@@ -1,3 +1,4 @@
+import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -15,7 +16,21 @@ plugins {
 val properties = Properties()
 properties.load(project.rootProject.file("local.properties").inputStream())
 
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+
 android {
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            keyAlias = keystoreProperties["keyAlias"] as String
+        }
+    }
+
     namespace = "com.anshyeon.onoff"
     compileSdk = 33
 
@@ -24,7 +39,8 @@ android {
         minSdk = 24
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
+        setProperty("archivesBaseName", "onoff-v${versionName}")
 
         buildConfigField("String", "GOOGLE_CLIENT_ID", properties["google_client_id"] as String)
         buildConfigField(
@@ -52,11 +68,19 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs["release"]
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
+                "retrofit2.pro"
             )
+            versionNameSuffix = "-release"
+        }
+        debug {
+            isMinifyEnabled = false
+            versionNameSuffix = "-debug"
         }
     }
     compileOptions {
