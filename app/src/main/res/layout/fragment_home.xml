@@ -31,7 +31,7 @@
             android:layout_width="320dp"
             android:layout_height="50dp"
             android:layout_marginTop="30dp"
-            android:background="@drawable/shape_black_stroke_white_rounded_rectangle"
+            android:background="@drawable/shape_background_rounded_rectangle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/map_view" />

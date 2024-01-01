@@ -8,7 +8,7 @@
         android:id="@+id/area_place_info"
         android:layout_width="0dp"
         android:layout_height="150dp"
-        android:background="@drawable/shape_black_stroke_white_rounded_rectangle"
+        android:background="@drawable/shape_background_rounded_rectangle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,6 +34,7 @@
         android:layout_marginStart="34dp"
         android:layout_marginTop="2dp"
         android:gravity="center"
+        android:textColor="@color/body"
         app:layout_constraintStart_toStartOf="@id/area_place_info"
         app:layout_constraintTop_toBottomOf="@id/tv_place_name"
         tools:text="경기 화성시 병점3로 74" />

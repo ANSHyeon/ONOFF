@@ -6,6 +6,6 @@
     <color name="green">#FF00C136</color>
     <color name="green60">#9900C136</color>
     <color name="red">#FFC81414</color>
-    <color name="background">#FFFFFFFF</color>
-    <color name="body">#FF000000</color>
+    <color name="background">#FF121212</color>
+    <color name="body">#AAFFFFFF</color>
 </resources>

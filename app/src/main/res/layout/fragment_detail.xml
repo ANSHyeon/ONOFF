@@ -31,6 +31,7 @@
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/detail_app_bar"
+                    style="@style/ToolBar"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     app:navigationIcon="@drawable/ic_arrow" />
@@ -77,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="@{post.writer.nickName}"
+                android:textColor="@color/body"
                 app:layout_constraintStart_toStartOf="@id/tv_detail_title"
                 app:layout_constraintTop_toBottomOf="@id/tv_detail_title"
                 tools:text="Andy" />
@@ -89,6 +91,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
+                android:textColor="@color/body"
                 app:layout_constraintStart_toEndOf="@id/tv_detail_name"
                 app:layout_constraintTop_toBottomOf="@id/tv_detail_title"
                 tools:text="10분 전" />
