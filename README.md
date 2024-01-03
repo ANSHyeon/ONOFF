@@ -32,7 +32,7 @@
 | :---------------: | :---------------: | :---------------: |
 | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/ffa417a2-5631-4f30-bc42-19088f948438" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/a71d26b9-bce7-4f15-917e-952e62ce7307" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/c42d663e-9667-4518-9812-78ebd5b32672" align="center" width="250px"/> |
 
-</div
+</div>
 
 <div align="center">
 
@@ -41,6 +41,7 @@
 | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/ccaae820-66a6-4e0f-92e6-6f423b0cf65e" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/18b3c133-1d08-4353-bf0a-62afbe8bc46a" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/fee2e3bd-4172-4810-96b3-1f39a9b1ad61" align="center" width="250px"/> |
 
 </div>
+
 
 <div align="center">
 
