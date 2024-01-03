@@ -58,3 +58,12 @@
 | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/6ecd1c70-7539-4e36-8424-8b55f6c74227" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/b8c5d4b1-1a5b-4746-b71d-f8c4b36ae97a" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/f8306648-01e1-474c-8f26-842027d35a57" align="center" width="250px"/> |
 
 </div>
+
+# 관련 자료
+[FIgma 바로가기](https://www.figma.com/file/CJkEYaXwFzd4RP4XKajX3S/on%2Foff?type=design&node-id=0%3A1&mode=design&t=PzZcnU6pSpx9dvfx-1)
+
+[초기 기획서 바로가기](https://docs.google.com/presentation/d/1Oj4W-5sf2mA8TFH8nSOqExAswAHXFccllYrtIZKf4tg/edit?usp=sharing)
+
+[프로젝트 계획서 바로가기](https://docs.google.com/spreadsheets/d/1rufP5iTGT0CtReWxhzR3FXR4tQlngI9rBvHU_P8Yom8/edit?usp=sharing)
+
+
