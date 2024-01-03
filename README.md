@@ -22,4 +22,6 @@
    * Coil
 - Open API
    * 네이버 지도 API
-   * 카카오 로컬 API
+ 
+- Realtime DB에 로그인 정보 없을 떄
+<img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/ffa417a2-5631-4f30-bc42-19088f948438" width="20%">
