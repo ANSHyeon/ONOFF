@@ -22,6 +22,38 @@
    * Coil
 - Open API
    * 네이버 지도 API
- 
-- Realtime DB에 로그인 정보 없을 떄
-<img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/ffa417a2-5631-4f30-bc42-19088f948438" width="20%">
+
+
+# 주요 기능
+
+<div align="center">
+
+| 로그인 | 정보 입력 | 로그아웃 |
+| :---------------: | :---------------: | :---------------: |
+| <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/ffa417a2-5631-4f30-bc42-19088f948438" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/a71d26b9-bce7-4f15-917e-952e62ce7307" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/c42d663e-9667-4518-9812-78ebd5b32672" align="center" width="250px"/> |
+
+</div
+
+<div align="center">
+
+| 장소검색 | 채팅방 입장 | 실시간 채팅 |
+| :---------------: | :---------------: | :---------------: |
+| <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/ccaae820-66a6-4e0f-92e6-6f423b0cf65e" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/18b3c133-1d08-4353-bf0a-62afbe8bc46a" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/fee2e3bd-4172-4810-96b3-1f39a9b1ad61" align="center" width="250px"/> |
+
+</div>
+
+<div align="center">
+
+| 프로필 수정 | 프로필 수정 반영 | 게시물 작성 |
+| :---------------: | :---------------: | :---------------: |
+| <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/70b7a408-95ed-42c0-bb15-8c2cf8528eff" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/731e4484-e84b-4fa0-a60b-05c3743df992" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/b6b18b3e-20bc-4cbe-99cf-e3e7c2e129d3" align="center" width="250px"/> |
+
+</div>
+
+<div align="center">
+
+| 게시물 상세 화면 | 오프라인 모드 | 다크 모드 |
+| :---------------: | :---------------: | :---------------: |
+| <img src="" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/c6ca3f23-35bf-4c88-bc72-49908f23f69f" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/f8306648-01e1-474c-8f26-842027d35a57" align="center" width="250px"/> |
+
+</div>
