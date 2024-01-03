@@ -54,6 +54,6 @@
 
 | 게시물 상세 화면 | 오프라인 모드 | 다크 모드 |
 | :---------------: | :---------------: | :---------------: |
-| <img src="" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/c6ca3f23-35bf-4c88-bc72-49908f23f69f" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/f8306648-01e1-474c-8f26-842027d35a57" align="center" width="250px"/> |
+| <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/6ecd1c70-7539-4e36-8424-8b55f6c74227" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/b8c5d4b1-1a5b-4746-b71d-f8c4b36ae97a" align="center" width="250px"/> | <img src="https://github.com/ANSHyeon/ONOFF/assets/127817240/f8306648-01e1-474c-8f26-842027d35a57" align="center" width="250px"/> |
 
 </div>
