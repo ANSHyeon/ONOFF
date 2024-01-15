@@ -6,6 +6,7 @@ import com.anshyeon.onoff.data.local.AppDatabase
 import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.local.dao.MessageDao
 import com.anshyeon.onoff.data.local.dao.UserDao
+import com.anshyeon.onoff.util.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,7 +24,7 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "onoff_database"
+            Constants.DATABASE_NAME
         ).fallbackToDestructiveMigration().build()
     }
 
