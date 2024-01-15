@@ -30,11 +30,12 @@
 
         <TextView
             android:id="@+id/tv_sender_nick_name"
-            style="@style/TextBody8"
+            style="@style/TextBody12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:text="@{message.nickName}"
+            android:textColor="@color/body"
             app:layout_constraintStart_toEndOf="@id/iv_sender_profile_image"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="안승현" />

@@ -1,5 +1,7 @@
 package com.anshyeon.onoff.data.repository
 
+import com.anshyeon.onoff.data.dataSource.ImageDataSource
+import com.anshyeon.onoff.data.dataSource.UserDataSource
 import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.local.dao.MessageDao
 import com.anshyeon.onoff.data.local.dao.UserDao
@@ -14,13 +16,11 @@ import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.network.model.ApiResultException
 import com.anshyeon.onoff.network.model.ApiResultSuccess
 import com.anshyeon.onoff.util.DateFormatText
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class ChatRoomRepository @Inject constructor(
@@ -29,6 +29,7 @@ class ChatRoomRepository @Inject constructor(
     private val messageDao: MessageDao,
     private val userDao: UserDao,
     private val userDataSource: UserDataSource,
+    private val imageDataSource: ImageDataSource,
     private val authRepository: AuthRepository,
 ) {
 
@@ -146,7 +147,7 @@ class ChatRoomRepository @Inject constructor(
                     .onSuccess { data ->
                         val user = data.values.first().profileUri?.let { uri ->
                             data.values.first().copy(
-                                profileUrl = downloadImage(uri)
+                                profileUrl = imageDataSource.downloadImage(uri)
                             )
                         } ?: data.values.first()
                         insertUser(user)
@@ -236,10 +237,5 @@ class ChatRoomRepository @Inject constructor(
 
     private suspend fun insertUser(user: User) {
         userDao.insert(user)
-    }
-
-    private suspend fun downloadImage(location: String): String {
-        val storageRef = FirebaseStorage.getInstance().reference
-        return storageRef.child(location).downloadUrl.await().toString()
     }
 }

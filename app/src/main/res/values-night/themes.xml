@@ -3,5 +3,14 @@
     <style name="Base.Theme.Onoff" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="toolbarNavigationButtonStyle">@style/AppTheme.Actionbar</item>
+    </style>
+
+    <style name="Theme.Onoff" parent="Base.Theme.Onoff" />
+
+    <style name="AppTheme.Actionbar" parent="Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="android:tint">@color/body</item>
     </style>
 </resources>

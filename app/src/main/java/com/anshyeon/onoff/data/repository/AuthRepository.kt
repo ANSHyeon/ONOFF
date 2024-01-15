@@ -2,6 +2,8 @@ package com.anshyeon.onoff.data.repository
 
 import android.net.Uri
 import com.anshyeon.onoff.data.PreferenceManager
+import com.anshyeon.onoff.data.dataSource.ImageDataSource
+import com.anshyeon.onoff.data.dataSource.UserDataSource
 import com.anshyeon.onoff.data.local.dao.ChatRoomInfoDao
 import com.anshyeon.onoff.data.local.dao.MessageDao
 import com.anshyeon.onoff.data.model.User
@@ -12,14 +14,13 @@ import com.anshyeon.onoff.network.extentions.onSuccess
 import com.anshyeon.onoff.network.model.ApiResponse
 import com.anshyeon.onoff.network.model.ApiResultException
 import com.anshyeon.onoff.util.Constants
-import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val fireBaseApiClient: FireBaseApiClient,
     private val preferenceManager: PreferenceManager,
     private val userDataSource: UserDataSource,
+    private val imageDataSource: ImageDataSource,
     private val chatRoomInfoDao: ChatRoomInfoDao,
     private val messageDao: MessageDao,
 ) {
@@ -83,7 +84,7 @@ class AuthRepository @Inject constructor(
         uri: Uri?
     ): ApiResponse<Map<String, String>> {
         return try {
-            val uriLocation = uri?.let { uploadImage(it) }
+            val uriLocation = uri?.let { imageDataSource.uploadImage(it) }
             val user = User(
                 userId = userDataSource.getUid(),
                 nickName = nickname,
@@ -128,7 +129,8 @@ class AuthRepository @Inject constructor(
         userKey: String
     ): ApiResponse<Map<String, String>> {
         return try {
-            val uriLocation = uri?.let { uploadImage(it) } ?: location.ifBlank { null }
+            val uriLocation =
+                uri?.let { imageDataSource.uploadImage(it) } ?: location.ifBlank { null }
             val updates = mapOf(
                 "nickName" to nickname,
                 "profileUri" to uriLocation
@@ -158,11 +160,4 @@ class AuthRepository @Inject constructor(
         messageDao.deleteAll()
     }
 
-    private suspend fun uploadImage(uri: Uri): String {
-        val storageRef = FirebaseStorage.getInstance().reference
-        val location = "images/${uri.lastPathSegment}_${System.currentTimeMillis()}"
-        val imageRef = storageRef.child(location)
-        imageRef.putFile(uri).await()
-        return location
-    }
 }

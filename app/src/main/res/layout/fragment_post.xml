@@ -75,12 +75,11 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_post_send"
-            style="@style/TextTitle18.Bold"
+            style="@style/EnterButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/green"
             android:text="@string/label_post_send_btn"
-            android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

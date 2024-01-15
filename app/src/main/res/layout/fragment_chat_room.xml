@@ -20,15 +20,12 @@
             style="@style/ToolBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:navigationIcon="@drawable/ic_arrow"
-            app:navigationIconTint="@color/white"
             app:titleCentered="true"
             app:titleTextAppearance="@style/TextTitle18.Bold"
-            app:titleTextColor="@color/white"
             tools:title="에버랜드" />
 
         <androidx.recyclerview.widget.RecyclerView

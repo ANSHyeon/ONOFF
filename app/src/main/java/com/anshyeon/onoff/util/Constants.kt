@@ -5,5 +5,6 @@ object Constants {
     const val KEY_USER_EMAIL = "user_email"
     const val KEY_USER_NICKNAME = "user_nick_name"
     const val KEY_USER_PROFILE_URI = "user_profile_uri"
+    const val DATABASE_NAME = "onoff_database"
     const val DELAY_DURATION = 300L
 }
