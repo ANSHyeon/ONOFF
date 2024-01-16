@@ -8,7 +8,7 @@
 # 기술스택
 - Architecture
    * MVVM
-
+- Kotlin Coroutine
 - Jetpack
    * ViewModel
    * LiveData
@@ -23,6 +23,13 @@
    * Moshi
 - Image Loading
    * Coil
+ - DI
+   * Hilt
+ - Firebase
+   * Auth
+   * Realtime DB
+   * Storage
+   * Crashlytics
 - Open API
    * 네이버 지도 API
 
