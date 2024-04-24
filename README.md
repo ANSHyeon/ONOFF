@@ -16,7 +16,7 @@
 | Category  | TechStack |
 | ------------- | ------------- |
 | Architecture  | <img src="https://img.shields.io/badge/MVVM-603B2C"> | 
-| Jetpack | <img src="https://img.shields.io/badge/ViewModel-28456C"> <img src="https://img.shields.io/badge/LiveData-5A5A5A"> <img src="https://img.shields.io/badge/DataBinding-373737"> <img src="https://img.shields.io/badge/Navigation-89632A"> <img src="https://img.shields.io/badge/Room-2B593F"> | 
+| Jetpack | <img src="https://img.shields.io/badge/ViewModel-28456C"> <img src="https://img.shields.io/badge/LiveData-5A5A5A"> <img src="https://img.shields.io/badge/DataBinding-373737"> <img src="https://img.shields.io/badge/Navigation-89632A"> | 
 | Network | <img src="https://img.shields.io/badge/Retrofit-603B2C"> <img src="https://img.shields.io/badge/OkHttp3-492F64">| 
 | Asynchronous | <img src="https://img.shields.io/badge/Coroutine-69314C"> <img src="https://img.shields.io/badge/Flow-89632A"> | 
 | DI | <img src="https://img.shields.io/badge/Hilt-2B593F"> | 
